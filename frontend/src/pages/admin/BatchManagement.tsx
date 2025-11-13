@@ -91,26 +91,11 @@ const AdminBatchManagement: React.FC = () => {
   const fetchBatches = async (courseId: string) => {
     try {
       const response = await batchAPI.getCourseBatches(courseId);
-      // Admin sees all batches, not just active ones
-      const allBatchesResponse = await fetch(
-        `${(import.meta as any).env?.VITE_API_BASE_URL || "https://rass1.onrender.com/api"}/batches/course/${courseId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      const allBatches = await allBatchesResponse.json();
-      setBatches(allBatches);
+      // Admin will now see all batches (both active and inactive) from backend
+      setBatches(response.data);
     } catch (error) {
       console.error("Error fetching batches:", error);
-      // Fallback to regular API if admin endpoint fails
-      try {
-        const response = await batchAPI.getCourseBatches(courseId);
-        setBatches(response.data);
-      } catch (fallbackError) {
-        console.error("Fallback fetch also failed:", fallbackError);
-      }
+      setBatches([]);
     }
   };
 
