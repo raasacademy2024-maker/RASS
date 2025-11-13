@@ -101,15 +101,20 @@ const CourseDetail: React.FC = () => {
     try {
       // Submit enrollment form
       const formResponse = await enrollmentFormAPI.submitForm(formData);
+      console.log("Enrollment form submitted successfully:", formResponse.data);
       
       // Close the form
       setShowEnrollmentForm(false);
+      
+      // Show success message
+      alert("Enrollment form submitted successfully! Proceeding to payment...");
       
       // Proceed with payment
       await processPayment();
     } catch (error: any) {
       console.error("Error submitting enrollment form:", error);
       alert(error.response?.data?.message || "Failed to submit enrollment form");
+      // Keep the form open if submission failed
     }
   };
 
@@ -132,7 +137,7 @@ const CourseDetail: React.FC = () => {
     // 💳 Paid course → Razorpay flow
     try {
       // 1. Create Razorpay order from backend using our API client
-      const orderRes = await fetch(`${(import.meta as any).env?.VITE_API_BASE_URL || "https://rass-h2s1.onrender.com/api"}/payments/order`, {
+      const orderRes = await fetch(`${(import.meta as any).env?.VITE_API_BASE_URL || "https://rass1.onrender.com/api"}/payments/order`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -157,7 +162,7 @@ const CourseDetail: React.FC = () => {
         handler: async function (response: any) {
           try {
             const verifyRes = await fetch(
-              `${(import.meta as any).env?.VITE_API_BASE_URL || "https://rass-h2s1.onrender.com/api"}/payments/verify`,
+              `${(import.meta as any).env?.VITE_API_BASE_URL || "https://rass1.onrender.com/api"}/payments/verify`,
               {
                 method: "POST",
                 headers: {

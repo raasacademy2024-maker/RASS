@@ -19,6 +19,7 @@ import Support from './pages/student/Support';
 import CourseManagement from './pages/instructor/CourseManagement';
 import Students from './pages/instructor/Students';
 import BatchManagement from './pages/instructor/BatchManagement';
+import AdminBatchManagement from './pages/admin/BatchManagement';
 import UserManagement from './pages/admin/UserManagement';
 import SupportManagement from './pages/admin/SupportManagement';
 import SupportTicketsPage from './pages/student/SupportTicketsPage';
@@ -230,6 +231,11 @@ const AppRoutes: React.FC = () => {
         <Route path="/admin/users" element={
           <ProtectedRoute roles={['admin']}>
             <UserManagement />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/batches" element={
+          <ProtectedRoute roles={['admin']}>
+            <AdminBatchManagement />
           </ProtectedRoute>
         } />
         <Route path="/admin/support" element={<AdminTicketsPage />} />

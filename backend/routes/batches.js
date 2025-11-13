@@ -5,13 +5,35 @@ import { authenticate, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Get all batches for a course
+// Get all batches for a course (admin can see all, others see only active)
 router.get('/course/:courseId', async (req, res) => {
   try {
-    const batches = await Batch.find({ 
-      course: req.params.courseId,
-      isActive: true 
-    })
+    const query = { course: req.params.courseId };
+    
+    // Check if request is authenticated and if user is admin
+    // Non-admin users and unauthenticated requests only see active batches
+    const token = req.headers.authorization?.split(' ')[1];
+    let isAdmin = false;
+    
+    if (token) {
+      try {
+        const jwt = await import('jsonwebtoken');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+        const User = (await import('../models/User.js')).default;
+        const user = await User.findById(decoded.userId);
+        isAdmin = user?.role === 'admin';
+      } catch (err) {
+        // Token invalid or expired, treat as non-admin
+        isAdmin = false;
+      }
+    }
+    
+    // Non-admin users only see active batches
+    if (!isAdmin) {
+      query.isActive = true;
+    }
+    
+    const batches = await Batch.find(query)
       .populate('course', 'title instructor')
       .sort({ startDate: 1 });
 
