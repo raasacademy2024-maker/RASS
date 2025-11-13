@@ -1,6 +1,7 @@
 import express from 'express';
 import Course from '../models/Course.js';
 import Enrollment from '../models/Enrollment.js';
+import User from '../models/User.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -71,7 +72,7 @@ router.post('/', async (req, res) => {
     res.status(201).json(course);
   } catch (error) {
     console.error(error);
-    res.status(200).json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 
