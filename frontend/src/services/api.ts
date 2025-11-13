@@ -80,12 +80,26 @@ export const courseAPI = {
 
 /* ---------------- ENROLLMENTS ---------------- */
 export const enrollmentAPI = {
-  enrollInCourse: (courseId: string) =>
-    apiClient.post("/enrollments", { courseId }),
+  enrollInCourse: (courseId: string, batchId?: string) =>
+    apiClient.post("/enrollments", { courseId, batchId }),
   getMyEnrollments: () => apiClient.get("/enrollments/my-courses"),
   updateProgress: (data: any) => apiClient.post("/enrollments/progress", data),
   getCourseEnrollments: (courseId: string) =>
     apiClient.get(`/enrollments/course/${courseId}`),
+};
+
+/* ---------------- BATCHES ---------------- */
+export const batchAPI = {
+  getCourseBatches: (courseId: string) =>
+    apiClient.get(`/batches/course/${courseId}`),
+  getBatch: (batchId: string) =>
+    apiClient.get(`/batches/${batchId}`),
+  createBatch: (data: any) =>
+    apiClient.post("/batches", data),
+  updateBatch: (batchId: string, data: any) =>
+    apiClient.put(`/batches/${batchId}`, data),
+  deleteBatch: (batchId: string) =>
+    apiClient.delete(`/batches/${batchId}`),
 };
 
 // ✅ New Enrollment Form API
