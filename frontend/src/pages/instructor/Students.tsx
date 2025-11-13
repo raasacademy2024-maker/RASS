@@ -219,6 +219,11 @@ const Students: React.FC = () => {
                             <p className="text-sm text-gray-600">
                               {getStudentEmail(enr.student)}
                             </p>
+                            {enr.batch && typeof enr.batch === 'object' && (
+                              <p className="text-xs text-indigo-600 mt-1">
+                                📅 Batch: {(enr.batch as any).name}
+                              </p>
+                            )}
                           </div>
                         </div>
 

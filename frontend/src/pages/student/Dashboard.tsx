@@ -227,7 +227,7 @@ const StudentDashboard: React.FC = () => {
                   const course =
                     typeof e.course === "string" ? { _id: e.course } : e.course;
                   return (
-                    <motion.div
+                     <motion.div
                       key={e._id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -240,9 +240,19 @@ const StudentDashboard: React.FC = () => {
                           <h3 className="font-bold text-gray-900 text-lg mb-2 line-clamp-2">
                             {(course as any).title}
                           </h3>
-                          <p className="text-sm text-gray-600 mb-4">
+                          <p className="text-sm text-gray-600 mb-2">
                             by {(course as any).instructor?.name}
                           </p>
+                          {e.batch && typeof e.batch === 'object' && (
+                            <div className="mb-3 px-3 py-2 bg-indigo-50 border border-indigo-200 rounded-lg">
+                              <p className="text-xs font-medium text-indigo-700">
+                                📅 Batch: {(e.batch as any).name}
+                              </p>
+                              <p className="text-xs text-indigo-600 mt-1">
+                                {new Date((e.batch as any).startDate).toLocaleDateString()} - {new Date((e.batch as any).endDate).toLocaleDateString()}
+                              </p>
+                            </div>
+                          )}
                           <div className="space-y-2">
                             <div className="flex items-center justify-between text-sm">
                               <span className="text-gray-600">Progress</span>
