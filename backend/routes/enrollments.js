@@ -12,7 +12,7 @@ router.post('/', authenticate, async (req, res) => {
     console.log("User ID:", req.user._id);
     console.log("Request body:", JSON.stringify(req.body, null, 2));
     
-    const { courseId } = req.body;
+    const { courseId, batchId } = req.body;
     
     // Validate required fields
     if (!courseId) {
@@ -39,6 +39,29 @@ router.post('/', authenticate, async (req, res) => {
     }
     console.log("Course found:", course.title, "Modules count:", course.modules?.length || 0);
 
+    // Handle batch enrollment if batchId is provided
+    let batch = null;
+    if (batchId) {
+      const Batch = (await import('../models/Batch.js')).default;
+      batch = await Batch.findById(batchId);
+      
+      if (!batch) {
+        return res.status(404).json({ message: 'Batch not found' });
+      }
+
+      if (batch.course.toString() !== courseId) {
+        return res.status(400).json({ message: 'Batch does not belong to this course' });
+      }
+
+      if (!batch.isActive) {
+        return res.status(400).json({ message: 'Batch is not active' });
+      }
+
+      if (!batch.hasAvailableSlots()) {
+        return res.status(400).json({ message: 'Batch is full' });
+      }
+    }
+
     // Create enrollment with progress tracking
     let progressData = [];
     if (course.modules && Array.isArray(course.modules)) {
@@ -58,6 +81,7 @@ router.post('/', authenticate, async (req, res) => {
     const enrollment = new Enrollment({
       student: req.user._id,
       course: courseId,
+      batch: batchId || null,
       progress: progressData
     });
     console.log("Enrollment object created with progress items:", enrollment.progress.length);
@@ -69,6 +93,13 @@ router.post('/', authenticate, async (req, res) => {
     course.enrollmentCount += 1;
     await course.save();
     console.log("Course enrollment count updated");
+
+    // Update batch enrollment count if batch enrollment
+    if (batch) {
+      batch.enrolledCount += 1;
+      await batch.save();
+      console.log("Batch enrollment count updated");
+    }
 
     // Add to user's enrolled courses
     req.user.enrolledCourses.push(courseId);
@@ -105,6 +136,7 @@ router.get('/my-courses', authenticate, async (req, res) => {
          select: 'name _id role' // include id + role
        }
      })
+     .populate('batch', 'name startDate endDate capacity enrolledCount')
       .sort({ enrolledAt: -1 });
 
     res.json(enrollments);
@@ -173,10 +205,11 @@ router.get(
         return res.status(403).json({ message: "Not authorized" });
       }
 
-      // ✅ Populate student details (id, name, email)
+      // ✅ Populate student details (id, name, email) and batch info
       const enrollments = await Enrollment.find({ course: courseId })
         .populate("student", "name email") // force populate student
-        .populate("course", "title instructor");
+        .populate("course", "title instructor")
+        .populate("batch", "name startDate endDate");
 
       res.json(enrollments);
     } catch (error) {

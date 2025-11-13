@@ -1,11 +1,22 @@
-import React, { useState } from "react";
-import { X, User, Mail, Phone, GraduationCap, Briefcase } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { X, User, Mail, Phone, GraduationCap, Briefcase, Calendar } from "lucide-react";
 import { countryCodes } from "../../utils/countryCodes";
+import { batchAPI } from "../../services/api";
 
 interface EnrollmentFormProps {
   course: any;
   onSubmit: (formData: any) => Promise<void>;
   onCancel: () => void;
+}
+
+interface Batch {
+  _id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  capacity: number;
+  enrolledCount: number;
+  isActive: boolean;
 }
 
 const EnrollmentForm: React.FC<EnrollmentFormProps> = ({ course, onSubmit, onCancel }) => {
@@ -17,9 +28,34 @@ const EnrollmentForm: React.FC<EnrollmentFormProps> = ({ course, onSubmit, onCan
     hasPriorExperience: "no",
     experienceDetails: "",
     isStudent: "yes",
+    batchId: "",
   });
+  const [batches, setBatches] = useState<Batch[]>([]);
+  const [loadingBatches, setLoadingBatches] = useState(true);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (course?._id) {
+      fetchBatches();
+    }
+  }, [course]);
+
+  const fetchBatches = async () => {
+    try {
+      setLoadingBatches(true);
+      const response = await batchAPI.getCourseBatches(course._id);
+      const activeBatches = response.data.filter((b: Batch) => 
+        b.isActive && b.enrolledCount < b.capacity
+      );
+      setBatches(activeBatches);
+    } catch (error) {
+      console.error("Error fetching batches:", error);
+      setBatches([]);
+    } finally {
+      setLoadingBatches(false);
+    }
+  };
 
   const validatePhone = (phone: string): boolean => {
     const selectedCountry = countryCodes.find(c => c.code === formData.countryCode);
@@ -118,6 +154,34 @@ const EnrollmentForm: React.FC<EnrollmentFormProps> = ({ course, onSubmit, onCan
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div className="space-y-6">
+            {/* Batch Selection */}
+            {batches.length > 0 && (
+              <div className="relative">
+                <label htmlFor="batchId" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
+                  <Calendar className="h-4 w-4 mr-2 text-indigo-600" />
+                  Select Batch
+                </label>
+                {loadingBatches ? (
+                  <div className="text-sm text-gray-500">Loading batches...</div>
+                ) : (
+                  <select
+                    id="batchId"
+                    name="batchId"
+                    value={formData.batchId}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors"
+                  >
+                    <option value="">No specific batch (open enrollment)</option>
+                    {batches.map((batch) => (
+                      <option key={batch._id} value={batch._id}>
+                        {batch.name} ({new Date(batch.startDate).toLocaleDateString()} - {new Date(batch.endDate).toLocaleDateString()}) - {batch.capacity - batch.enrolledCount} slots available
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            )}
+
             {/* Full Name */}
             <div className="relative">
               <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2 flex items-center">
