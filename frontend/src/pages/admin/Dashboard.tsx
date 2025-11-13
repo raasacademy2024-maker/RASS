@@ -314,6 +314,13 @@ const AdminDashboard: React.FC = () => {
               color: "bg-indigo-100",
               action: () => navigate("/admin/enrollments"),
             },
+            {
+              title: "Batch Management",
+              desc: "Create and manage course batches",
+              icon: <Users className="h-6 w-6 text-teal-600" />,
+              color: "bg-teal-100",
+              action: () => navigate("/admin/batches"),
+            },
           ].map((action, i) => (
             <motion.button
               key={i}
