@@ -23,9 +23,13 @@ import studentRoutes from "./routes/student.js";
 import StudentAmbassadorForm from './routes/StudentAmbassadorForm.js';
 import CompanyPartnershipForm from './routes/CompanyPartnershipForm.js';
 import universityPartnershipRoutes from "./routes/universityPartnership.js";
-
-
-
+import attendanceRoutes from './routes/attendance.js';
+import videoNoteRoutes from './routes/videoNotes.js';
+import quizRoutes from './routes/quizzes.js';
+import scheduleRoutes from './routes/schedules.js';
+import announcementRoutes from './routes/announcements.js';
+import doubtRoutes from './routes/doubts.js';
+import analyticsRoutes from './routes/analytics.js';
 
 
 dotenv.config();
@@ -58,8 +62,13 @@ app.use("/api/student", studentRoutes);
 app.use("/api/student-ambassador-form", StudentAmbassadorForm);
 app.use("/api/company-partnership", CompanyPartnershipForm);
 app.use("/api/university-partnership", universityPartnershipRoutes);
-
-
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/video-notes', videoNoteRoutes);
+app.use('/api/quizzes', quizRoutes);
+app.use('/api/schedules', scheduleRoutes);
+app.use('/api/announcements', announcementRoutes);
+app.use('/api/doubts', doubtRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 
 // Add logging for all requests
