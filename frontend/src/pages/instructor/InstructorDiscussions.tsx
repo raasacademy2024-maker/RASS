@@ -13,6 +13,8 @@ interface Post {
   author: { _id: string; name: string };
   createdAt: string;
   replies?: Reply[];
+  batch?: { _id: string; name: string };
+  category?: string;
 }
 
 interface Reply {
@@ -179,7 +181,14 @@ const handleCreatePost = async () => {
                         onClick={() => toggleExpand(post._id)}
                       >
                         <div>
-                          <h3 className="font-semibold text-lg text-gray-900">{post.title}</h3>
+                          <div className="flex items-center gap-2 mb-1">
+                            <h3 className="font-semibold text-lg text-gray-900">{post.title}</h3>
+                            {post.batch && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                📚 {post.batch.name}
+                              </span>
+                            )}
+                          </div>
                           <p className="text-gray-600">{post.content}</p>
                           <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
                             <MessageCircle className="h-3 w-3" />
