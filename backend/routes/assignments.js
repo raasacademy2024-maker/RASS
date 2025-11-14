@@ -6,11 +6,20 @@ import Enrollment from "../models/Enrollment.js";
 
 const router = express.Router();
 
-// 🔹 Get assignments for a course
+// 🔹 Get assignments for a course (with optional batch filter)
 router.get('/course/:courseId', authenticate, async (req, res) => {
   try {
-    const assignments = await Assignment.find({ course: req.params.courseId })
-      .populate('submissions.student', '_id name email');
+    const { batchId } = req.query;
+    const query = { course: req.params.courseId };
+    
+    // Filter by batch if provided
+    if (batchId) {
+      query.batch = batchId;
+    }
+    
+    const assignments = await Assignment.find(query)
+      .populate('submissions.student', '_id name email')
+      .populate('batch', 'name startDate endDate');
 
     res.json(assignments);
   } catch (error) {
@@ -24,8 +33,14 @@ router.post('/', authenticate, authorize('instructor', 'admin'), async (req, res
     const assignment = new Assignment(req.body);
     await assignment.save();
 
-    // Notify all students enrolled in this course
-    const enrollments = await Enrollment.find({ course: assignment.course });
+    // Notify students enrolled in this course
+    // If batch is specified, only notify students in that batch
+    const query = { course: assignment.course };
+    if (assignment.batch) {
+      query.batch = assignment.batch;
+    }
+    
+    const enrollments = await Enrollment.find(query);
     for (const e of enrollments) {
       await Notification.create({
         recipient: e.student,
@@ -83,6 +98,20 @@ router.post('/:id/submit', authenticate, async (req, res) => {
     let assignment = await Assignment.findById(req.params.id);
     if (!assignment) {
       return res.status(404).json({ message: 'Assignment not found' });
+    }
+
+    // Verify student is enrolled in the course (and batch if specified)
+    const enrollmentQuery = {
+      student: req.user._id,
+      course: assignment.course
+    };
+    if (assignment.batch) {
+      enrollmentQuery.batch = assignment.batch;
+    }
+    
+    const enrollment = await Enrollment.findOne(enrollmentQuery);
+    if (!enrollment) {
+      return res.status(403).json({ message: 'Not enrolled in this course/batch' });
     }
 
     // Check if student already submitted

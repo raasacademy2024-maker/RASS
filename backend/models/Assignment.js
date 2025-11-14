@@ -39,6 +39,10 @@ const assignmentSchema = new mongoose.Schema({
     ref: 'Course',
     required: true
   },
+  batch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Batch'
+  },
   module: {
     type: mongoose.Schema.Types.ObjectId,
     required: false

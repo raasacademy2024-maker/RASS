@@ -11,6 +11,7 @@ router.get('/my-certificates', authenticate, async (req, res) => {
     const certificates = await Certificate.find({ student: req.user._id })
       .populate('course', 'title instructor')
       .populate('course.instructor', 'name')
+      .populate('batch', 'name startDate endDate')
       .sort({ issuedAt: -1 });
 
     res.json(certificates);
@@ -38,17 +39,19 @@ router.post('/generate', authenticate, async (req, res) => {
     // Check if certificate already exists
     const existingCertificate = await Certificate.findOne({
       student: req.user._id,
-      course: courseId
+      course: courseId,
+      batch: enrollment.batch || null
     });
 
     if (existingCertificate) {
       return res.status(400).json({ message: 'Certificate already issued' });
     }
 
-    // Create certificate
+    // Create certificate (include batch if enrollment has one)
     const certificate = new Certificate({
       student: req.user._id,
       course: courseId,
+      batch: enrollment.batch,
       completionDate: enrollment.completedAt,
       certificateUrl: `https://certificates.rassacademy.com/${req.user._id}/${courseId}`
     });
@@ -72,7 +75,8 @@ router.get('/verify/:certificateId', async (req, res) => {
     const certificate = await Certificate.findOne({ certificateId: req.params.certificateId })
       .populate('student', 'name email')
       .populate('course', 'title instructor')
-      .populate('course.instructor', 'name');
+      .populate('course.instructor', 'name')
+      .populate('batch', 'name startDate endDate');
 
     if (!certificate) {
       return res.status(404).json({ message: 'Certificate not found' });

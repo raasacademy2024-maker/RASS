@@ -7,17 +7,19 @@ import User from '../models/User.js';
 
 const router = express.Router();
 
-// 📌 Get forum posts for a course (with optional category filter)
+// 📌 Get forum posts for a course (with optional category and batch filter)
 router.get('/course/:courseId', authenticate, async (req, res) => {
   try {
-    const { category } = req.query;
+    const { category, batchId } = req.query;
     let query = { course: req.params.courseId };
 
     if (category) query.category = category;
+    if (batchId) query.batch = batchId;
 
     const posts = await Forum.find(query)
       .populate('author', 'name profile.avatar role')
       .populate('replies.author', 'name profile.avatar role')
+      .populate('batch', 'name')
       .sort({ isPinned: -1, createdAt: -1 });
 
     res.json(posts);
@@ -31,7 +33,8 @@ router.get('/:id', authenticate, async (req, res) => {
   try {
     const post = await Forum.findById(req.params.id)
       .populate('author', 'name profile.avatar role')
-      .populate('replies.author', 'name profile.avatar role');
+      .populate('replies.author', 'name profile.avatar role')
+      .populate('batch', 'name');
 
     if (!post) return res.status(404).json({ message: 'Forum post not found' });
     res.json(post);
@@ -48,12 +51,27 @@ router.post('/', authenticate, async (req, res) => {
       author: req.user._id
     });
 
+    // Verify user is enrolled in the course (and batch if specified)
+    const enrollmentQuery = {
+      student: req.user._id,
+      course: forumPost.course
+    };
+    if (forumPost.batch) {
+      enrollmentQuery.batch = forumPost.batch;
+    }
+    
+    const enrollment = await Enrollment.findOne(enrollmentQuery);
+    if (!enrollment && req.user.role === 'student') {
+      return res.status(403).json({ message: 'Not enrolled in this course/batch' });
+    }
+
     await forumPost.save();
 
     // Ensure proper population of all fields
     const populatedPost = await Forum.findById(forumPost._id)
       .populate('author', 'name profile.avatar role')
-      .populate('replies.author', 'name profile.avatar role');
+      .populate('replies.author', 'name profile.avatar role')
+      .populate('batch', 'name');
 
     // 🔔 Notifications code remains the same...
 
@@ -67,6 +85,7 @@ router.post('/', authenticate, async (req, res) => {
         name: populatedPost.author.name
       },
       course: populatedPost.course,
+      batch: populatedPost.batch,
       category: populatedPost.category,
       replies: populatedPost.replies || [],
       createdAt: populatedPost.createdAt,

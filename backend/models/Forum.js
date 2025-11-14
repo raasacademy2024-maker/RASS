@@ -39,6 +39,10 @@ const forumSchema = new mongoose.Schema({
     ref: 'Course',
     required: true
   },
+  batch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Batch'
+  },
   category: {
     type: String,
     enum: ['general', 'assignment', 'technical', 'announcement'],
