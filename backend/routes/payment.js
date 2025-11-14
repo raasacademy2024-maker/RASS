@@ -20,9 +20,24 @@ const razorpay = new Razorpay({
 // ----------------------
 router.post("/order", authenticate, async (req, res) => {
   try {
+    console.log("=== Create Payment Order Request ===");
+    console.log("User ID:", req.user._id);
+    console.log("Course ID:", req.body.courseId);
+    
     const { courseId } = req.body;
+    
+    if (!courseId) {
+      console.log("Course ID is missing");
+      return res.status(400).json({ message: "Course ID is required" });
+    }
+    
     const course = await Course.findById(courseId);
-    if (!course) return res.status(404).json({ message: "Course not found" });
+    if (!course) {
+      console.log("Course not found:", courseId);
+      return res.status(404).json({ message: "Course not found" });
+    }
+    
+    console.log("Course found:", course.title, "Price:", course.price);
 
     const options = {
       amount: course.price * 100, // INR → paise
@@ -30,11 +45,19 @@ router.post("/order", authenticate, async (req, res) => {
       receipt: `receipt_${Date.now()}`,
     };
 
+    console.log("Creating Razorpay order with options:", options);
     const order = await razorpay.orders.create(options);
+    console.log("Razorpay order created successfully:", order.id);
+    
     res.json({ order, course });
   } catch (err) {
     console.error("Error creating order:", err);
-    res.status(500).json({ message: "Error creating order" });
+    console.error("Error details:", err.message);
+    console.error("Error stack:", err.stack);
+    res.status(500).json({ 
+      message: "Error creating order", 
+      error: err.message || "Unknown error"
+    });
   }
 });
 
@@ -43,12 +66,28 @@ router.post("/order", authenticate, async (req, res) => {
 // ----------------------
 router.post("/event-order", authenticate, async (req, res) => {
   try {
+    console.log("=== Create Event Payment Order Request ===");
+    console.log("User ID:", req.user._id);
+    console.log("Event ID:", req.body.eventId);
+    
     const { eventId } = req.body;
+    
+    if (!eventId) {
+      console.log("Event ID is missing");
+      return res.status(400).json({ message: "Event ID is required" });
+    }
+    
     const event = await Event.findById(eventId);
-    if (!event) return res.status(404).json({ message: "Event not found" });
+    if (!event) {
+      console.log("Event not found:", eventId);
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    console.log("Event found:", event.title, "Type:", event.type, "Price:", event.price);
 
     // Only paid events can have orders
     if (event.type !== "Paid") {
+      console.log("Event is not paid type:", event.type);
       return res.status(400).json({ message: "Only paid events can have payment orders" });
     }
 
@@ -58,11 +97,19 @@ router.post("/event-order", authenticate, async (req, res) => {
       receipt: `event_receipt_${Date.now()}`,
     };
 
+    console.log("Creating Razorpay order with options:", options);
     const order = await razorpay.orders.create(options);
+    console.log("Razorpay order created successfully:", order.id);
+    
     res.json({ order, event });
   } catch (err) {
     console.error("Error creating event order:", err);
-    res.status(500).json({ message: "Error creating event order" });
+    console.error("Error details:", err.message);
+    console.error("Error stack:", err.stack);
+    res.status(500).json({ 
+      message: "Error creating event order", 
+      error: err.message || "Unknown error"
+    });
   }
 });
 
