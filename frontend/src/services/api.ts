@@ -106,6 +106,17 @@ export const batchAPI = {
     apiClient.put(`/batches/${batchId}`, data),
   deleteBatch: (batchId: string) =>
     apiClient.delete(`/batches/${batchId}`),
+  // Advanced batch operations
+  transferStudents: (batchId: string, studentIds: string[], targetBatchId: string) =>
+    apiClient.post(`/batches/${batchId}/transfer-students`, { studentIds, targetBatchId }),
+  mergeBatches: (sourceBatchId: string, targetBatchId: string) =>
+    apiClient.post(`/batches/${sourceBatchId}/merge`, { targetBatchId }),
+  archiveBatch: (batchId: string) =>
+    apiClient.post(`/batches/${batchId}/archive`),
+  restoreBatch: (batchId: string) =>
+    apiClient.post(`/batches/${batchId}/restore`),
+  getBatchAnalytics: (batchId: string) =>
+    apiClient.get(`/batches/${batchId}/analytics`),
 };
 
 // ✅ New Enrollment Form API

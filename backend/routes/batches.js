@@ -293,4 +293,403 @@ router.get('/course/:courseId/stats', authenticate, authorize('instructor', 'adm
   }
 });
 
+// Transfer students from one batch to another (admin/instructor only)
+router.post('/:id/transfer-students', authenticate, authorize('instructor', 'admin'), async (req, res) => {
+  try {
+    const { studentIds, targetBatchId } = req.body;
+
+    if (!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) {
+      return res.status(400).json({ message: 'Student IDs array is required' });
+    }
+
+    if (!targetBatchId) {
+      return res.status(400).json({ message: 'Target batch ID is required' });
+    }
+
+    // Get source and target batches
+    const sourceBatch = await Batch.findById(req.params.id).populate('course');
+    const targetBatch = await Batch.findById(targetBatchId).populate('course');
+
+    if (!sourceBatch) {
+      return res.status(404).json({ message: 'Source batch not found' });
+    }
+
+    if (!targetBatch) {
+      return res.status(404).json({ message: 'Target batch not found' });
+    }
+
+    // Verify both batches belong to the same course
+    if (sourceBatch.course._id.toString() !== targetBatch.course._id.toString()) {
+      return res.status(400).json({ message: 'Batches must belong to the same course' });
+    }
+
+    // Check authorization
+    if (req.user.role !== 'admin' && sourceBatch.course.instructor.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to transfer students' });
+    }
+
+    // Check target batch has capacity
+    const availableSlots = targetBatch.capacity - targetBatch.enrolledCount;
+    if (availableSlots < studentIds.length) {
+      return res.status(400).json({ 
+        message: `Target batch has only ${availableSlots} available slots, but ${studentIds.length} students need to be transferred` 
+      });
+    }
+
+    // Check if target batch is active
+    if (!targetBatch.isActive) {
+      return res.status(400).json({ message: 'Target batch is not active' });
+    }
+
+    const Enrollment = (await import('../models/Enrollment.js')).default;
+
+    // Transfer enrollments
+    const result = await Enrollment.updateMany(
+      {
+        student: { $in: studentIds },
+        batch: req.params.id,
+        course: sourceBatch.course._id
+      },
+      {
+        $set: { batch: targetBatchId }
+      }
+    );
+
+    // Update batch enrollment counts
+    sourceBatch.enrolledCount -= result.modifiedCount;
+    targetBatch.enrolledCount += result.modifiedCount;
+
+    await sourceBatch.save();
+    await targetBatch.save();
+
+    res.json({
+      message: `Successfully transferred ${result.modifiedCount} students`,
+      transferredCount: result.modifiedCount,
+      sourceBatch: {
+        _id: sourceBatch._id,
+        name: sourceBatch.name,
+        enrolledCount: sourceBatch.enrolledCount
+      },
+      targetBatch: {
+        _id: targetBatch._id,
+        name: targetBatch.name,
+        enrolledCount: targetBatch.enrolledCount
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Merge two batches (admin only)
+router.post('/:id/merge', authenticate, authorize('admin'), async (req, res) => {
+  try {
+    const { targetBatchId } = req.body;
+
+    if (!targetBatchId) {
+      return res.status(400).json({ message: 'Target batch ID is required' });
+    }
+
+    const sourceBatch = await Batch.findById(req.params.id).populate('course');
+    const targetBatch = await Batch.findById(targetBatchId).populate('course');
+
+    if (!sourceBatch || !targetBatch) {
+      return res.status(404).json({ message: 'One or both batches not found' });
+    }
+
+    // Verify both batches belong to the same course
+    if (sourceBatch.course._id.toString() !== targetBatch.course._id.toString()) {
+      return res.status(400).json({ message: 'Batches must belong to the same course' });
+    }
+
+    // Check if merge would exceed target batch capacity
+    const totalEnrollments = sourceBatch.enrolledCount + targetBatch.enrolledCount;
+    if (totalEnrollments > targetBatch.capacity) {
+      return res.status(400).json({ 
+        message: `Merge would exceed target batch capacity. Total: ${totalEnrollments}, Capacity: ${targetBatch.capacity}. Please increase target batch capacity first.` 
+      });
+    }
+
+    const Enrollment = (await import('../models/Enrollment.js')).default;
+    const Assignment = (await import('../models/Assignment.js')).default;
+    const Attendance = (await import('../models/Attendance.js')).default;
+    const Announcement = (await import('../models/Announcement.js')).default;
+
+    // Move all enrollments to target batch
+    const enrollmentResult = await Enrollment.updateMany(
+      { batch: req.params.id },
+      { $set: { batch: targetBatchId } }
+    );
+
+    // Update batch-specific content
+    await Assignment.updateMany(
+      { batch: req.params.id },
+      { $set: { batch: targetBatchId } }
+    );
+
+    await Attendance.updateMany(
+      { batch: req.params.id },
+      { $set: { batch: targetBatchId } }
+    );
+
+    // Update announcements (replace batch reference)
+    await Announcement.updateMany(
+      { batches: req.params.id },
+      { 
+        $pull: { batches: req.params.id },
+        $addToSet: { batches: targetBatchId }
+      }
+    );
+
+    // Update target batch enrollment count
+    targetBatch.enrolledCount = totalEnrollments;
+    await targetBatch.save();
+
+    // Delete source batch
+    await Batch.findByIdAndDelete(req.params.id);
+
+    res.json({
+      message: `Successfully merged batches. ${enrollmentResult.modifiedCount} students moved.`,
+      mergedStudents: enrollmentResult.modifiedCount,
+      targetBatch: {
+        _id: targetBatch._id,
+        name: targetBatch.name,
+        enrolledCount: targetBatch.enrolledCount,
+        capacity: targetBatch.capacity
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Archive a batch (admin/instructor only)
+router.post('/:id/archive', authenticate, authorize('instructor', 'admin'), async (req, res) => {
+  try {
+    const batch = await Batch.findById(req.params.id).populate('course');
+    
+    if (!batch) {
+      return res.status(404).json({ message: 'Batch not found' });
+    }
+
+    // Check if instructor owns the course (unless admin)
+    if (req.user.role !== 'admin' && batch.course.instructor.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to archive this batch' });
+    }
+
+    batch.isActive = false;
+    await batch.save();
+
+    res.json({
+      message: 'Batch archived successfully',
+      batch: {
+        _id: batch._id,
+        name: batch.name,
+        isActive: batch.isActive
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Restore (unarchive) a batch (admin/instructor only)
+router.post('/:id/restore', authenticate, authorize('instructor', 'admin'), async (req, res) => {
+  try {
+    const batch = await Batch.findById(req.params.id).populate('course');
+    
+    if (!batch) {
+      return res.status(404).json({ message: 'Batch not found' });
+    }
+
+    // Check if instructor owns the course (unless admin)
+    if (req.user.role !== 'admin' && batch.course.instructor.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to restore this batch' });
+    }
+
+    batch.isActive = true;
+    await batch.save();
+
+    res.json({
+      message: 'Batch restored successfully',
+      batch: {
+        _id: batch._id,
+        name: batch.name,
+        isActive: batch.isActive
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get comprehensive batch analytics (admin/instructor only)
+router.get('/:id/analytics', authenticate, authorize('instructor', 'admin'), async (req, res) => {
+  try {
+    const batch = await Batch.findById(req.params.id).populate('course');
+    
+    if (!batch) {
+      return res.status(404).json({ message: 'Batch not found' });
+    }
+
+    // Check if instructor owns the course (unless admin)
+    if (req.user.role !== 'admin' && batch.course.instructor.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to view this batch' });
+    }
+
+    const Enrollment = (await import('../models/Enrollment.js')).default;
+    const Assignment = (await import('../models/Assignment.js')).default;
+    const Attendance = (await import('../models/Attendance.js')).default;
+    const Quiz = (await import('../models/Quiz.js')).default;
+    const LiveSession = (await import('../models/LiveSession.js')).default;
+
+    // Get enrollments with student details
+    const enrollments = await Enrollment.find({ batch: req.params.id })
+      .populate('student', 'name email')
+      .populate('course', 'title modules');
+
+    // Calculate progress statistics
+    const progressStats = enrollments.map(e => e.completionPercentage || 0);
+    const averageProgress = progressStats.length > 0
+      ? progressStats.reduce((sum, p) => sum + p, 0) / progressStats.length
+      : 0;
+
+    const completedStudents = enrollments.filter(e => e.completed).length;
+    const inProgressStudents = enrollments.length - completedStudents;
+
+    // Get assignment statistics
+    const assignments = await Assignment.find({ 
+      course: batch.course._id, 
+      batch: req.params.id 
+    });
+
+    const totalAssignments = assignments.length;
+    const assignmentSubmissions = assignments.reduce((sum, a) => sum + a.submissions.length, 0);
+    const assignmentGraded = assignments.reduce((sum, a) => {
+      return sum + a.submissions.filter(s => s.grade !== undefined).length;
+    }, 0);
+
+    // Get attendance statistics
+    const attendanceRecords = await Attendance.find({ 
+      batch: req.params.id 
+    });
+
+    const totalAttendanceSessions = attendanceRecords.length;
+    const attendanceStats = attendanceRecords.reduce((acc, record) => {
+      const stats = record.getStatistics();
+      return {
+        totalRecords: acc.totalRecords + stats.total,
+        present: acc.present + stats.present,
+        absent: acc.absent + stats.absent,
+        late: acc.late + stats.late
+      };
+    }, { totalRecords: 0, present: 0, absent: 0, late: 0 });
+
+    const attendancePercentage = attendanceStats.totalRecords > 0
+      ? Math.round((attendanceStats.present / attendanceStats.totalRecords) * 100)
+      : 0;
+
+    // Get quiz statistics
+    const quizzes = await Quiz.find({ 
+      course: batch.course._id, 
+      batch: req.params.id 
+    });
+
+    const totalQuizzes = quizzes.length;
+    const quizAttempts = quizzes.reduce((sum, q) => sum + q.attempts.length, 0);
+    const averageQuizScore = quizzes.reduce((sum, q) => {
+      const scores = q.attempts.map(a => a.score || 0);
+      const avg = scores.length > 0 ? scores.reduce((s, sc) => s + sc, 0) / scores.length : 0;
+      return sum + avg;
+    }, 0) / (totalQuizzes || 1);
+
+    // Get live session statistics
+    const liveSessions = await LiveSession.find({ 
+      course: batch.course._id, 
+      batch: req.params.id 
+    });
+
+    const totalSessions = liveSessions.length;
+    const upcomingSessions = liveSessions.filter(s => new Date(s.scheduledAt) > new Date()).length;
+    const completedSessions = liveSessions.filter(s => s.status === 'completed').length;
+
+    // Top performers (by progress)
+    const topPerformers = enrollments
+      .filter(e => e.student)
+      .sort((a, b) => (b.completionPercentage || 0) - (a.completionPercentage || 0))
+      .slice(0, 10)
+      .map(e => ({
+        studentId: e.student._id,
+        name: e.student.name,
+        email: e.student.email,
+        progress: e.completionPercentage || 0,
+        completed: e.completed,
+        enrolledAt: e.enrolledAt
+      }));
+
+    // At-risk students (progress < 30%)
+    const atRiskStudents = enrollments
+      .filter(e => e.student && (e.completionPercentage || 0) < 30)
+      .map(e => ({
+        studentId: e.student._id,
+        name: e.student.name,
+        email: e.student.email,
+        progress: e.completionPercentage || 0,
+        enrolledAt: e.enrolledAt
+      }));
+
+    res.json({
+      batch: {
+        _id: batch._id,
+        name: batch.name,
+        startDate: batch.startDate,
+        endDate: batch.endDate,
+        capacity: batch.capacity,
+        enrolledCount: batch.enrolledCount,
+        isActive: batch.isActive,
+        description: batch.description
+      },
+      course: {
+        _id: batch.course._id,
+        title: batch.course.title
+      },
+      enrollment: {
+        total: enrollments.length,
+        completed: completedStudents,
+        inProgress: inProgressStudents,
+        averageProgress: Math.round(averageProgress),
+        availableSlots: batch.capacity - batch.enrolledCount
+      },
+      assignments: {
+        total: totalAssignments,
+        submissions: assignmentSubmissions,
+        graded: assignmentGraded,
+        pending: assignmentSubmissions - assignmentGraded
+      },
+      attendance: {
+        totalSessions: totalAttendanceSessions,
+        totalRecords: attendanceStats.totalRecords,
+        present: attendanceStats.present,
+        absent: attendanceStats.absent,
+        late: attendanceStats.late,
+        attendancePercentage
+      },
+      quizzes: {
+        total: totalQuizzes,
+        attempts: quizAttempts,
+        averageScore: Math.round(averageQuizScore)
+      },
+      liveSessions: {
+        total: totalSessions,
+        upcoming: upcomingSessions,
+        completed: completedSessions
+      },
+      topPerformers,
+      atRiskStudents
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;
