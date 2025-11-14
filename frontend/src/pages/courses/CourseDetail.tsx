@@ -146,9 +146,20 @@ const CourseDetail: React.FC = () => {
         body: JSON.stringify({ courseId: course._id }),
       });
 
-      const { order } = await orderRes.json();
+      // Check if the response is successful
+      if (!orderRes.ok) {
+        const errorData = await orderRes.json();
+        console.error("Payment order creation failed:", errorData);
+        alert(`Failed to create payment order: ${errorData.message || "Unknown error"}`);
+        return;
+      }
+
+      const responseData = await orderRes.json();
+      const { order } = responseData;
+      
       if (!order) {
-        alert("Failed to create payment order");
+        console.error("No order in response:", responseData);
+        alert("Failed to create payment order: No order data received");
         return;
       }
 
@@ -177,6 +188,13 @@ const CourseDetail: React.FC = () => {
                 }),
               }
             );
+
+            if (!verifyRes.ok) {
+              const errorData = await verifyRes.json();
+              console.error("Payment verification failed:", errorData);
+              alert(`Payment verification failed: ${errorData.message || "Unknown error"}`);
+              return;
+            }
 
             const result = await verifyRes.json();
 
@@ -233,9 +251,9 @@ const CourseDetail: React.FC = () => {
 
       const razor = new (window as any).Razorpay(options);
       razor.open();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Payment error:", error);
-      alert("Something went wrong during payment.");
+      alert(`Something went wrong during payment: ${error.message || "Unknown error"}`);
     }
   };
 
