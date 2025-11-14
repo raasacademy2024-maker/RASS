@@ -3,6 +3,7 @@ import express from "express";
 import Razorpay from "razorpay";
 import crypto from "crypto";
 import { authenticate } from "../middleware/auth.js";
+import { paymentLimiter } from "../middleware/rateLimiter.js";
 import Enrollment from "../models/Enrollment.js";
 import Course from "../models/Course.js";
 import Event from "../models/Event.js";
@@ -16,9 +17,9 @@ const razorpay = new Razorpay({
 });
 
 // ----------------------
-// Create Order for Course
+// Create Order for Course - with payment rate limiting
 // ----------------------
-router.post("/order", authenticate, async (req, res) => {
+router.post("/order", authenticate, paymentLimiter, async (req, res) => {
   try {
     console.log("=== Create Payment Order Request ===");
     console.log("User ID:", req.user._id);

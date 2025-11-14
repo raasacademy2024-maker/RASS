@@ -1,6 +1,7 @@
 import express from 'express';
 import Assignment from '../models/Assignment.js';
 import { authenticate, authorize } from '../middleware/auth.js';
+import { submissionLimiter } from '../middleware/rateLimiter.js';
 import Notification from "../models/Notification.js";
 import Enrollment from "../models/Enrollment.js";
 
@@ -91,7 +92,7 @@ router.delete('/:id', authenticate, authorize('instructor', 'admin'), async (req
 });
 
 // 🔹 Submit assignment
-router.post('/:id/submit', authenticate, async (req, res) => {
+router.post('/:id/submit', authenticate, submissionLimiter, async (req, res) => {
   try {
     const { content, fileUrl } = req.body;
 

@@ -2,6 +2,7 @@ import express from 'express';
 import Doubt from '../models/Doubt.js';
 import Enrollment from '../models/Enrollment.js';
 import { authenticate, authorize } from '../middleware/auth.js';
+import { aiLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
@@ -152,7 +153,7 @@ router.post('/', authenticate, async (req, res) => {
 });
 
 // Generate AI response for a doubt
-router.post('/:id/ai-solve', authenticate, async (req, res) => {
+router.post('/:id/ai-solve', authenticate, aiLimiter, async (req, res) => {
   try {
     const doubt = await Doubt.findById(req.params.id);
     if (!doubt) {

@@ -2,6 +2,7 @@ import express from 'express';
 import Quiz from '../models/Quiz.js';
 import Enrollment from '../models/Enrollment.js';
 import { authenticate, authorize } from '../middleware/auth.js';
+import { submissionLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
@@ -170,7 +171,7 @@ router.post('/', authenticate, authorize('instructor', 'admin'), async (req, res
 });
 
 // Submit quiz attempt
-router.post('/:id/submit', authenticate, async (req, res) => {
+router.post('/:id/submit', authenticate, submissionLimiter, async (req, res) => {
   try {
     const { answers, timeSpent } = req.body; // answers: [{ questionIndex, answer }]
 
