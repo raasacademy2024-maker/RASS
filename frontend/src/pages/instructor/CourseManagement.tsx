@@ -6,6 +6,7 @@ import {
   liveSessionAPI,
   chatAPI,
   forumAPI,
+  batchAPI,
 } from "../../services/api";
 import {
   Plus,
@@ -51,6 +52,7 @@ const CourseManagement: React.FC = () => {
   const [modules, setModules] = useState<Module[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [liveSessions, setLiveSessions] = useState<LiveSession[]>([]);
+  const [batches, setBatches] = useState<any[]>([]);
 
   const [activeTab, setActiveTab] = useState<
     "overview" | "assignments" | "sessions" | "chats" | "discussions"
@@ -74,21 +76,23 @@ const CourseManagement: React.FC = () => {
   });
 
   const [showAssignmentModal, setShowAssignmentModal] = useState(false);
-  const [newAssignment, setNewAssignment] = useState<AssignmentForm>({
+  const [newAssignment, setNewAssignment] = useState<AssignmentForm & { batch?: string }>({
     title: "",
     description: "",
     dueDate: "",
     maxPoints: 100,
     instructions: "",
+    batch: "",
   });
 
   const [showSessionModal, setShowSessionModal] = useState(false);
-  const [newSession, setNewSession] = useState<SessionForm>({
+  const [newSession, setNewSession] = useState<SessionForm & { batch?: string }>({
     title: "",
     description: "",
     scheduledAt: "",
     duration: 60,
     meetingLink: "",
+    batch: "",
   });
 
   /* Grading */
@@ -177,15 +181,17 @@ const CourseManagement: React.FC = () => {
 
   const fetchCourseData = async (courseId: string) => {
     try {
-      const [assignRes, sessRes, courseRes] = await Promise.all([
+      const [assignRes, sessRes, courseRes, batchRes] = await Promise.all([
         assignmentAPI.getCourseAssignments(courseId),
         liveSessionAPI.getCourseSessions(courseId),
         courseAPI.getCourse(courseId),
+        batchAPI.getCourseBatches(courseId).catch(() => ({ data: [] })),
       ]);
 
       setAssignments(assignRes.data || []);
       setLiveSessions(sessRes.data || []);
       setModules(courseRes.data.modules || []);
+      setBatches(batchRes.data || []);
     } catch (err) {
       console.error("fetchCourseData:", err);
     }
@@ -254,6 +260,7 @@ const CourseManagement: React.FC = () => {
       dueDate: "",
       maxPoints: 100,
       instructions: "",
+      batch: "",
     });
 
   const prepareAssignmentForEdit = (a: Assignment) => {
@@ -309,6 +316,7 @@ const CourseManagement: React.FC = () => {
       scheduledAt: "",
       duration: 60,
       meetingLink: "",
+      batch: "",
     });
 
   const prepareSessionForEdit = (s: LiveSession) => {
@@ -934,6 +942,17 @@ const CourseManagement: React.FC = () => {
                     <label className="block text-xs font-medium text-gray-600 mb-1">🏆 Maximum Points</label>
                     <input type="number" min={1} className={inputClass} placeholder="e.g. 100" value={newAssignment.maxPoints ?? ""} onChange={(e) => setNewAssignment({ ...newAssignment, maxPoints: Number(e.target.value) })} />
                   </div>
+                  {batches.length > 0 && (
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">📚 Batch (Optional)</label>
+                      <select className={inputClass} value={newAssignment.batch || ""} onChange={(e) => setNewAssignment({ ...newAssignment, batch: e.target.value })}>
+                        <option value="">All Students (No specific batch)</option>
+                        {batches.map((batch) => (
+                          <option key={batch._id} value={batch._id}>{batch.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   <textarea rows={3} className={inputClass} placeholder="Instructions (optional)" value={newAssignment.instructions || ""} onChange={(e) => setNewAssignment({ ...newAssignment, instructions: e.target.value })} />
 
                   <div className="flex justify-end gap-3 pt-3">
@@ -971,6 +990,17 @@ const CourseManagement: React.FC = () => {
                     <label className="block text-xs font-medium text-gray-600 mb-1">🔗 Meeting Link</label>
                     <input type="url" className={inputClass} placeholder="https://meeting-link.com" value={newSession.meetingLink || ""} onChange={(e) => setNewSession({ ...newSession, meetingLink: e.target.value })} />
                   </div>
+                  {batches.length > 0 && (
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">📚 Batch (Optional)</label>
+                      <select className={inputClass} value={newSession.batch || ""} onChange={(e) => setNewSession({ ...newSession, batch: e.target.value })}>
+                        <option value="">All Students (No specific batch)</option>
+                        {batches.map((batch) => (
+                          <option key={batch._id} value={batch._id}>{batch.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   <div className="flex justify-end gap-3 pt-3">
                     <button type="button" className="px-3 py-2 border rounded-md" onClick={() => setShowSessionModal(false)}>Cancel</button>
                     <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-md">{editSession ? "Update" : "Create"}</button>

@@ -84,8 +84,10 @@ export const enrollmentAPI = {
     apiClient.post("/enrollments", { courseId, batchId }),
   getMyEnrollments: () => apiClient.get("/enrollments/my-courses"),
   updateProgress: (data: any) => apiClient.post("/enrollments/progress", data),
-  getCourseEnrollments: (courseId: string) =>
-    apiClient.get(`/enrollments/course/${courseId}`),
+  getCourseEnrollments: (courseId: string, batchId?: string) => {
+    const params = batchId ? { batchId } : {};
+    return apiClient.get(`/enrollments/course/${courseId}`, { params });
+  },
 };
 
 /* ---------------- BATCHES ---------------- */
@@ -94,6 +96,10 @@ export const batchAPI = {
     apiClient.get(`/batches/course/${courseId}`),
   getBatch: (batchId: string) =>
     apiClient.get(`/batches/${batchId}`),
+  getBatchStats: (batchId: string) =>
+    apiClient.get(`/batches/${batchId}/stats`),
+  getCoursesBatchStats: (courseId: string) =>
+    apiClient.get(`/batches/course/${courseId}/stats`),
   createBatch: (data: any) =>
     apiClient.post("/batches", data),
   updateBatch: (batchId: string, data: any) =>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { enrollmentFormAPI, courseAPI } from "../../services/api";
+import { enrollmentFormAPI, courseAPI, batchAPI } from "../../services/api";
 import { Course } from "../../types";
 import { 
   Search, 
@@ -23,6 +23,8 @@ const EnrollmentManagement: React.FC = () => {
   const { user } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<string>("");
+  const [batches, setBatches] = useState<any[]>([]);
+  const [selectedBatch, setSelectedBatch] = useState<string>("all");
   const [forms, setForms] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -37,11 +39,24 @@ const EnrollmentManagement: React.FC = () => {
     if (courses.length > 0) {
       if (selectedCourse) {
         fetchEnrollmentForms(selectedCourse);
+        fetchCourseBatches(selectedCourse);
       } else {
         fetchAllEnrollmentForms();
+        setBatches([]);
+        setSelectedBatch("all");
       }
     }
   }, [selectedCourse, courses]);
+
+  const fetchCourseBatches = async (courseId: string) => {
+    try {
+      const res = await batchAPI.getCourseBatches(courseId);
+      setBatches(res.data || []);
+    } catch (error) {
+      console.error("Error fetching batches:", error);
+      setBatches([]);
+    }
+  };
 
   const fetchCourses = async () => {
     try {
@@ -150,14 +165,25 @@ const EnrollmentManagement: React.FC = () => {
   };
 
   const filteredForms = forms.filter(form => {
-    if (!searchTerm) return true;
+    if (!searchTerm && selectedBatch === "all") return true;
+    
+    // Search term filter
     const term = searchTerm.toLowerCase();
-    return (
+    const matchesSearch = !searchTerm || (
       (form.fullName && form.fullName.toLowerCase().includes(term)) ||
       (form.email && form.email.toLowerCase().includes(term)) ||
       (form.mobileNumber && form.mobileNumber.includes(term)) ||
       (form.courseTitle && form.courseTitle.toLowerCase().includes(term))
     );
+
+    // Batch filter
+    const matchesBatch =
+      selectedBatch === "all" ||
+      (selectedBatch === "no-batch" && !form.batch) ||
+      (typeof form.batch === "object" && form.batch?._id === selectedBatch) ||
+      (typeof form.batch === "string" && form.batch === selectedBatch);
+
+    return matchesSearch && matchesBatch;
   });
 
   const getPaymentStatusBadge = (status: string) => {
@@ -189,7 +215,7 @@ const EnrollmentManagement: React.FC = () => {
 
         {/* Course Selection */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label htmlFor="course" className="block text-sm font-medium text-gray-700 mb-2">
                 Filter by Course
@@ -216,6 +242,35 @@ const EnrollmentManagement: React.FC = () => {
               </div>
             </div>
 
+            {selectedCourse && batches.length > 0 && (
+              <div>
+                <label htmlFor="batch" className="block text-sm font-medium text-gray-700 mb-2">
+                  Filter by Batch
+                </label>
+                <div className="relative">
+                  <select
+                    id="batch"
+                    value={selectedBatch}
+                    onChange={(e) => setSelectedBatch(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white"
+                  >
+                    <option value="all">All Batches</option>
+                    <option value="no-batch">No Batch</option>
+                    {batches.map(batch => (
+                      <option key={batch._id} value={batch._id}>
+                        {batch.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                    <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div>
               <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
                 Search Enrollments
@@ -227,7 +282,7 @@ const EnrollmentManagement: React.FC = () => {
                 <input
                   type="text"
                   id="search"
-                  placeholder="Search by name, email, phone, or course..."
+                  placeholder="Search by name, email, phone..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="block w-full pl-10 border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
