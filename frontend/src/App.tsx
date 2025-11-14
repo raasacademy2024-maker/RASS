@@ -52,6 +52,8 @@ import CompanyPartnershipList from './pages/admin/CompanyPartnershipForm';
 import UniversityPartnershipForm from './pages/UniversityPartnershipForm';
 import UniversityPartnershipList from './pages/admin/UniversityPartnershipList';
 import EnrollmentManagement from './pages/admin/EnrollmentManagement';
+import AdminBatchAnalytics from './pages/admin/BatchAnalytics';
+import InstructorBatchAnalytics from './pages/instructor/BatchAnalytics';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; roles?: string[] }> = ({ 
   children, 
@@ -211,6 +213,11 @@ const AppRoutes: React.FC = () => {
         } />
         <Route path="/instructor/chats" element={<InstructorChats />} />
         <Route path="/instructor/discussions" element={<InstructorDiscussions />} />
+        <Route path="/instructor/analytics" element={
+          <ProtectedRoute roles={['instructor', 'admin']}>
+            <InstructorBatchAnalytics />
+          </ProtectedRoute>
+        } />
 
 
         {/* Admin Routes */}
@@ -242,6 +249,11 @@ const AppRoutes: React.FC = () => {
         <Route path="/admin/media-presence" element={<MediaPresenceManagement />} />
         <Route path="/admin/manage-events" element={<ManageEventsPage />} /> {/* Added route for event management */}
         <Route path="/admin/enrollments" element={<EnrollmentManagement />} />
+        <Route path="/admin/analytics" element={
+          <ProtectedRoute roles={['admin']}>
+            <AdminBatchAnalytics />
+          </ProtectedRoute>
+        } />
     
       </Routes>
     </div>
