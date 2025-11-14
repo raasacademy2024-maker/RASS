@@ -400,4 +400,129 @@ export const mediaPresenceAPI = {
   deleteMediaItem: (id: string) => apiClient.delete(`/media-presence/${id}`),
 };
 
+/* ---------------- ATTENDANCE ---------------- */
+export const attendanceAPI = {
+  getBatchAttendance: (batchId: string, startDate?: string, endDate?: string) => 
+    apiClient.get(`/attendance/batch/${batchId}`, { params: { startDate, endDate } }),
+  getStudentAttendance: (studentId: string, courseId?: string, batchId?: string) =>
+    apiClient.get(`/attendance/student/${studentId}`, { params: { courseId, batchId } }),
+  createAttendance: (data: any) =>
+    apiClient.post('/attendance', data),
+  markAttendance: (attendanceId: string, records: any[]) =>
+    apiClient.put(`/attendance/${attendanceId}/mark`, { records }),
+  autoTrackAttendance: (data: any) =>
+    apiClient.post('/attendance/auto-track', data),
+  getBatchStats: (batchId: string, startDate?: string, endDate?: string) =>
+    apiClient.get(`/attendance/batch/${batchId}/stats`, { params: { startDate, endDate } }),
+  deleteAttendance: (attendanceId: string) =>
+    apiClient.delete(`/attendance/${attendanceId}`),
+};
+
+/* ---------------- VIDEO NOTES ---------------- */
+export const videoNoteAPI = {
+  getCourseNotes: (courseId: string, moduleId?: string) =>
+    apiClient.get(`/video-notes/course/${courseId}`, { params: { moduleId } }),
+  getModuleNotes: (moduleId: string) =>
+    apiClient.get(`/video-notes/module/${moduleId}`),
+  createNote: (data: any) =>
+    apiClient.post('/video-notes', data),
+  updateNote: (noteId: string, data: any) =>
+    apiClient.put(`/video-notes/${noteId}`, data),
+  deleteNote: (noteId: string) =>
+    apiClient.delete(`/video-notes/${noteId}`),
+  searchNotes: (q?: string, courseId?: string, tags?: string) =>
+    apiClient.get('/video-notes/search', { params: { q, courseId, tags } }),
+};
+
+/* ---------------- QUIZZES ---------------- */
+export const quizAPI = {
+  getCourseQuizzes: (courseId: string, batchId?: string) =>
+    apiClient.get(`/quizzes/course/${courseId}`, { params: { batchId } }),
+  getQuiz: (quizId: string) =>
+    apiClient.get(`/quizzes/${quizId}`),
+  createQuiz: (data: any) =>
+    apiClient.post('/quizzes', data),
+  updateQuiz: (quizId: string, data: any) =>
+    apiClient.put(`/quizzes/${quizId}`, data),
+  deleteQuiz: (quizId: string) =>
+    apiClient.delete(`/quizzes/${quizId}`),
+  submitQuiz: (quizId: string, answers: any[], timeSpent: number) =>
+    apiClient.post(`/quizzes/${quizId}/submit`, { answers, timeSpent }),
+  getMyAttempts: (quizId: string) =>
+    apiClient.get(`/quizzes/${quizId}/my-attempts`),
+  getQuizStats: (quizId: string) =>
+    apiClient.get(`/quizzes/${quizId}/stats`),
+};
+
+/* ---------------- SCHEDULES ---------------- */
+export const scheduleAPI = {
+  getBatchSchedule: (batchId: string) =>
+    apiClient.get(`/schedules/batch/${batchId}`),
+  getScheduleForDate: (batchId: string, date: string) =>
+    apiClient.get(`/schedules/batch/${batchId}/date/${date}`),
+  createSchedule: (data: any) =>
+    apiClient.post('/schedules', data),
+  updateSchedule: (scheduleId: string, data: any) =>
+    apiClient.put(`/schedules/${scheduleId}`, data),
+  deleteSchedule: (scheduleId: string) =>
+    apiClient.delete(`/schedules/${scheduleId}`),
+  getCourseSchedules: (courseId: string) =>
+    apiClient.get(`/schedules/course/${courseId}`),
+};
+
+/* ---------------- ANNOUNCEMENTS ---------------- */
+export const announcementAPI = {
+  getCourseAnnouncements: (courseId: string, batchId?: string) =>
+    apiClient.get(`/announcements/course/${courseId}`, { params: { batchId } }),
+  getAnnouncement: (announcementId: string) =>
+    apiClient.get(`/announcements/${announcementId}`),
+  createAnnouncement: (data: any) =>
+    apiClient.post('/announcements', data),
+  updateAnnouncement: (announcementId: string, data: any) =>
+    apiClient.put(`/announcements/${announcementId}`, data),
+  deleteAnnouncement: (announcementId: string) =>
+    apiClient.delete(`/announcements/${announcementId}`),
+  getUnreadCount: (courseId: string) =>
+    apiClient.get(`/announcements/course/${courseId}/unread-count`),
+};
+
+/* ---------------- DOUBTS (AI SOLVER) ---------------- */
+export const doubtAPI = {
+  getCourseDoubts: (courseId: string, batchId?: string, status?: string, tags?: string) =>
+    apiClient.get(`/doubts/course/${courseId}`, { params: { batchId, status, tags } }),
+  getMyDoubts: (courseId?: string, status?: string) =>
+    apiClient.get('/doubts/my-doubts', { params: { courseId, status } }),
+  getDoubt: (doubtId: string) =>
+    apiClient.get(`/doubts/${doubtId}`),
+  createDoubt: (data: any) =>
+    apiClient.post('/doubts', data),
+  generateAISolution: (doubtId: string) =>
+    apiClient.post(`/doubts/${doubtId}/ai-solve`),
+  addInstructorResponse: (doubtId: string, answer: string) =>
+    apiClient.post(`/doubts/${doubtId}/instructor-response`, { answer }),
+  updateStatus: (doubtId: string, status: string) =>
+    apiClient.patch(`/doubts/${doubtId}/status`, { status }),
+  markHelpful: (doubtId: string, isHelpful: boolean) =>
+    apiClient.post(`/doubts/${doubtId}/helpful`, { isHelpful }),
+  upvoteDoubt: (doubtId: string) =>
+    apiClient.post(`/doubts/${doubtId}/upvote`),
+  deleteDoubt: (doubtId: string) =>
+    apiClient.delete(`/doubts/${doubtId}`),
+  searchDoubts: (q?: string, courseId?: string, language?: string) =>
+    apiClient.get('/doubts/search', { params: { q, courseId, language } }),
+};
+
+/* ---------------- ANALYTICS ---------------- */
+export const analyticsAPI = {
+  getCourseAnalytics: (courseId: string, batchId?: string) =>
+    apiClient.get(`/analytics/course/${courseId}`, { params: { batchId } }),
+  getBatchEngagement: (batchId: string) =>
+    apiClient.get(`/analytics/batch/${batchId}/engagement`),
+  getStudentPerformance: (studentId: string, courseId?: string) =>
+    apiClient.get(`/analytics/student/${studentId}`, { params: { courseId } }),
+  getBatchLeaderboard: (batchId: string) =>
+    apiClient.get(`/analytics/batch/${batchId}/leaderboard`),
+};
+
+
 export default apiClient;
