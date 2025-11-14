@@ -192,44 +192,41 @@ router.post('/progress', authenticate, async (req, res) => {
 router.get(
   "/course/:courseId",
   authenticate,
-  authorize("instructor"),
+  authorize("instructor", "admin"),
   async (req, res) => {
     try {
       const { courseId } = req.params;
+      const { batchId } = req.query;
 
       // Ensure instructor owns the course
       const course = await Course.findById(courseId);
       if (!course) return res.status(404).json({ message: "Course not found" });
 
-      if (course.instructor.toString() !== req.user._id.toString()) {
+      if (req.user.role !== 'admin' && course.instructor.toString() !== req.user._id.toString()) {
         return res.status(403).json({ message: "Not authorized" });
       }
 
+      // Build query with optional batch filter
+      const query = { course: courseId };
+      if (batchId) {
+        query.batch = batchId;
+      }
+
       // ✅ Populate student details (id, name, email) and batch info
-      const enrollments = await Enrollment.find({ course: courseId })
+      const enrollments = await Enrollment.find(query)
         .populate("student", "name email") // force populate student
         .populate("course", "title instructor")
         .populate("batch", "name startDate endDate");
 
-      res.json(enrollments);
+      // ✅ Filter only students
+      const studentEnrollments = enrollments.filter(e => e.student && e.student.role === "student");
+
+      res.json(studentEnrollments);
     } catch (error) {
       console.error("Error fetching course enrollments:", error);
       res.status(500).json({ message: "Internal Server Error" });
     }
   }
-);router.get("/course/:courseId", authenticate, authorize("instructor"), async (req, res) => {
-  try {
-    const enrollments = await Enrollment.find({ course: req.params.courseId })
-      .populate("student", "name email role"); // make sure role is populated
-
-    // ✅ Filter only students
-    const studentEnrollments = enrollments.filter(e => e.student && e.student.role === "student");
-
-    res.json(studentEnrollments);
-  } catch (error) {
-    console.error("Error fetching course enrollments:", error);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-});
+);
 
 export default router;

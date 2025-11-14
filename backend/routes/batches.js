@@ -164,4 +164,133 @@ router.delete('/:id', authenticate, authorize('instructor', 'admin'), async (req
   }
 });
 
+// Get batch statistics (instructor/admin only)
+router.get('/:id/stats', authenticate, authorize('instructor', 'admin'), async (req, res) => {
+  try {
+    const batch = await Batch.findById(req.params.id).populate('course');
+    
+    if (!batch) {
+      return res.status(404).json({ message: 'Batch not found' });
+    }
+
+    // Check if instructor owns the course (unless admin)
+    if (req.user.role !== 'admin' && batch.course.instructor.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to view this batch' });
+    }
+
+    const Enrollment = (await import('../models/Enrollment.js')).default;
+    const Assignment = (await import('../models/Assignment.js')).default;
+    const LiveSession = (await import('../models/LiveSession.js')).default;
+    const Forum = (await import('../models/Forum.js')).default;
+
+    // Get enrollments for this batch
+    const enrollments = await Enrollment.find({ batch: req.params.id })
+      .populate('student', 'name email');
+
+    // Calculate completion stats
+    const completedCount = enrollments.filter(e => e.completed).length;
+    const averageProgress = enrollments.length > 0
+      ? enrollments.reduce((sum, e) => sum + (e.completionPercentage || 0), 0) / enrollments.length
+      : 0;
+
+    // Get batch-specific content counts
+    const assignmentsCount = await Assignment.countDocuments({ 
+      course: batch.course._id, 
+      batch: req.params.id 
+    });
+
+    const liveSessionsCount = await LiveSession.countDocuments({ 
+      course: batch.course._id, 
+      batch: req.params.id 
+    });
+
+    const forumPostsCount = await Forum.countDocuments({ 
+      course: batch.course._id, 
+      batch: req.params.id 
+    });
+
+    res.json({
+      batch: {
+        _id: batch._id,
+        name: batch.name,
+        startDate: batch.startDate,
+        endDate: batch.endDate,
+        capacity: batch.capacity,
+        enrolledCount: batch.enrolledCount,
+        isActive: batch.isActive
+      },
+      stats: {
+        totalEnrolled: enrollments.length,
+        completedCount,
+        inProgressCount: enrollments.length - completedCount,
+        averageProgress: Math.round(averageProgress),
+        availableSlots: batch.capacity - batch.enrolledCount,
+        assignmentsCount,
+        liveSessionsCount,
+        forumPostsCount
+      },
+      students: enrollments.map(e => ({
+        _id: e.student._id,
+        name: e.student.name,
+        email: e.student.email,
+        enrolledAt: e.enrolledAt,
+        progress: e.completionPercentage || 0,
+        completed: e.completed,
+        completedAt: e.completedAt
+      }))
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get all batches with statistics (instructor/admin only)
+router.get('/course/:courseId/stats', authenticate, authorize('instructor', 'admin'), async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.courseId);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    // Check if instructor owns the course (unless admin)
+    if (req.user.role !== 'admin' && course.instructor.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized' });
+    }
+
+    const batches = await Batch.find({ course: req.params.courseId })
+      .sort({ startDate: 1 });
+
+    const Enrollment = (await import('../models/Enrollment.js')).default;
+
+    const batchStats = await Promise.all(batches.map(async (batch) => {
+      const enrollments = await Enrollment.find({ batch: batch._id });
+      const completedCount = enrollments.filter(e => e.completed).length;
+      const averageProgress = enrollments.length > 0
+        ? enrollments.reduce((sum, e) => sum + (e.completionPercentage || 0), 0) / enrollments.length
+        : 0;
+
+      return {
+        _id: batch._id,
+        name: batch.name,
+        startDate: batch.startDate,
+        endDate: batch.endDate,
+        capacity: batch.capacity,
+        enrolledCount: batch.enrolledCount,
+        isActive: batch.isActive,
+        stats: {
+          totalEnrolled: enrollments.length,
+          completedCount,
+          inProgressCount: enrollments.length - completedCount,
+          averageProgress: Math.round(averageProgress),
+          availableSlots: batch.capacity - batch.enrolledCount
+        }
+      };
+    }));
+
+    res.json(batchStats);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;

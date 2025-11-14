@@ -19,7 +19,13 @@ router.post('/course/:courseId',authenticate,authorize('instructor', 'admin'),
       await session.save();
 
       // 🔔 Notify enrolled students
-const enrolledStudents = await Enrollment.find({ course: req.params.courseId }).populate("student");
+      // If batch is specified, only notify students in that batch
+      const query = { course: req.params.courseId };
+      if (session.batch) {
+        query.batch = session.batch;
+      }
+      
+const enrolledStudents = await Enrollment.find(query).populate("student");
 const notifications = enrolledStudents
   .filter(enroll => enroll.student)
   .map(enroll =>
@@ -44,11 +50,20 @@ if (notifications.length > 0) {
 );
 
 
-// 🔹 Get sessions for a course
+// 🔹 Get sessions for a course (with optional batch filter)
 router.get('/course/:courseId', authenticate, async (req, res) => {
   try {
-    const sessions = await LiveSession.find({ course: req.params.courseId })
+    const { batchId } = req.query;
+    const query = { course: req.params.courseId };
+    
+    // Filter by batch if provided
+    if (batchId) {
+      query.batch = batchId;
+    }
+    
+    const sessions = await LiveSession.find(query)
       .populate('instructor', 'name email')
+      .populate('batch', 'name startDate endDate')
       .sort({ scheduledAt: 1 });
 
     res.json(sessions);
@@ -60,12 +75,25 @@ router.get('/course/:courseId', authenticate, async (req, res) => {
 // 🔹 Get all sessions for logged-in student
 router.get('/my', authenticate, async (req, res) => {
   try {
-    const enrollments = await Enrollment.find({ student: req.user._id }).select("course");
+    const enrollments = await Enrollment.find({ student: req.user._id }).select("course batch");
     const courseIds = enrollments.map((e) => e.course);
 
-    const sessions = await LiveSession.find({ course: { $in: courseIds } })
+    // Build query to get sessions for enrolled courses
+    // If student is enrolled in specific batches, only show those sessions
+    const batchIds = enrollments.filter(e => e.batch).map(e => e.batch);
+    
+    const query = {
+      $or: [
+        { course: { $in: courseIds }, batch: { $exists: false } }, // Sessions without batch
+        { course: { $in: courseIds }, batch: null }, // Sessions with null batch
+        { batch: { $in: batchIds } } // Sessions for student's batches
+      ]
+    };
+
+    const sessions = await LiveSession.find(query)
       .populate("instructor", "name email")
       .populate("course", "title")
+      .populate("batch", "name")
       .sort({ scheduledAt: 1 });
 
     res.json(sessions);
@@ -114,6 +142,20 @@ router.post('/:id/join', authenticate, async (req, res) => {
       return res.status(404).json({ message: 'Session not found' });
     }
 
+    // Verify student is enrolled in the course (and batch if specified)
+    const enrollmentQuery = {
+      student: req.user._id,
+      course: session.course
+    };
+    if (session.batch) {
+      enrollmentQuery.batch = session.batch;
+    }
+    
+    const enrollment = await Enrollment.findOne(enrollmentQuery);
+    if (!enrollment) {
+      return res.status(403).json({ message: 'Not enrolled in this course/batch' });
+    }
+
     const existingAttendee = session.attendees.find(
       (a) => a.student.toString() === req.user._id.toString()
     );
@@ -148,7 +190,13 @@ router.put('/:id/status', authenticate, authorize('instructor', 'admin'), async 
     }
 
     if (status === "live") {
-      const enrolledStudents = await Enrollment.find({ course: session.course }).populate("student");
+      // Notify students enrolled in this course/batch
+      const query = { course: session.course };
+      if (session.batch) {
+        query.batch = session.batch;
+      }
+      
+      const enrolledStudents = await Enrollment.find(query).populate("student");
       const notifications = enrolledStudents.map(
         (enroll) =>
           new Notification({

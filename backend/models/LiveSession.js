@@ -11,6 +11,10 @@ const liveSessionSchema = new mongoose.Schema({
     ref: 'Course',
     required: true
   },
+  batch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Batch'
+  },
   instructor: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
