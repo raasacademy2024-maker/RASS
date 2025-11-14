@@ -164,7 +164,7 @@ const CourseDetail: React.FC = () => {
       }
 
       const options = {
-        key: (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || "rzp_test_RJqt4AZALMZEYE", // ✅ Use env var
+        key: (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || "rzp_test_RfTsUpkyueFD5f", // ✅ Use env var
         amount: order.amount,
         currency: order.currency,
         name: "RASS Academy",

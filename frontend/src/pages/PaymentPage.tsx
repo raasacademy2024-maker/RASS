@@ -11,7 +11,7 @@ const PaymentPage: React.FC = () => {
 
       // 2️⃣ Open Razorpay checkout
       const options: any = {
-        key: (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || "rzp_test_RJqt4AZALMZEYE", // Test Key ID
+        key: (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || "rzp_test_RfTsUpkyueFD5f", // Test Key ID
         amount: data.amount,
         currency: data.currency,
         name: "RASS Academy",

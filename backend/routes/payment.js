@@ -11,8 +11,8 @@ import EnrollmentForm from "../models/EnrollmentForm.js";
 const router = express.Router();
 
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID || "rzp_test_RJqt4AZALMZEYE",
-  key_secret: process.env.RAZORPAY_KEY_SECRET || "LhCRU1mwpEJJRP19te0lv8q0",
+  key_id: process.env.RAZORPAY_KEY_ID || "rzp_test_RfTsUpkyueFD5f",
+  key_secret: process.env.RAZORPAY_KEY_SECRET || "Exo6CLjZ3ewR1uCe45o1QPB8",
 });
 
 // ----------------------
