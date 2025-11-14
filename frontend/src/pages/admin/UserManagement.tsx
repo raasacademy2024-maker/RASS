@@ -412,15 +412,28 @@ const UserManagement: React.FC = () => {
                             ) : user.enrolledCourses && user.enrolledCourses.length > 0 ? (
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 {user.enrolledCourses.map((course) => (
-                                  <div key={course._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                                    <div>
-                                      <p className="font-medium text-gray-900">{course.title}</p>
-                                      <p className="text-sm text-gray-500">Instructor: {course.instructor}</p>
+                                  <div key={course._id} className="flex flex-col p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <div className="flex-1">
+                                        <p className="font-medium text-gray-900">{course.title}</p>
+                                        <p className="text-sm text-gray-500">Instructor: {course.instructor}</p>
+                                      </div>
+                                      <div className="text-right">
+                                        <p className="text-sm text-gray-500">Progress</p>
+                                        <p className="font-medium text-indigo-600">{course.progress || 0}%</p>
+                                      </div>
                                     </div>
-                                    <div className="text-right">
-                                      <p className="text-sm text-gray-500">Progress</p>
-                                      <p className="font-medium text-indigo-600">{course.progress || 0}%</p>
-                                    </div>
+                                    {(course as any).batch && (
+                                      <div className="pt-2 mt-2 border-t border-gray-200">
+                                        <p className="text-xs text-gray-600 flex items-center">
+                                          <span className="inline-block w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>
+                                          Batch: {(course as any).batch.name}
+                                        </p>
+                                        <p className="text-xs text-gray-500 ml-4">
+                                          {new Date((course as any).batch.startDate).toLocaleDateString()} - {new Date((course as any).batch.endDate).toLocaleDateString()}
+                                        </p>
+                                      </div>
+                                    )}
                                   </div>
                                 ))}
                               </div>
