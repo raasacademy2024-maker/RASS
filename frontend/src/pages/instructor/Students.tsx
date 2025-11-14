@@ -7,11 +7,13 @@ import {
   Clock,
   MessageCircle,
   Search,
+  Filter,
 } from "lucide-react";
 import {
   courseAPI,
   enrollmentAPI,
   assignmentAPI,
+  batchAPI,
 } from "../../services/api";
 import { Course, Enrollment, Assignment } from "../../types";
 import { motion } from "framer-motion";
@@ -23,6 +25,8 @@ const Students: React.FC = () => {
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [batches, setBatches] = useState<any[]>([]);
+  const [selectedBatch, setSelectedBatch] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
@@ -34,8 +38,20 @@ const Students: React.FC = () => {
   useEffect(() => {
     if (selectedCourse) {
       fetchCourseStudents();
+      fetchCourseBatches();
     }
   }, [selectedCourse]);
+
+  const fetchCourseBatches = async () => {
+    if (!selectedCourse) return;
+    try {
+      const response = await batchAPI.getCourseBatches(selectedCourse._id);
+      setBatches(response.data || []);
+    } catch (error) {
+      console.error("Error fetching batches:", error);
+      setBatches([]);
+    }
+  };
 
   const getStudentName = (student: any) =>
     typeof student === "string" ? "Unknown Student" : student.name;
@@ -93,7 +109,13 @@ const Students: React.FC = () => {
       (filterStatus === "completed" && enr.completed) ||
       (filterStatus === "in-progress" && !enr.completed);
 
-    return matchesSearch && matchesStatus;
+    const matchesBatch =
+      selectedBatch === "all" ||
+      (selectedBatch === "no-batch" && !enr.batch) ||
+      (typeof enr.batch === "object" && enr.batch?._id === selectedBatch) ||
+      (typeof enr.batch === "string" && enr.batch === selectedBatch);
+
+    return matchesSearch && matchesStatus && matchesBatch;
   });
 
   if (loading) {
@@ -170,15 +192,32 @@ const Students: React.FC = () => {
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <select
-              className="border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500"
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-            >
-              <option value="all">All Students</option>
-              <option value="in-progress">In Progress</option>
-              <option value="completed">Completed</option>
-            </select>
+            <div className="flex gap-2">
+              <select
+                className="border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+              >
+                <option value="all">All Students</option>
+                <option value="in-progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+              {batches.length > 0 && (
+                <select
+                  className="border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 min-w-[150px]"
+                  value={selectedBatch}
+                  onChange={(e) => setSelectedBatch(e.target.value)}
+                >
+                  <option value="all">All Batches</option>
+                  <option value="no-batch">No Batch</option>
+                  {batches.map((batch) => (
+                    <option key={batch._id} value={batch._id}>
+                      {batch.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
           </motion.div>
 
           {/* Students List */}
@@ -187,9 +226,24 @@ const Students: React.FC = () => {
             animate={{ opacity: 1 }}
             className="bg-white shadow-md rounded-2xl p-6"
           >
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">
-              Students & Handlers in {selectedCourse.title}
-            </h3>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Students in {selectedCourse.title}
+              </h3>
+              {selectedBatch !== "all" && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Filter className="h-4 w-4 text-indigo-600" />
+                  <span className="text-gray-600">
+                    Filtered by:{" "}
+                    <span className="font-semibold text-indigo-600">
+                      {selectedBatch === "no-batch"
+                        ? "No Batch"
+                        : batches.find((b) => b._id === selectedBatch)?.name}
+                    </span>
+                  </span>
+                </div>
+              )}
+            </div>
 
             {filteredEnrollments.length > 0 ? (
               <div className="grid gap-4 sm:grid-cols-2">
