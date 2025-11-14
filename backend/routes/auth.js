@@ -2,11 +2,12 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import { authenticate } from '../middleware/auth.js';
+import { authLimiter, createAccountLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
 
-// Register
-router.post('/register', async (req, res) => {
+// Register - with strict rate limiting to prevent fake account creation
+router.post('/register', createAccountLimiter, async (req, res) => {
   try {
     const { name, email, password, role = 'student' } = req.body;
 
@@ -48,8 +49,8 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login
-router.post('/login', async (req, res) => {
+// Login - with auth rate limiting to prevent brute force attacks
+router.post('/login', authLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
 
