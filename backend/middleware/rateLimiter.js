@@ -13,11 +13,11 @@ import rateLimit from 'express-rate-limit';
 /**
  * General API Rate Limiter
  * Applies to all API routes
- * 100 requests per 15 minutes per IP
+ * 1000 requests per 15 minutes per IP (significantly increased)
  */
 export const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 1000, // Limit each IP to 1000 requests per windowMs
   message: {
     status: 429,
     message: 'Too many requests from this IP, please try again after 15 minutes.',
@@ -31,13 +31,13 @@ export const apiLimiter = rateLimit({
 });
 
 /**
- * Authentication Rate Limiter (Strict)
+ * Authentication Rate Limiter (Relaxed)
  * Applies to login, register, password reset endpoints
- * 5 requests per 15 minutes per IP to prevent brute force
+ * 100 requests per 15 minutes per IP (significantly increased)
  */
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 requests per windowMs
+  max: 100, // Limit each IP to 100 requests per windowMs
   message: {
     status: 429,
     message: 'Too many authentication attempts from this IP, please try again after 15 minutes.',

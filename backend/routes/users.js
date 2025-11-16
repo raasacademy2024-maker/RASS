@@ -48,6 +48,68 @@ router.put('/profile', authenticate, async (req, res) => {
   }
 });
 
+// Get enrollment statistics (Admin only) - must come before /:id routes
+router.get('/stats/enrollment', authenticate, authorize('admin'), async (req, res) => {
+  try {
+    const students = await User.find({ role: 'student' });
+    const instructors = await User.find({ role: 'instructor' });
+    
+    const Enrollment = (await import('../models/Enrollment.js')).default;
+    const enrolledStudentIds = await Enrollment.distinct('student');
+    
+    res.json({
+      totalStudents: students.length,
+      totalInstructors: instructors.length,
+      enrolledStudents: enrolledStudentIds.length,
+      unenrolledStudents: students.length - enrolledStudentIds.length
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get all instructors (for dropdown in course creation) - must come before /:id routes
+router.get('/role/instructors', authenticate, async (req, res) => {
+  try {
+    const instructors = await User.find({ role: 'instructor' })
+      .select('name email')
+      .sort({ name: 1 });
+    
+    res.json(instructors);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Create new user (Admin only)
+router.post('/', authenticate, authorize('admin'), async (req, res) => {
+  try {
+    const { name, email, password, role } = req.body;
+    
+    // Check if user exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    const user = new User({
+      name,
+      email,
+      password, // Password will be hashed by the User model pre-save hook
+      role: role || 'student'
+    });
+
+    await user.save();
+    
+    const userResponse = user.toObject();
+    delete userResponse.password;
+    
+    res.status(201).json(userResponse);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // Update user status (Admin only)
 router.put('/:id/status', authenticate, authorize('admin'), async (req, res) => {
   try {
@@ -64,6 +126,31 @@ router.put('/:id/status', authenticate, authorize('admin'), async (req, res) => 
     }
 
     res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Admin change user password
+router.put('/:id/password', authenticate, authorize('admin'), async (req, res) => {
+  try {
+    const { password } = req.body;
+    
+    if (!password || password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    }
+    
+    const user = await User.findById(req.params.id);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    // Update password (will be hashed by pre-save hook)
+    user.password = password;
+    await user.save();
+    
+    res.json({ message: 'Password updated successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -105,50 +192,59 @@ router.get('/:id/courses', authenticate, authorize('admin'), async (req, res) =>
   }
 });
 
-// Get enrollment statistics (Admin only)
-router.get('/stats/enrollment', authenticate, authorize('admin'), async (req, res) => {
+// Get user by ID (Admin only)
+router.get('/:id', authenticate, authorize('admin'), async (req, res) => {
   try {
-    const students = await User.find({ role: 'student' });
-    const instructors = await User.find({ role: 'instructor' });
+    const user = await User.findById(req.params.id).select('-password');
     
-    const Enrollment = (await import('../models/Enrollment.js')).default;
-    const enrolledStudentIds = await Enrollment.distinct('student');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
     
-    res.json({
-      totalStudents: students.length,
-      totalInstructors: instructors.length,
-      enrolledStudents: enrolledStudentIds.length,
-      unenrolledStudents: students.length - enrolledStudentIds.length
-    });
+    res.json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// Create new user (Admin only)
-router.post('/', authenticate, authorize('admin'), async (req, res) => {
+// Update user (Admin only)
+router.put('/:id', authenticate, authorize('admin'), async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, role, profile, isActive } = req.body;
     
-    // Check if user exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+    const updateData = {};
+    if (name) updateData.name = name;
+    if (email) updateData.email = email;
+    if (role) updateData.role = role;
+    if (profile) updateData.profile = profile;
+    if (typeof isActive !== 'undefined') updateData.isActive = isActive;
+    
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    ).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
-
-    const user = new User({
-      name,
-      email,
-      password, // Password will be hashed by the User model pre-save hook
-      role: role || 'student'
-    });
-
-    await user.save();
     
-    const userResponse = user.toObject();
-    delete userResponse.password;
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Delete user (Admin only)
+router.delete('/:id', authenticate, authorize('admin'), async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
     
-    res.status(201).json(userResponse);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json({ message: 'User deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
