@@ -6,7 +6,6 @@ import {
   Star, 
   Layers, 
   Award, 
-  Play, 
   Calendar,
   Target,
   Zap,

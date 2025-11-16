@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import {
   CheckCircle,
   Briefcase,
-  GraduationCap,
   Users,
   Star,
   Award,

@@ -4,7 +4,6 @@ import {
   Clock,
   Users,
   Star,
-  Award,
   Shield,
 } from "lucide-react";
 import { Enrollment } from "../../types"; // Import the Enrollment type
@@ -25,14 +24,12 @@ interface CourseHeroProps {
   };
   enrollment?: Enrollment | null; // Use proper type instead of 'any'
   onEnroll?: () => void;
-  onPreview?: () => void;
 }
 
 const CourseHero: React.FC<CourseHeroProps> = ({
   course,
   enrollment,
   onEnroll,
-  onPreview,
 }) => {
   return (
     <section className="relative w-full bg-gray-50 py-16 px-6 lg:px-16">

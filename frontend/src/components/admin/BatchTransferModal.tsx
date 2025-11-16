@@ -11,10 +11,13 @@ interface Batch {
   isActive: boolean;
 }
 
-interface Student {
-  _id: string;
-  name: string;
-  email: string;
+interface EnrolledStudent {
+  student: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+  progress?: number;
 }
 
 interface BatchTransferModalProps {
@@ -33,17 +36,11 @@ const BatchTransferModal: React.FC<BatchTransferModalProps> = ({
   onSuccess,
 }) => {
   const [batches, setBatches] = useState<Batch[]>([]);
-  const [students, setStudents] = useState<any[]>([]);
+  const [students, setStudents] = useState<EnrolledStudent[]>([]);
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [targetBatchId, setTargetBatchId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (isOpen && sourceBatch) {
-      fetchBatchesAndStudents();
-    }
-  }, [isOpen, sourceBatch]);
 
   const fetchBatchesAndStudents = async () => {
     try {
@@ -66,6 +63,13 @@ const BatchTransferModal: React.FC<BatchTransferModalProps> = ({
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (isOpen && sourceBatch) {
+      fetchBatchesAndStudents();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, sourceBatch]);
 
   const handleStudentToggle = (studentId: string) => {
     setSelectedStudents((prev) =>
@@ -104,9 +108,10 @@ const BatchTransferModal: React.FC<BatchTransferModalProps> = ({
       );
       onSuccess();
       onClose();
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error transferring students:", err);
-      setError(err.response?.data?.message || "Failed to transfer students");
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || "Failed to transfer students");
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Clock, Mail, Phone, Play, User, Zap } from "lucide-react";
 import { countryCodes } from "../../utils/countryCodes";
@@ -178,7 +178,7 @@ const AdminCurriculum: React.FC<Props> = ({
         countryCode: "+91"
       });
       setPhoneError("");
-    } catch (error) {
+    } catch {
       setSubmitMessage("Something went wrong. Please try again.");
     } finally {
       setIsSubmitting(false);
