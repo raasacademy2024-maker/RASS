@@ -698,7 +698,6 @@ const AddCoursePage: React.FC = () => {
                           required
                         />
                       </div>
-                      </div>
                     </div>
 
                     <div className="space-y-6">
