@@ -1,16 +1,10 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { 
-  Clock, 
-  Users, 
-  Star, 
-  Layers, 
   Award, 
   Calendar,
   Target,
   Zap,
-  BookOpen,
-  BadgeCheck,
   Video
 } from "lucide-react";
 import { Course } from "../../types";
@@ -20,9 +14,6 @@ interface Props {
 }
 
 const CourseDetails: React.FC<Props> = ({ course }) => {
-  const rating = course.rating?.average ?? 0;
-  const ratingCount = course.rating?.count ?? 0;
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -62,51 +53,6 @@ const CourseDetails: React.FC<Props> = ({ course }) => {
 
   const details = [
     {
-      icon: <Clock className="h-7 w-7" />,
-      label: "Duration",
-      value: `${Math.round(course.totalDuration / 60)} hours`,
-      description: "Total learning time",
-      color: "from-blue-500 to-cyan-500",
-      bgColor: "bg-blue-50",
-      borderColor: "border-blue-200"
-    },
-    {
-      icon: <Users className="h-7 w-7" />,
-      label: "Enrollments",
-      value: `${course.enrollmentCount}+`,
-      description: "Active students",
-      color: "from-green-500 to-emerald-500",
-      bgColor: "bg-green-50",
-      borderColor: "border-green-200"
-    },
-    {
-      icon: <Star className="h-7 w-7" />,
-      label: "Rating",
-      value: `${rating.toFixed(1)}/5.0`,
-      description: `${ratingCount} reviews`,
-      color: "from-amber-500 to-orange-500",
-      bgColor: "bg-amber-50",
-      borderColor: "border-amber-200"
-    },
-    {
-      icon: <Layers className="h-7 w-7" />,
-      label: "Level",
-      value: course.level.charAt(0).toUpperCase() + course.level.slice(1),
-      description: "Skill level",
-      color: "from-purple-500 to-pink-500",
-      bgColor: "bg-purple-50",
-      borderColor: "border-purple-200"
-    },
-    {
-      icon: <BookOpen className="h-7 w-7" />,
-      label: "Lessons",
-      value: `${course.lessonsCount}+`,
-      description: "Learning modules",
-      color: "from-indigo-500 to-blue-500",
-      bgColor: "bg-indigo-50",
-      borderColor: "border-indigo-200"
-    },
-    {
       icon: <Award className="h-7 w-7" />,
       label: "Certificate",
       value: "Included",
@@ -144,16 +90,6 @@ const CourseDetails: React.FC<Props> = ({ course }) => {
     }
   ];
 
-  const getLevelColor = (level: string) => {
-    const colors = {
-      beginner: "from-green-500 to-emerald-500",
-      intermediate: "from-blue-500 to-cyan-500",
-      advanced: "from-purple-500 to-pink-500",
-      expert: "from-red-500 to-orange-500"
-    };
-    return colors[level as keyof typeof colors] || colors.beginner;
-  };
-
   return (
     <section className="relative overflow-hidden">
       {/* Background Elements */}
@@ -188,9 +124,9 @@ const CourseDetails: React.FC<Props> = ({ course }) => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5 mb-12"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-5"
         >
-          {details.slice(0, 5).map((item, idx) => (
+          {details.map((item, idx) => (
             <motion.div
               key={idx}
               variants={{ ...itemVariants, hover: hoverVariants.hover }}
@@ -224,46 +160,6 @@ const CourseDetails: React.FC<Props> = ({ course }) => {
               <div className="absolute inset-0 -inset-1 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
             </motion.div>
           ))}
-        </motion.div>
-
-        {/* Additional Features */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200/60 p-8"
-        >
-          <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-            <BadgeCheck className="w-6 h-6 text-green-500" />
-            Course Features & Benefits
-          </h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {details.slice(5).map((item, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                whileHover={{ scale: 1.03 }}
-                className={`flex items-center gap-4 p-4 rounded-xl ${item.bgColor} border ${item.borderColor} backdrop-blur-sm transition-all duration-300`}
-              >
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center shadow-md`}>
-                  <div className="text-white">
-                    {React.cloneElement(item.icon, { className: "h-5 w-5" })}
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <div className="font-semibold text-gray-900 text-sm">
-                    {item.value}
-                  </div>
-                  <div className="text-xs text-gray-600">
-                    {item.label}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
         </motion.div>
 
         
