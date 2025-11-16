@@ -64,4 +64,50 @@ enrollmentSchema.virtual('completionPercentage').get(function() {
   return Math.round((completedModules / this.progress.length) * 100);
 });
 
+// Check if course access is allowed based on batch dates
+enrollmentSchema.methods.isCourseAccessible = async function() {
+  // If no batch assigned, allow access (open enrollment)
+  if (!this.batch) {
+    return { accessible: true, reason: null };
+  }
+
+  // Populate batch if it's just an ID
+  if (this.batch && !this.batch.startDate) {
+    await this.populate('batch');
+  }
+
+  const now = new Date();
+  const batch = this.batch;
+
+  // Check if batch has started
+  if (now < batch.startDate) {
+    return {
+      accessible: false,
+      reason: 'batch_not_started',
+      message: `Course access will be available from ${batch.startDate.toLocaleDateString()}`,
+      startDate: batch.startDate,
+      endDate: batch.endDate
+    };
+  }
+
+  // Check if batch has ended
+  if (now > batch.endDate) {
+    return {
+      accessible: false,
+      reason: 'batch_ended',
+      message: `Course access ended on ${batch.endDate.toLocaleDateString()}`,
+      startDate: batch.startDate,
+      endDate: batch.endDate
+    };
+  }
+
+  // Access is allowed
+  return {
+    accessible: true,
+    reason: null,
+    startDate: batch.startDate,
+    endDate: batch.endDate
+  };
+};
+
 export default mongoose.model('Enrollment', enrollmentSchema);

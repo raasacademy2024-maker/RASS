@@ -136,7 +136,7 @@ router.get('/my-courses', authenticate, async (req, res) => {
          select: 'name _id role' // include id + role
        }
      })
-     .populate('batch', 'name startDate endDate capacity enrolledCount')
+     .populate('batch', 'name startDate endDate capacity enrolledCount isActive')
       .sort({ enrolledAt: -1 });
 
     res.json(enrollments);
@@ -153,10 +153,21 @@ router.post('/progress', authenticate, async (req, res) => {
     const enrollment = await Enrollment.findOne({
       student: req.user._id,
       course: courseId
-    });
+    }).populate('batch');
 
     if (!enrollment) {
       return res.status(404).json({ message: 'Enrollment not found' });
+    }
+
+    // Check batch access before allowing progress update
+    const accessCheck = await enrollment.isCourseAccessible();
+    if (!accessCheck.accessible) {
+      return res.status(403).json({
+        message: accessCheck.message,
+        reason: accessCheck.reason,
+        startDate: accessCheck.startDate,
+        endDate: accessCheck.endDate
+      });
     }
 
     const progressIndex = enrollment.progress.findIndex(
@@ -183,6 +194,27 @@ router.post('/progress', authenticate, async (req, res) => {
 
     await enrollment.save();
     res.json(enrollment);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Check course access based on batch dates
+router.get('/check-access/:courseId', authenticate, async (req, res) => {
+  try {
+    const { courseId } = req.params;
+
+    const enrollment = await Enrollment.findOne({
+      student: req.user._id,
+      course: courseId
+    }).populate('batch');
+
+    if (!enrollment) {
+      return res.status(404).json({ message: 'Enrollment not found' });
+    }
+
+    const accessCheck = await enrollment.isCourseAccessible();
+    res.json(accessCheck);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

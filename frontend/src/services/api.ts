@@ -90,6 +90,8 @@ export const enrollmentAPI = {
   },
   cancelEnrollment: (enrollmentId: string) =>
     apiClient.delete(`/enrollments/${enrollmentId}`),
+  checkCourseAccess: (courseId: string) =>
+    apiClient.get(`/enrollments/check-access/${courseId}`),
 };
 
 /* ---------------- BATCHES ---------------- */

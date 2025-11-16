@@ -54,4 +54,22 @@ batchSchema.methods.hasAvailableSlots = function() {
   return this.enrolledCount < this.capacity;
 };
 
+// Check if current date is within batch duration
+batchSchema.methods.isAccessible = function() {
+  const now = new Date();
+  return now >= this.startDate && now <= this.endDate;
+};
+
+// Check if batch has started
+batchSchema.methods.hasStarted = function() {
+  const now = new Date();
+  return now >= this.startDate;
+};
+
+// Check if batch has ended
+batchSchema.methods.hasEnded = function() {
+  const now = new Date();
+  return now > this.endDate;
+};
+
 export default mongoose.model('Batch', batchSchema);
