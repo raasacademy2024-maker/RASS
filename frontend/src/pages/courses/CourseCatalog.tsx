@@ -49,12 +49,16 @@ const CourseCatalog: React.FC = () => {
     }
   };
 
+  /**
+   * Fetch categories from the API and map them to icons/colors.
+   * Falls back to default categories if the API call fails.
+   */
   const fetchCategories = async () => {
     try {
       const response = await courseAPI.getCategories();
       const fetchedCategories = response.data;
       
-      // Map categories to icons and colors
+      // Map categories to icons and colors with predefined mappings
       const categoryIconMap: Record<string, { icon: any; color: string }> = {
         "Web Development": { icon: Globe, color: "blue" },
         "Data Science": { icon: TrendingUp, color: "green" },
@@ -64,20 +68,20 @@ const CourseCatalog: React.FC = () => {
         "Cyber Security": { icon: Shield, color: "red" },
       };
       
-      // Create dynamic categories array
+      // Create dynamic categories array with fallback icons for unknown categories
       const dynamicCategories = fetchedCategories.map((categoryName: string) => {
         const mapping = categoryIconMap[categoryName];
         return {
           name: categoryName,
-          icon: mapping?.icon || BookOpen, // Fallback icon
-          color: mapping?.color || "indigo", // Fallback color
+          icon: mapping?.icon || BookOpen, // Fallback icon for unknown categories
+          color: mapping?.color || "indigo", // Fallback color for unknown categories
         };
       });
       
       setCategories(dynamicCategories);
     } catch (error) {
       console.error("Error fetching categories:", error);
-      // Fallback to default categories if API fails
+      // Fallback to default categories if API fails to ensure UI still works
       setCategories([
         { name: "Web Development", icon: Globe, color: "blue" },
         { name: "Data Science", icon: TrendingUp, color: "green" },
