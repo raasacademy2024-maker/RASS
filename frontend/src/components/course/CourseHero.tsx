@@ -2,9 +2,6 @@ import React from "react";
 import { motion } from "framer-motion";
 import {
   Clock,
-  Users,
-  Star,
-  Shield,
 } from "lucide-react";
 import { Enrollment } from "../../types"; // Import the Enrollment type
 
@@ -66,16 +63,6 @@ const CourseHero: React.FC<CourseHeroProps> = ({
           <div className="flex flex-wrap items-center gap-6 text-gray-600">
             <div className="flex items-center gap-2">
               <Clock size={18} /> {course.totalDuration || 0} mins
-            </div>
-            <div className="flex items-center gap-2">
-              <Users size={18} /> {course.enrollmentCount || 0} students
-            </div>
-            <div className="flex items-center gap-2">
-              <Star size={18} className="text-yellow-500" />{" "}
-              {course.rating?.average || 0} ({course.rating?.count || 0})
-            </div>
-            <div className="flex items-center gap-2">
-              <Shield size={18} /> {course.level || "Beginner"}
             </div>
           </div>
 

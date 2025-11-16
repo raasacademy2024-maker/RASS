@@ -284,15 +284,6 @@ const AdminCurriculum: React.FC<Props> = ({
                             <div className="text-left">
                               <div className="flex items-center gap-2">
                                 <span className="text-lg font-semibold text-gray-900 block">{item.title}</span>
-                                {item.difficulty && (
-                                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-                                    item.difficulty === "beginner" ? "bg-green-100 text-green-700" :
-                                    item.difficulty === "intermediate" ? "bg-yellow-100 text-yellow-700" :
-                                    "bg-red-100 text-red-700"
-                                  }`}>
-                                    {item.difficulty}
-                                  </span>
-                                )}
                               </div>
                               <div className="flex items-center gap-3 mt-1">
                                 {hasSections && (

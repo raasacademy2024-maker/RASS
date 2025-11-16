@@ -119,6 +119,13 @@ const AddCoursePage: React.FC = () => {
   const [editingModuleIndex, setEditingModuleIndex] = useState<number | null>(null);
   const [editingTestimonialIndex, setEditingTestimonialIndex] = useState<number | null>(null);
   const [editingFaqIndex, setEditingFaqIndex] = useState<number | null>(null);
+  const [editingTechStackIndex, setEditingTechStackIndex] = useState<number | null>(null);
+  const [editingSkillIndex, setEditingSkillIndex] = useState<number | null>(null);
+  const [editingJobRoleIndex, setEditingJobRoleIndex] = useState<number | null>(null);
+  const [editingTagIndex, setEditingTagIndex] = useState<number | null>(null);
+  const [editingRequirementIndex, setEditingRequirementIndex] = useState<number | null>(null);
+  const [editingLearningOutcomeIndex, setEditingLearningOutcomeIndex] = useState<number | null>(null);
+  const [editingFeatureIndex, setEditingFeatureIndex] = useState<number | null>(null);
 
   // Fetch instructors on component mount
   useEffect(() => {
@@ -255,6 +262,12 @@ const AddCoursePage: React.FC = () => {
     setFeatures(features.filter((_, i) => i !== index));
   };
 
+  const updateFeature = (index: number, value: string) => {
+    const updated = [...features];
+    updated[index] = value;
+    setFeatures(updated);
+  };
+
   const addTechStackItem = () => {
     if (newTechStackItem.name && newTechStackItem.imageUrl) {
       setTechStack([...techStack, newTechStackItem]);
@@ -264,6 +277,12 @@ const AddCoursePage: React.FC = () => {
 
   const removeTechStackItem = (index: number) => {
     setTechStack(techStack.filter((_, i) => i !== index));
+  };
+
+  const updateTechStackItem = (index: number, field: keyof TechStackItem, value: string) => {
+    const updated = [...techStack];
+    updated[index][field] = value;
+    setTechStack(updated);
   };
 
   const addSkill = () => {
@@ -277,6 +296,12 @@ const AddCoursePage: React.FC = () => {
     setSkillsGained(skillsGained.filter((_, i) => i !== index));
   };
 
+  const updateSkill = (index: number, value: string) => {
+    const updated = [...skillsGained];
+    updated[index] = value;
+    setSkillsGained(updated);
+  };
+
   const addJobRole = () => {
     if (newJobRole) {
       setJobRoles([...jobRoles, newJobRole]);
@@ -286,6 +311,12 @@ const AddCoursePage: React.FC = () => {
 
   const removeJobRole = (index: number) => {
     setJobRoles(jobRoles.filter((_, i) => i !== index));
+  };
+
+  const updateJobRole = (index: number, value: string) => {
+    const updated = [...jobRoles];
+    updated[index] = value;
+    setJobRoles(updated);
   };
 
   const addTestimonial = () => {
@@ -358,6 +389,12 @@ const AddCoursePage: React.FC = () => {
     setTags(tags.filter((_, i) => i !== index));
   };
 
+  const updateTag = (index: number, value: string) => {
+    const updated = [...tags];
+    updated[index] = value;
+    setTags(updated);
+  };
+
   const addRequirement = () => {
     if (newRequirement) {
       setRequirements([...requirements, newRequirement]);
@@ -369,6 +406,12 @@ const AddCoursePage: React.FC = () => {
     setRequirements(requirements.filter((_, i) => i !== index));
   };
 
+  const updateRequirement = (index: number, value: string) => {
+    const updated = [...requirements];
+    updated[index] = value;
+    setRequirements(updated);
+  };
+
   const addLearningOutcome = () => {
     if (newLearningOutcome) {
       setLearningOutcomes([...learningOutcomes, newLearningOutcome]);
@@ -378,6 +421,12 @@ const AddCoursePage: React.FC = () => {
 
   const removeLearningOutcome = (index: number) => {
     setLearningOutcomes(learningOutcomes.filter((_, i) => i !== index));
+  };
+
+  const updateLearningOutcome = (index: number, value: string) => {
+    const updated = [...learningOutcomes];
+    updated[index] = value;
+    setLearningOutcomes(updated);
   };
 
   // Reordering functions for curriculum
@@ -1119,28 +1168,76 @@ const AddCoursePage: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {techStack.map((item, index) => (
                       <div key={index} className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow duration-200">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <img 
-                              src={item.imageUrl} 
-                              alt={item.name} 
-                              className="h-10 w-10 object-contain rounded-lg bg-gray-100 p-1"
-                              onError={(e) => {
-                                e.currentTarget.src = 'https://via.placeholder.com/40?text=?';
-                              }}
+                        {editingTechStackIndex === index ? (
+                          <div className="space-y-3">
+                            <input
+                              type="text"
+                              value={item.name}
+                              onChange={(e) => updateTechStackItem(index, 'name', e.target.value)}
+                              placeholder="Technology Name"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
                             />
-                            <span className="font-medium text-gray-900">{item.name}</span>
+                            <input
+                              type="url"
+                              value={item.imageUrl}
+                              onChange={(e) => updateTechStackItem(index, 'imageUrl', e.target.value)}
+                              placeholder="Logo URL"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                            />
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setEditingTechStackIndex(null)}
+                                className="flex-1 bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 text-sm"
+                              >
+                                Save
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingTechStackIndex(null);
+                                }}
+                                className="flex-1 bg-gray-300 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-400 text-sm"
+                              >
+                                Cancel
+                              </button>
+                            </div>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => removeTechStackItem(index)}
-                            className="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-50 transition-colors duration-200"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
-                        </div>
+                        ) : (
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-3">
+                              <img 
+                                src={item.imageUrl} 
+                                alt={item.name} 
+                                className="h-10 w-10 object-contain rounded-lg bg-gray-100 p-1"
+                                onError={(e) => {
+                                  e.currentTarget.src = 'https://via.placeholder.com/40?text=?';
+                                }}
+                              />
+                              <span className="font-medium text-gray-900">{item.name}</span>
+                            </div>
+                            <div className="flex gap-1">
+                              <button
+                                type="button"
+                                onClick={() => setEditingTechStackIndex(index)}
+                                className="text-blue-500 hover:text-blue-700 p-1 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => removeTechStackItem(index)}
+                                className="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-50 transition-colors duration-200"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -1199,19 +1296,58 @@ const AddCoursePage: React.FC = () => {
                       <div className="space-y-3">
                         {skillsGained.map((skill, index) => (
                           <div key={index} className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                              <span>{skill}</span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => removeSkill(index)}
-                              className="text-red-500 hover:text-red-700 p-1 rounded"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
+                            {editingSkillIndex === index ? (
+                              <div className="flex-1 flex gap-2">
+                                <input
+                                  type="text"
+                                  value={skill}
+                                  onChange={(e) => updateSkill(index, e.target.value)}
+                                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                                  autoFocus
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingSkillIndex(null)}
+                                  className="bg-purple-600 text-white px-3 py-2 rounded-lg hover:bg-purple-700 text-sm"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingSkillIndex(null)}
+                                  className="bg-gray-300 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-400 text-sm"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            ) : (
+                              <>
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                  <span>{skill}</span>
+                                </div>
+                                <div className="flex gap-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingSkillIndex(index)}
+                                    className="text-blue-500 hover:text-blue-700 p-1 rounded"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeSkill(index)}
+                                    className="text-red-500 hover:text-red-700 p-1 rounded"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -1240,19 +1376,58 @@ const AddCoursePage: React.FC = () => {
                       <div className="space-y-3">
                         {jobRoles.map((role, index) => (
                           <div key={index} className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                              <span>{role}</span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => removeJobRole(index)}
-                              className="text-red-500 hover:text-red-700 p-1 rounded"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
+                            {editingJobRoleIndex === index ? (
+                              <div className="flex-1 flex gap-2">
+                                <input
+                                  type="text"
+                                  value={role}
+                                  onChange={(e) => updateJobRole(index, e.target.value)}
+                                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                  autoFocus
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingJobRoleIndex(null)}
+                                  className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 text-sm"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingJobRoleIndex(null)}
+                                  className="bg-gray-300 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-400 text-sm"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            ) : (
+                              <>
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                  <span>{role}</span>
+                                </div>
+                                <div className="flex gap-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingJobRoleIndex(index)}
+                                    className="text-blue-500 hover:text-blue-700 p-1 rounded"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeJobRole(index)}
+                                    className="text-red-500 hover:text-red-700 p-1 rounded"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -1865,16 +2040,52 @@ const AddCoursePage: React.FC = () => {
                       <div className="flex flex-wrap gap-2">
                         {tags.map((tag, index) => (
                           <span key={index} className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                            {tag}
-                            <button
-                              type="button"
-                              onClick={() => removeTag(index)}
-                              className="ml-2 text-blue-600 hover:text-blue-800"
-                            >
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
+                            {editingTagIndex === index ? (
+                              <div className="flex gap-1">
+                                <input
+                                  type="text"
+                                  value={tag}
+                                  onChange={(e) => updateTag(index, e.target.value)}
+                                  className="px-2 py-1 border border-blue-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
+                                  style={{ width: `${Math.max(tag.length * 8, 60)}px` }}
+                                  autoFocus
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingTagIndex(null)}
+                                  className="text-blue-600 hover:text-blue-800"
+                                  title="Save"
+                                >
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                </button>
+                              </div>
+                            ) : (
+                              <>
+                                {tag}
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingTagIndex(index)}
+                                  className="ml-1 text-blue-600 hover:text-blue-800"
+                                  title="Edit"
+                                >
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => removeTag(index)}
+                                  className="ml-2 text-blue-600 hover:text-blue-800"
+                                  title="Delete"
+                                >
+                                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              </>
+                            )}
                           </span>
                         ))}
                       </div>
@@ -1903,19 +2114,58 @@ const AddCoursePage: React.FC = () => {
                       <div className="space-y-3">
                         {requirements.map((requirement, index) => (
                           <div key={index} className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                              <span>{requirement}</span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => removeRequirement(index)}
-                              className="text-red-500 hover:text-red-700 p-1 rounded"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
+                            {editingRequirementIndex === index ? (
+                              <div className="flex-1 flex gap-2">
+                                <input
+                                  type="text"
+                                  value={requirement}
+                                  onChange={(e) => updateRequirement(index, e.target.value)}
+                                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+                                  autoFocus
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingRequirementIndex(null)}
+                                  className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 text-sm"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingRequirementIndex(null)}
+                                  className="bg-gray-300 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-400 text-sm"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            ) : (
+                              <>
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                  <span>{requirement}</span>
+                                </div>
+                                <div className="flex gap-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingRequirementIndex(index)}
+                                    className="text-blue-500 hover:text-blue-700 p-1 rounded"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeRequirement(index)}
+                                    className="text-red-500 hover:text-red-700 p-1 rounded"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -1944,19 +2194,58 @@ const AddCoursePage: React.FC = () => {
                       <div className="space-y-3">
                         {learningOutcomes.map((outcome, index) => (
                           <div key={index} className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                              <span>{outcome}</span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => removeLearningOutcome(index)}
-                              className="text-red-500 hover:text-red-700 p-1 rounded"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
+                            {editingLearningOutcomeIndex === index ? (
+                              <div className="flex-1 flex gap-2">
+                                <input
+                                  type="text"
+                                  value={outcome}
+                                  onChange={(e) => updateLearningOutcome(index, e.target.value)}
+                                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                                  autoFocus
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingLearningOutcomeIndex(null)}
+                                  className="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 text-sm"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingLearningOutcomeIndex(null)}
+                                  className="bg-gray-300 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-400 text-sm"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            ) : (
+                              <>
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                  <span>{outcome}</span>
+                                </div>
+                                <div className="flex gap-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingLearningOutcomeIndex(index)}
+                                    className="text-blue-500 hover:text-blue-700 p-1 rounded"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeLearningOutcome(index)}
+                                    className="text-red-500 hover:text-red-700 p-1 rounded"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -1985,19 +2274,58 @@ const AddCoursePage: React.FC = () => {
                       <div className="space-y-3">
                         {features.map((feature, index) => (
                           <div key={index} className="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                              <span>{feature}</span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => removeFeature(index)}
-                              className="text-red-500 hover:text-red-700 p-1 rounded"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
+                            {editingFeatureIndex === index ? (
+                              <div className="flex-1 flex gap-2">
+                                <input
+                                  type="text"
+                                  value={feature}
+                                  onChange={(e) => updateFeature(index, e.target.value)}
+                                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                                  autoFocus
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingFeatureIndex(null)}
+                                  className="bg-purple-600 text-white px-3 py-2 rounded-lg hover:bg-purple-700 text-sm"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingFeatureIndex(null)}
+                                  className="bg-gray-300 text-gray-700 px-3 py-2 rounded-lg hover:bg-gray-400 text-sm"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            ) : (
+                              <>
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                                  <span>{feature}</span>
+                                </div>
+                                <div className="flex gap-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingFeatureIndex(index)}
+                                    className="text-blue-500 hover:text-blue-700 p-1 rounded"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeFeature(index)}
+                                    className="text-red-500 hover:text-red-700 p-1 rounded"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </>
+                            )}
                           </div>
                         ))}
                       </div>
