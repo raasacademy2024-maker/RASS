@@ -5,6 +5,7 @@ import Footer from "../../components/layout/Footer";
 import { userAPI } from "../../services/api";
 
 interface CurriculumSection {
+  order: number;
   subtitle: string;
   description: string;
 }
@@ -56,7 +57,6 @@ const AddCoursePage: React.FC = () => {
   const [about, setAbout] = useState('');
   const [instructor, setInstructor] = useState('');
   const [category, setCategory] = useState('');
-  const [level, setLevel] = useState('beginner');
   const [price, setPrice] = useState('');
   const [thumbnail, setThumbnail] = useState('');
   
@@ -73,12 +73,17 @@ const AddCoursePage: React.FC = () => {
   const [requirements, setRequirements] = useState<string[]>([]);
   const [learningOutcomes, setLearningOutcomes] = useState<string[]>([]);
   
+  // Auto-save state
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [autoSaving, setAutoSaving] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  
   // Temporary input states for array items
   const [newCurriculumItem, setNewCurriculumItem] = useState({
     order: 1,
     logoUrl: '',
     title: '',
-    sections: [{ subtitle: '', description: '' }]
+    sections: [{ order: 1, subtitle: '', description: '' }]
   });
   const [newFeature, setNewFeature] = useState('');
   const [newTechStackItem, setNewTechStackItem] = useState({ name: '', imageUrl: '' });
@@ -125,7 +130,73 @@ const AddCoursePage: React.FC = () => {
     };
     
     fetchInstructors();
+    
+    // Load draft from localStorage
+    const savedDraft = localStorage.getItem('course_draft');
+    if (savedDraft) {
+      try {
+        const draft = JSON.parse(savedDraft);
+        setTitle(draft.title || '');
+        setDescription(draft.description || '');
+        setAbout(draft.about || '');
+        setInstructor(draft.instructor || '');
+        setCategory(draft.category || '');
+        setPrice(draft.price || '');
+        setThumbnail(draft.thumbnail || '');
+        setCurriculum(draft.curriculum || []);
+        setFeatures(draft.features || []);
+        setTechStack(draft.techStack || []);
+        setSkillsGained(draft.skillsGained || []);
+        setJobRoles(draft.jobRoles || []);
+        setTestimonials(draft.testimonials || []);
+        setFaqs(draft.faqs || []);
+        setModules(draft.modules || []);
+        setTags(draft.tags || []);
+        setRequirements(draft.requirements || []);
+        setLearningOutcomes(draft.learningOutcomes || []);
+        setLastSaved(new Date(draft.lastSaved));
+      } catch (err) {
+        console.error('Error loading draft:', err);
+      }
+    }
   }, []);
+
+  // Auto-save to localStorage every 30 seconds
+  useEffect(() => {
+    const saveDraft = () => {
+      setAutoSaving(true);
+      const draft = {
+        title,
+        description,
+        about,
+        instructor,
+        category,
+        price,
+        thumbnail,
+        curriculum,
+        features,
+        techStack,
+        skillsGained,
+        jobRoles,
+        testimonials,
+        faqs,
+        modules,
+        tags,
+        requirements,
+        learningOutcomes,
+        lastSaved: new Date().toISOString()
+      };
+      localStorage.setItem('course_draft', JSON.stringify(draft));
+      setLastSaved(new Date());
+      setTimeout(() => setAutoSaving(false), 500);
+    };
+
+    // Only auto-save if there's some content
+    if (title || description || about) {
+      const timer = setTimeout(saveDraft, 30000); // Auto-save every 30 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [title, description, about, instructor, category, price, thumbnail, curriculum, features, techStack, skillsGained, jobRoles, testimonials, faqs, modules, tags, requirements, learningOutcomes]);
 
   // Helper functions for array management
   const addCurriculumItem = () => {
@@ -135,7 +206,7 @@ const AddCoursePage: React.FC = () => {
         order: curriculum.length + 2,
         logoUrl: '',
         title: '',
-        sections: [{ subtitle: '', description: '' }]
+        sections: [{ order: 1, subtitle: '', description: '' }]
       });
       setActiveSection('curriculum');
     }
@@ -155,13 +226,16 @@ const AddCoursePage: React.FC = () => {
   const addSectionField = () => {
     setNewCurriculumItem({
       ...newCurriculumItem,
-      sections: [...newCurriculumItem.sections, { subtitle: '', description: '' }]
+      sections: [...newCurriculumItem.sections, { order: newCurriculumItem.sections.length + 1, subtitle: '', description: '' }]
     });
   };
 
   const removeSectionField = (index: number) => {
     const updatedSections = newCurriculumItem.sections.filter((_, i) => i !== index);
-    setNewCurriculumItem({ ...newCurriculumItem, sections: updatedSections });
+    setNewCurriculumItem({ 
+      ...newCurriculumItem, 
+      sections: updatedSections.map((section, i) => ({ ...section, order: i + 1 }))
+    });
   };
 
   const addFeature = () => {
@@ -300,6 +374,49 @@ const AddCoursePage: React.FC = () => {
     setLearningOutcomes(learningOutcomes.filter((_, i) => i !== index));
   };
 
+  // Reordering functions for curriculum
+  const moveCurriculumItem = (index: number, direction: 'up' | 'down') => {
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === curriculum.length - 1) return;
+    
+    const newCurriculum = [...curriculum];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    [newCurriculum[index], newCurriculum[targetIndex]] = [newCurriculum[targetIndex], newCurriculum[index]];
+    
+    // Update order numbers
+    setCurriculum(newCurriculum.map((item, i) => ({ ...item, order: i + 1 })));
+  };
+
+  const moveSection = (curriculumIndex: number, sectionIndex: number, direction: 'up' | 'down') => {
+    const item = curriculum[curriculumIndex];
+    if (direction === 'up' && sectionIndex === 0) return;
+    if (direction === 'down' && sectionIndex === item.sections.length - 1) return;
+    
+    const newSections = [...item.sections];
+    const targetIndex = direction === 'up' ? sectionIndex - 1 : sectionIndex + 1;
+    [newSections[sectionIndex], newSections[targetIndex]] = [newSections[targetIndex], newSections[sectionIndex]];
+    
+    // Update order numbers
+    const updatedSections = newSections.map((section, i) => ({ ...section, order: i + 1 }));
+    const newCurriculum = curriculum.map((c, i) => 
+      i === curriculumIndex ? { ...c, sections: updatedSections } : c
+    );
+    setCurriculum(newCurriculum);
+  };
+
+  // Reordering functions for modules
+  const moveModule = (index: number, direction: 'up' | 'down') => {
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === modules.length - 1) return;
+    
+    const newModules = [...modules];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    [newModules[index], newModules[targetIndex]] = [newModules[targetIndex], newModules[index]];
+    
+    // Update order numbers
+    setModules(newModules.map((item, i) => ({ ...item, order: i + 1 })));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -312,7 +429,6 @@ const AddCoursePage: React.FC = () => {
         about,
         instructor,
         category,
-        level,
         price: parseInt(price),
         thumbnail,
         curriculum,
@@ -340,6 +456,8 @@ const AddCoursePage: React.FC = () => {
         throw new Error('Failed to create course');
       }
       
+      // Clear localStorage draft on successful submission
+      localStorage.removeItem('course_draft');
       setSuccess(true);
       setTimeout(() => {
         navigate('/courses');
@@ -406,11 +524,23 @@ const AddCoursePage: React.FC = () => {
                 <div>
                   <h1 className="text-3xl font-bold text-white">Create New Course</h1>
                   <p className="mt-2 text-blue-100">Build an engaging learning experience for your students</p>
+                  {lastSaved && (
+                    <p className="mt-1 text-sm text-blue-200">
+                      {autoSaving ? '💾 Saving...' : `✓ Last saved: ${lastSaved.toLocaleTimeString()}`}
+                    </p>
+                  )}
                 </div>
-                <div className="hidden md:block">
+                <div className="hidden md:flex md:flex-col md:gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowPreview(true)}
+                    className="bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg px-4 py-2 text-white text-sm font-medium transition-colors duration-200"
+                  >
+                    👁️ Preview Course
+                  </button>
                   <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
                     <p className="text-white text-sm font-medium">Quick Tips</p>
-                    <p className="text-blue-100 text-xs">Complete all sections for best results</p>
+                    <p className="text-blue-100 text-xs">Auto-save every 30s</p>
                   </div>
                 </div>
               </div>
@@ -553,38 +683,21 @@ const AddCoursePage: React.FC = () => {
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label htmlFor="level" className="block text-sm font-semibold text-gray-700 mb-2">
-                            Difficulty Level
-                          </label>
-                          <select
-                            id="level"
-                            value={level}
-                            onChange={(e) => setLevel(e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                          >
-                            <option value="beginner">👶 Beginner</option>
-                            <option value="intermediate">🚀 Intermediate</option>
-                            <option value="advanced">🔥 Advanced</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label htmlFor="price" className="block text-sm font-semibold text-gray-700 mb-2">
-                            Price ($)
-                          </label>
-                          <input
-                            type="number"
-                            id="price"
-                            value={price}
-                            onChange={(e) => setPrice(e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                            placeholder="0"
-                            min="0"
-                            required
-                          />
-                        </div>
+                      <div>
+                        <label htmlFor="price" className="block text-sm font-semibold text-gray-700 mb-2">
+                          Price ($) *
+                        </label>
+                        <input
+                          type="number"
+                          id="price"
+                          value={price}
+                          onChange={(e) => setPrice(e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                          placeholder="0"
+                          min="0"
+                          required
+                        />
+                      </div>
                       </div>
                     </div>
 
@@ -666,7 +779,7 @@ const AddCoursePage: React.FC = () => {
                     {curriculum.map((item, index) => (
                       <div key={index} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
                         <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-start space-x-4">
+                          <div className="flex items-start space-x-4 flex-1">
                             <div className="flex-shrink-0 w-10 h-10 bg-amber-100 text-amber-800 rounded-lg flex items-center justify-center font-bold">
                               {item.order}
                             </div>
@@ -684,22 +797,78 @@ const AddCoursePage: React.FC = () => {
                               )}
                             </div>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => removeCurriculumItem(index)}
-                            className="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-50 transition-colors duration-200"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => moveCurriculumItem(index, 'up')}
+                              disabled={index === 0}
+                              className="text-gray-500 hover:text-gray-700 p-1 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-200"
+                              title="Move up"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                              </svg>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveCurriculumItem(index, 'down')}
+                              disabled={index === curriculum.length - 1}
+                              className="text-gray-500 hover:text-gray-700 p-1 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-200"
+                              title="Move down"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => removeCurriculumItem(index)}
+                              className="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-50 transition-colors duration-200"
+                              title="Delete"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
                         </div>
                         
                         <div className="space-y-3 ml-14">
                           {item.sections.map((section, sectionIndex) => (
-                            <div key={sectionIndex} className="bg-gray-50 rounded-lg p-4">
-                              <h4 className="font-medium text-gray-900">{section.subtitle}</h4>
-                              <p className="text-gray-600 mt-1">{section.description}</p>
+                            <div key={sectionIndex} className="bg-gray-50 rounded-lg p-4 flex items-start justify-between group">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-200 text-amber-900 text-xs font-bold">
+                                    {item.order}.{section.order}
+                                  </span>
+                                  <h4 className="font-medium text-gray-900">{section.subtitle}</h4>
+                                </div>
+                                <p className="text-gray-600 mt-1 ml-8">{section.description}</p>
+                              </div>
+                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button
+                                  type="button"
+                                  onClick={() => moveSection(index, sectionIndex, 'up')}
+                                  disabled={sectionIndex === 0}
+                                  className="text-gray-400 hover:text-gray-600 p-1 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                                  title="Move up"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                  </svg>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => moveSection(index, sectionIndex, 'down')}
+                                  disabled={sectionIndex === item.sections.length - 1}
+                                  className="text-gray-400 hover:text-gray-600 p-1 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                                  title="Move down"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </button>
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -986,7 +1155,7 @@ const AddCoursePage: React.FC = () => {
                     {modules.map((module, index) => (
                       <div key={index} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
                         <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-start space-x-4">
+                          <div className="flex items-start space-x-4 flex-1">
                             <div className="flex-shrink-0 w-10 h-10 bg-indigo-100 text-indigo-800 rounded-lg flex items-center justify-center font-bold">
                               {module.order}
                             </div>
@@ -1017,15 +1186,40 @@ const AddCoursePage: React.FC = () => {
                               </div>
                             </div>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => removeModule(index)}
-                            className="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-50 transition-colors duration-200"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => moveModule(index, 'up')}
+                              disabled={index === 0}
+                              className="text-gray-500 hover:text-gray-700 p-1 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-200"
+                              title="Move up"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                              </svg>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveModule(index, 'down')}
+                              disabled={index === modules.length - 1}
+                              className="text-gray-500 hover:text-gray-700 p-1 rounded-lg hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-200"
+                              title="Move down"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                              </svg>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => removeModule(index)}
+                              className="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-50 transition-colors duration-200"
+                              title="Delete"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
                         </div>
                         
                         {module.resources.length > 0 && (
@@ -1595,6 +1789,184 @@ const AddCoursePage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Preview Modal */}
+      {showPreview && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-purple-700 px-6 py-4 flex items-center justify-between">
+              <h2 className="text-2xl font-bold text-white">Course Preview</h2>
+              <button
+                onClick={() => setShowPreview(false)}
+                className="text-white hover:text-gray-200 p-2 rounded-lg hover:bg-white/20 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="p-8 space-y-8">
+              {/* Basic Info */}
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900">{title || 'Untitled Course'}</h3>
+                <p className="text-gray-600 mt-2">{description}</p>
+                {thumbnail && (
+                  <img src={thumbnail} alt={title} className="mt-4 w-full h-64 object-cover rounded-lg" />
+                )}
+                <div className="mt-4 flex flex-wrap gap-4">
+                  <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg">
+                    <span className="font-semibold">Category:</span> {category || 'N/A'}
+                  </div>
+                  <div className="bg-green-100 text-green-800 px-4 py-2 rounded-lg">
+                    <span className="font-semibold">Price:</span> ${price || '0'}
+                  </div>
+                </div>
+              </div>
+
+              {/* About */}
+              {about && (
+                <div>
+                  <h4 className="text-xl font-bold text-gray-900 mb-2">About This Course</h4>
+                  <p className="text-gray-600 whitespace-pre-wrap">{about}</p>
+                </div>
+              )}
+
+              {/* Curriculum */}
+              {curriculum.length > 0 && (
+                <div>
+                  <h4 className="text-xl font-bold text-gray-900 mb-4">Curriculum</h4>
+                  <div className="space-y-4">
+                    {curriculum.map((item, idx) => (
+                      <div key={idx} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="bg-amber-100 text-amber-800 px-3 py-1 rounded-full font-bold">{item.order}</span>
+                          <h5 className="font-semibold text-gray-900">{item.title}</h5>
+                        </div>
+                        {item.sections.map((section, sidx) => (
+                          <div key={sidx} className="ml-10 mt-2 pl-4 border-l-2 border-gray-200">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm bg-gray-100 text-gray-700 px-2 py-1 rounded">{item.order}.{section.order}</span>
+                              <p className="font-medium">{section.subtitle}</p>
+                            </div>
+                            {section.description && <p className="text-sm text-gray-600 mt-1">{section.description}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Modules */}
+              {modules.length > 0 && (
+                <div>
+                  <h4 className="text-xl font-bold text-gray-900 mb-4">Course Modules</h4>
+                  <div className="space-y-3">
+                    {modules.map((module, idx) => (
+                      <div key={idx} className="border border-gray-200 rounded-lg p-4 flex items-start gap-4">
+                        <span className="bg-indigo-100 text-indigo-800 px-3 py-1 rounded-full font-bold flex-shrink-0">{module.order}</span>
+                        <div className="flex-1">
+                          <h5 className="font-semibold text-gray-900">{module.title}</h5>
+                          <p className="text-sm text-gray-600 mt-1">{module.description}</p>
+                          <p className="text-xs text-gray-500 mt-1">Duration: {module.duration} minutes</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Tech Stack */}
+              {techStack.length > 0 && (
+                <div>
+                  <h4 className="text-xl font-bold text-gray-900 mb-4">Technologies Used</h4>
+                  <div className="flex flex-wrap gap-3">
+                    {techStack.map((tech, idx) => (
+                      <div key={idx} className="bg-gray-100 px-4 py-2 rounded-lg flex items-center gap-2">
+                        <img src={tech.imageUrl} alt={tech.name} className="w-6 h-6 object-contain" />
+                        <span className="font-medium">{tech.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Skills & Job Roles */}
+              {(skillsGained.length > 0 || jobRoles.length > 0) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {skillsGained.length > 0 && (
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-900 mb-3">Skills You'll Gain</h4>
+                      <ul className="space-y-2">
+                        {skillsGained.map((skill, idx) => (
+                          <li key={idx} className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span>{skill}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {jobRoles.length > 0 && (
+                    <div>
+                      <h4 className="text-lg font-bold text-gray-900 mb-3">Career Opportunities</h4>
+                      <ul className="space-y-2">
+                        {jobRoles.map((role, idx) => (
+                          <li key={idx} className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <span>{role}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Testimonials */}
+              {testimonials.length > 0 && (
+                <div>
+                  <h4 className="text-xl font-bold text-gray-900 mb-4">What Students Say</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {testimonials.map((testimonial, idx) => (
+                      <div key={idx} className="bg-gray-50 p-4 rounded-lg">
+                        <p className="text-gray-600 italic">"{testimonial.description}"</p>
+                        <p className="font-semibold text-gray-900 mt-2">— {testimonial.name}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* FAQs */}
+              {faqs.length > 0 && (
+                <div>
+                  <h4 className="text-xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h4>
+                  <div className="space-y-4">
+                    {faqs.map((faq, idx) => (
+                      <div key={idx} className="border-b border-gray-200 pb-4">
+                        <p className="font-semibold text-gray-900">{faq.question}</p>
+                        <p className="text-gray-600 mt-2">{faq.answer}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-4 pt-4 border-t">
+                <button
+                  onClick={() => setShowPreview(false)}
+                  className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  Close Preview
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );
