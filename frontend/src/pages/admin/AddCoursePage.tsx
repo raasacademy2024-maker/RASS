@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
+import { userAPI } from "../../services/api";
 
 interface CurriculumSection {
   subtitle: string;
@@ -98,11 +99,33 @@ const AddCoursePage: React.FC = () => {
   const [newLearningOutcome, setNewLearningOutcome] = useState('');
   const [newResource, setNewResource] = useState({ title: '', url: '', type: 'link' });
   
+  // Instructors list for dropdown
+  const [instructors, setInstructors] = useState<any[]>([]);
+  const [loadingInstructors, setLoadingInstructors] = useState(false);
+  
   // UI State
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [activeSection, setActiveSection] = useState('basic');
+
+  // Fetch instructors on component mount
+  useEffect(() => {
+    const fetchInstructors = async () => {
+      try {
+        setLoadingInstructors(true);
+        const response = await userAPI.getInstructors();
+        setInstructors(response);
+      } catch (err) {
+        console.error('Error fetching instructors:', err);
+        setError('Failed to load instructors. You can still enter instructor ID manually.');
+      } finally {
+        setLoadingInstructors(false);
+      }
+    };
+    
+    fetchInstructors();
+  }, []);
 
   // Helper functions for array management
   const addCurriculumItem = () => {
@@ -481,17 +504,38 @@ const AddCoursePage: React.FC = () => {
 
                       <div>
                         <label htmlFor="instructor" className="block text-sm font-semibold text-gray-700 mb-2">
-                          Instructor ID *
+                          Instructor *
                         </label>
-                        <input
-                          type="text"
-                          id="instructor"
-                          value={instructor}
-                          onChange={(e) => setInstructor(e.target.value)}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                          placeholder="Enter instructor identifier"
-                          required
-                        />
+                        {loadingInstructors ? (
+                          <div className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 text-gray-500">
+                            Loading instructors...
+                          </div>
+                        ) : instructors.length > 0 ? (
+                          <select
+                            id="instructor"
+                            value={instructor}
+                            onChange={(e) => setInstructor(e.target.value)}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                            required
+                          >
+                            <option value="">Select an instructor</option>
+                            {instructors.map((inst) => (
+                              <option key={inst._id} value={inst._id}>
+                                {inst.name} ({inst.email})
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <input
+                            type="text"
+                            id="instructor"
+                            value={instructor}
+                            onChange={(e) => setInstructor(e.target.value)}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                            placeholder="Enter instructor ID manually"
+                            required
+                          />
+                        )}
                       </div>
 
                       <div>

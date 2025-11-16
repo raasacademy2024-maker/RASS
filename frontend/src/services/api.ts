@@ -299,6 +299,30 @@ export const userAPI = {
     }
   },
 
+  // Get all instructors (for dropdown in course creation)
+  getInstructors: async () => {
+    try {
+      const response = await apiClient.get("/users/role/instructors");
+      return response.data;
+    } catch (error: any) {
+      if (error.response) throw error;
+      else if (error.request) throw new Error("Network error. Please check your connection.");
+      else throw new Error("Failed to fetch instructors.");
+    }
+  },
+
+  // Admin change user password
+  changeUserPassword: async (id: string, password: string) => {
+    try {
+      const response = await apiClient.put(`/users/${id}/password`, { password });
+      return response.data;
+    } catch (error: any) {
+      if (error.response) throw error;
+      else if (error.request) throw new Error("Network error. Please check your connection.");
+      else throw new Error("Failed to change user password.");
+    }
+  },
+
   // Bulk operations
   bulkUpdateUsers: async (userIds: string[], updates: any) => {
     try {
