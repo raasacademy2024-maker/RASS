@@ -8,7 +8,7 @@ import {
   Download, Eye, Bookmark, Users
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { Assignment } from "../../types";
+import { Assignment, Enrollment } from "../../types";
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from "framer-motion";
 type ExtendedAssignment = Assignment & {
   courseTitle?: string;
   courseId?: string;
+  batchName?: string;
   submissionStatus?: "pending" | "submitted" | "graded";
   grade?: number;
 };
@@ -24,6 +25,7 @@ const Assignments: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const { user } = useAuth();
   const [assignments, setAssignments] = useState<ExtendedAssignment[]>([]);
+  const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
   const [courses, setCourses] = useState<{ _id: string; title: string }[]>([]);
   const [selectedCourseId, setSelectedCourseId] = useState<string>("all");
   const [loading, setLoading] = useState(true);
@@ -34,29 +36,50 @@ const Assignments: React.FC = () => {
 
   useEffect(() => {
     fetchAssignments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId]);
 
   const fetchAssignments = async () => {
     try {
       setLoading(true);
       if (courseId) {
-        const response = await assignmentAPI.getCourseAssignments(courseId);
-        setAssignments(response.data);
-      } else {
+        // If viewing a specific course, get user's batch from enrollment
         const enrollmentsRes = await enrollmentAPI.getMyEnrollments();
-        const enrollments = enrollmentsRes.data;
+        const enrollment = enrollmentsRes.data.find((e: Enrollment) => 
+          (typeof e.course === 'object' ? e.course._id : e.course) === courseId
+        );
+        const batchId = enrollment?.batch?._id;
+        
+        // Fetch assignments with batch filter
+        const response = await assignmentAPI.getCourseAssignments(courseId, batchId);
+        const assignmentsWithBatch = response.data.map((a: Assignment) => ({
+          ...a,
+          batchName: enrollment?.batch?.name,
+        }));
+        setAssignments(assignmentsWithBatch);
+      } else {
+        // Fetch all enrollments
+        const enrollmentsRes = await enrollmentAPI.getMyEnrollments();
+        const enrollmentsList = enrollmentsRes.data;
+        setEnrollments(enrollmentsList);
 
-        setCourses(enrollments.map((e: any) => e.course));
+        setCourses(enrollmentsList.map((e: Enrollment) => e.course));
 
+        // Fetch assignments for each enrolled course, filtered by batch
         let allAssignments: ExtendedAssignment[] = [];
-        for (const e of enrollments) {
-          const res = await assignmentAPI.getCourseAssignments(e.course._id);
+        for (const e of enrollmentsList) {
+          const courseIdStr = typeof e.course === 'object' ? e.course._id : e.course;
+          const batchId = e.batch?._id;
+          
+          const res = await assignmentAPI.getCourseAssignments(courseIdStr, batchId);
           const courseAssignments = res.data.map((a: Assignment) => ({
             ...a,
-            courseTitle: e.course.title,
-            courseId: e.course._id,
-            submissionStatus: Math.random() > 0.7 ? "graded" : Math.random() > 0.5 ? "submitted" : "pending",
-            grade: Math.random() > 0.7 ? Math.floor(Math.random() * 30) + 70 : undefined,
+            courseTitle: typeof e.course === 'object' ? e.course.title : 'Unknown Course',
+            courseId: courseIdStr,
+            batchName: e.batch?.name,
+            // TODO: Get actual submission status from assignment submissions
+            submissionStatus: "pending" as const,
+            grade: undefined,
           }));
           allAssignments = [...allAssignments, ...courseAssignments];
         }
@@ -368,9 +391,15 @@ const Assignments: React.FC = () => {
                         
                         {/* Metadata */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                          {assignment.batchName && (
+                            <div className="flex items-center gap-2 text-gray-600">
+                              <Users className="h-4 w-4 text-purple-600" />
+                              <span>Batch: {assignment.batchName}</span>
+                            </div>
+                          )}
                           <div className="flex items-center gap-2 text-gray-600">
                             <Calendar className="h-4 w-4 text-indigo-600" />
-                            <span>Due: {new Date(assignment.dueDate).toLocaleDateString()}</span>
+                            <span>Due: {assignment.dueDate ? new Date(assignment.dueDate).toLocaleDateString() : 'No deadline'}</span>
                           </div>
                           <div className="flex items-center gap-2 text-gray-600">
                             <Award className="h-4 w-4 text-amber-600" />

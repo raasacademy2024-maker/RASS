@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Navbar from './components/layout/Navbar';
 import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
@@ -21,8 +20,6 @@ import Students from './pages/instructor/Students';
 import BatchManagement from './pages/instructor/BatchManagement';
 import AdminBatchManagement from './pages/admin/BatchManagement';
 import UserManagement from './pages/admin/UserManagement';
-import SupportManagement from './pages/admin/SupportManagement';
-import SupportTicketsPage from './pages/student/SupportTicketsPage';
 import { NotificationProvider } from "./context/NotificationContext";
 import DiscussionForum from './pages/student/DiscussionForum';
 import Notifications from './pages/student/Notifications';

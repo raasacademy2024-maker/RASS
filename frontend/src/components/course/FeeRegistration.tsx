@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Award, Play, BookOpen, CheckCircle } from "lucide-react";
+import { Award, Play, BookOpen } from "lucide-react";
 import { Course, Enrollment } from "../../types";
 import { useAuth } from "../../context/AuthContext";
 

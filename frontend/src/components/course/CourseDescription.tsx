@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Users, Award, Target, Briefcase, Star, Zap, Clock, BookOpen } from "lucide-react";
+import { Users, Award, Target, Briefcase, Zap, BookOpen } from "lucide-react";
 
 interface Props {
   description: string;

@@ -255,7 +255,7 @@ const GlobalContactForm = () => {
         setIsSubmitted(false);
         setIsContactFormOpen(false);
       }, 3000);
-    } catch (err) {
+    } catch {
       alert("Failed to send message.");
     } finally {
       setIsSubmitting(false);

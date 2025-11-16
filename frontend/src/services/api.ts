@@ -130,8 +130,8 @@ export const enrollmentFormAPI = {
 
 /* ---------------- ASSIGNMENTS ---------------- */
 export const assignmentAPI = {
-  getCourseAssignments: (courseId: string) =>
-    apiClient.get(`/assignments/course/${courseId}`),
+  getCourseAssignments: (courseId: string, batchId?: string) =>
+    apiClient.get(`/assignments/course/${courseId}`, { params: batchId ? { batchId } : {} }),
   createAssignment: (data: any) => apiClient.post("/assignments", data),
   updateAssignment: (id: string, data: any) =>
     apiClient.put(`/assignments/${id}`, data),
@@ -354,8 +354,8 @@ export const userAPI = {
 /* ---------------- LIVE SESSIONS ---------------- */// ✅ make sure this import exists at top
 
 export const liveSessionAPI = {
-  getCourseSessions: (courseId: string) =>
-    apiClient.get(`/live-sessions/course/${courseId}`),
+  getCourseSessions: (courseId: string, batchId?: string) =>
+    apiClient.get(`/live-sessions/course/${courseId}`, { params: batchId ? { batchId } : {} }),
 
   getMySessions: () => apiClient.get("/live-sessions/my"),
 

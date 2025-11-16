@@ -3,9 +3,26 @@ import { X, User, Mail, Phone, GraduationCap, Briefcase, Calendar } from "lucide
 import { countryCodes } from "../../utils/countryCodes";
 import { batchAPI } from "../../services/api";
 
+interface Course {
+  _id: string;
+  title: string;
+  [key: string]: unknown;
+}
+
+interface FormData {
+  fullName: string;
+  email: string;
+  mobileNumber: string;
+  countryCode: string;
+  hasPriorExperience: string;
+  experienceDetails: string;
+  isStudent: string;
+  batchId: string;
+}
+
 interface EnrollmentFormProps {
-  course: any;
-  onSubmit: (formData: any) => Promise<void>;
+  course: Course;
+  onSubmit: (formData: FormData) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -20,7 +37,7 @@ interface Batch {
 }
 
 const EnrollmentForm: React.FC<EnrollmentFormProps> = ({ course, onSubmit, onCancel }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     fullName: "",
     email: "",
     mobileNumber: "",
@@ -34,12 +51,6 @@ const EnrollmentForm: React.FC<EnrollmentFormProps> = ({ course, onSubmit, onCan
   const [loadingBatches, setLoadingBatches] = useState(true);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    if (course?._id) {
-      fetchBatches();
-    }
-  }, [course]);
 
   const fetchBatches = async () => {
     try {
@@ -56,6 +67,13 @@ const EnrollmentForm: React.FC<EnrollmentFormProps> = ({ course, onSubmit, onCan
       setLoadingBatches(false);
     }
   };
+
+  useEffect(() => {
+    if (course?._id) {
+      fetchBatches();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [course]);
 
   const validatePhone = (phone: string): boolean => {
     const selectedCountry = countryCodes.find(c => c.code === formData.countryCode);

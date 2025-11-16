@@ -99,7 +99,7 @@ const ToolsTechnologies: React.FC<Props> = ({ tools }) => {
               whileInView="visible"
               className="flex justify-center gap-8 flex-wrap"
             >
-              {row.map((tool, i) => (
+              {row.map((tool) => (
                 <motion.div
                   key={tool.name}
                   variants={itemVariants}
