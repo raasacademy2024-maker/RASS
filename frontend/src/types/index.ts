@@ -104,6 +104,15 @@ export interface Enrollment {
     role?: string;
   }; // ✅ always an object now
   course: Course;
+  batch?: {
+    _id: string;
+    name: string;
+    startDate: string;
+    endDate: string;
+    capacity: number;
+    enrolledCount: number;
+    isActive: boolean;
+  };
   enrolledAt: string;
   progress: ModuleProgress[];
   completed: boolean;
@@ -127,6 +136,7 @@ export interface Assignment {
   title: string;
   description: string;
   course: string;
+  batch?: string;
   module: string;
   dueDate?: string;
   maxPoints: number;
@@ -193,6 +203,7 @@ export interface LiveSession {
   title: string;
   description?: string;
   course: string;
+  batch?: string;
   instructor: {
     _id: string;
     name: string;
