@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { liveSessionAPI, notificationAPI } from "../../services/api";
+import { liveSessionAPI, notificationAPI, enrollmentAPI } from "../../services/api";
 import { useNotification } from "../../context/NotificationContext";
 import {
   Calendar,
@@ -30,6 +30,7 @@ const LiveSessions: React.FC = () => {
       fetchMySessions();
     }
     markLiveSessionNotificationsAsRead();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId]);
 
   const markLiveSessionNotificationsAsRead = async () => {
@@ -49,7 +50,15 @@ const LiveSessions: React.FC = () => {
 
   const fetchCourseSessions = async (id: string) => {
     try {
-      const response = await liveSessionAPI.getCourseSessions(id);
+      // Get user's batch from enrollment
+      const enrollmentsRes = await enrollmentAPI.getMyEnrollments();
+      const enrollment = enrollmentsRes.data.find((e: any) => 
+        (typeof e.course === 'object' ? e.course._id : e.course) === id
+      );
+      const batchId = enrollment?.batch?._id;
+      
+      // Fetch sessions with batch filter
+      const response = await liveSessionAPI.getCourseSessions(id, batchId);
       setSessions(response.data);
     } catch (error) {
       console.error("Error fetching sessions:", error);
