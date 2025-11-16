@@ -35,7 +35,6 @@ export interface Course {
     };
   };
   category: string;
-  level: 'beginner' | 'intermediate' | 'advanced';
   price: number;
   thumbnail?: string;
   modules: Module[];
