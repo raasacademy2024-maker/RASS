@@ -136,7 +136,7 @@ router.get('/my-courses', authenticate, async (req, res) => {
          select: 'name _id role' // include id + role
        }
      })
-     .populate('batch', 'name startDate endDate capacity enrolledCount')
+     .populate('batch', 'name startDate endDate capacity enrolledCount isActive')
       .sort({ enrolledAt: -1 });
 
     res.json(enrollments);
@@ -153,10 +153,21 @@ router.post('/progress', authenticate, async (req, res) => {
     const enrollment = await Enrollment.findOne({
       student: req.user._id,
       course: courseId
-    });
+    }).populate('batch');
 
     if (!enrollment) {
       return res.status(404).json({ message: 'Enrollment not found' });
+    }
+
+    // Check batch access before allowing progress update
+    const accessCheck = await enrollment.isCourseAccessible();
+    if (!accessCheck.accessible) {
+      return res.status(403).json({
+        message: accessCheck.message,
+        reason: accessCheck.reason,
+        startDate: accessCheck.startDate,
+        endDate: accessCheck.endDate
+      });
     }
 
     const progressIndex = enrollment.progress.findIndex(
@@ -183,6 +194,27 @@ router.post('/progress', authenticate, async (req, res) => {
 
     await enrollment.save();
     res.json(enrollment);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Check course access based on batch dates
+router.get('/check-access/:courseId', authenticate, async (req, res) => {
+  try {
+    const { courseId } = req.params;
+
+    const enrollment = await Enrollment.findOne({
+      student: req.user._id,
+      course: courseId
+    }).populate('batch');
+
+    if (!enrollment) {
+      return res.status(404).json({ message: 'Enrollment not found' });
+    }
+
+    const accessCheck = await enrollment.isCourseAccessible();
+    res.json(accessCheck);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -225,6 +257,71 @@ router.get(
     } catch (error) {
       console.error("Error fetching course enrollments:", error);
       res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+);
+
+// Cancel enrollment (Admin/Instructor only)
+router.delete(
+  "/:enrollmentId",
+  authenticate,
+  authorize("instructor", "admin"),
+  async (req, res) => {
+    try {
+      const { enrollmentId } = req.params;
+      
+      const enrollment = await Enrollment.findById(enrollmentId)
+        .populate('course', 'instructor')
+        .populate('student', 'name email');
+
+      if (!enrollment) {
+        return res.status(404).json({ message: "Enrollment not found" });
+      }
+
+      // Check if user is authorized (admin or course instructor)
+      const course = enrollment.course;
+      if (req.user.role !== 'admin' && course.instructor.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ message: "Not authorized to cancel this enrollment" });
+      }
+
+      // Update course enrollment count
+      const fullCourse = await Course.findById(course._id || course);
+      if (fullCourse && fullCourse.enrollmentCount > 0) {
+        fullCourse.enrollmentCount -= 1;
+        await fullCourse.save();
+      }
+
+      // Update batch enrollment count if batch enrollment
+      if (enrollment.batch) {
+        const Batch = (await import('../models/Batch.js')).default;
+        const batch = await Batch.findById(enrollment.batch);
+        if (batch && batch.enrolledCount > 0) {
+          batch.enrolledCount -= 1;
+          await batch.save();
+        }
+      }
+
+      // Remove from user's enrolled courses
+      const User = (await import('../models/User.js')).default;
+      const student = await User.findById(enrollment.student._id || enrollment.student);
+      if (student) {
+        student.enrolledCourses = student.enrolledCourses.filter(
+          courseId => courseId.toString() !== (course._id || course).toString()
+        );
+        await student.save();
+      }
+
+      // Delete the enrollment
+      await Enrollment.findByIdAndDelete(enrollmentId);
+
+      res.json({ 
+        message: "Enrollment cancelled successfully",
+        studentName: enrollment.student.name,
+        studentEmail: enrollment.student.email
+      });
+    } catch (error) {
+      console.error("Error cancelling enrollment:", error);
+      res.status(500).json({ message: error.message });
     }
   }
 );

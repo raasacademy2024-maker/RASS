@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
-import { enrollmentFormAPI, courseAPI, batchAPI } from "../../services/api";
+import { enrollmentFormAPI, courseAPI, batchAPI, enrollmentAPI } from "../../services/api";
 import { Course } from "../../types";
 import { 
   Search, 
@@ -14,7 +14,8 @@ import {
   Clock, 
   Eye,
   IndianRupee,
-  Download
+  Download,
+  Ban
 } from "lucide-react";
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
@@ -26,6 +27,7 @@ const EnrollmentManagement: React.FC = () => {
   const [batches, setBatches] = useState<any[]>([]);
   const [selectedBatch, setSelectedBatch] = useState<string>("all");
   const [forms, setForms] = useState<any[]>([]);
+  const [enrollments, setEnrollments] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedForm, setSelectedForm] = useState<any>(null);
@@ -40,10 +42,12 @@ const EnrollmentManagement: React.FC = () => {
       if (selectedCourse) {
         fetchEnrollmentForms(selectedCourse);
         fetchCourseBatches(selectedCourse);
+        fetchCourseEnrollments(selectedCourse);
       } else {
         fetchAllEnrollmentForms();
         setBatches([]);
         setSelectedBatch("all");
+        setEnrollments([]);
       }
     }
   }, [selectedCourse, courses]);
@@ -107,11 +111,40 @@ const EnrollmentManagement: React.FC = () => {
       // Refresh the forms
       if (selectedCourse) {
         fetchEnrollmentForms(selectedCourse);
+        fetchCourseEnrollments(selectedCourse);
       } else {
         fetchAllEnrollmentForms();
       }
     } catch (error) {
       console.error("Error updating payment status:", error);
+    }
+  };
+
+  const fetchCourseEnrollments = async (courseId: string) => {
+    try {
+      const res = await enrollmentAPI.getCourseEnrollments(courseId, selectedBatch !== "all" ? selectedBatch : undefined);
+      setEnrollments(res.data || []);
+    } catch (error) {
+      console.error("Error fetching enrollments:", error);
+      setEnrollments([]);
+    }
+  };
+
+  const cancelEnrollment = async (enrollmentId: string, studentName: string) => {
+    if (!confirm(`Are you sure you want to cancel enrollment for ${studentName}? This will immediately block their course access.`)) {
+      return;
+    }
+    
+    try {
+      await enrollmentAPI.cancelEnrollment(enrollmentId);
+      alert('Enrollment cancelled successfully');
+      // Refresh enrollments
+      if (selectedCourse) {
+        fetchCourseEnrollments(selectedCourse);
+      }
+    } catch (error: any) {
+      console.error("Error cancelling enrollment:", error);
+      alert(error.response?.data?.message || "Failed to cancel enrollment");
     }
   };
 
@@ -551,6 +584,111 @@ const EnrollmentManagement: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Active Enrollments Section */}
+      {selectedCourse && enrollments.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-xl shadow-sm">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="text-lg font-medium text-gray-900">
+                Active Enrollments ({enrollments.length})
+              </h2>
+              <p className="mt-1 text-sm text-gray-600">
+                Students currently enrolled in this course
+              </p>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Student
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Batch
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Enrolled Date
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Progress
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Payment
+                    </th>
+                    <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {enrollments.map((enrollment) => (
+                    <tr key={enrollment._id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-8 w-8 bg-indigo-100 rounded-full flex items-center justify-center">
+                            <User className="h-4 w-4 text-indigo-600" />
+                          </div>
+                          <div className="ml-3">
+                            <div className="text-sm font-medium text-gray-900">
+                              {enrollment.student?.name || 'Unknown Student'}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {enrollment.student?.email || 'No email'}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-900">
+                        {enrollment.batch?.name || 'No batch'}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-gray-500">
+                        <div className="flex items-center">
+                          <Calendar className="flex-shrink-0 mr-1 h-4 w-4 text-gray-400" />
+                          {new Date(enrollment.enrolledAt).toLocaleDateString()}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center">
+                          <div className="w-24 bg-gray-200 rounded-full h-2 mr-2">
+                            <div 
+                              className="bg-indigo-600 h-2 rounded-full" 
+                              style={{ width: `${enrollment.completionPercentage || 0}%` }}
+                            ></div>
+                          </div>
+                          <span className="text-xs text-gray-600">{enrollment.completionPercentage || 0}%</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {enrollment.paymentStatus === 'completed' ? (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <CheckCircle className="h-3 w-3 mr-1" /> Paid
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            <Clock className="h-3 w-3 mr-1" /> Pending
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-medium">
+                        <button
+                          onClick={() => cancelEnrollment(enrollment._id, enrollment.student?.name || 'this student')}
+                          className="inline-flex items-center px-3 py-1.5 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-xs font-medium"
+                          title="Cancel enrollment and block access"
+                        >
+                          <Ban className="h-3.5 w-3.5 mr-1" />
+                          Cancel Enrollment
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Form Details Modal */}
       {showFormDetails && selectedForm && (

@@ -43,6 +43,8 @@ const CoursePlayer: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [sessions, setSessions] = useState<any[]>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [accessCheck, setAccessCheck] = useState<any>(null);
+  const [checkingAccess, setCheckingAccess] = useState(true);
 
   useEffect(() => {
     if (courseId) {
@@ -52,12 +54,13 @@ const CoursePlayer: React.FC = () => {
 
   const fetchCourseData = async () => {
     try {
-      const [courseRes, enrollmentsRes, forumRes, sessionsRes] =
+      const [courseRes, enrollmentsRes, forumRes, sessionsRes, accessRes] =
         await Promise.all([
           courseAPI.getCourse(courseId!),
           enrollmentAPI.getMyEnrollments(),
           forumAPI.getCourseForums(courseId!),
           liveSessionAPI.getCourseSessions(courseId!),
+          enrollmentAPI.checkCourseAccess(courseId!),
         ]);
 
       setCourse(courseRes.data);
@@ -67,10 +70,12 @@ const CoursePlayer: React.FC = () => {
       setEnrollment(userEnrollment || null);
       setForumPosts(forumRes.data);
       setSessions(sessionsRes.data || []);
+      setAccessCheck(accessRes.data);
     } catch (error) {
       console.error("Error fetching course data:", error);
     } finally {
       setLoading(false);
+      setCheckingAccess(false);
     }
   };
 
@@ -83,15 +88,79 @@ const CoursePlayer: React.FC = () => {
         watchTime: course?.modules[currentModule]?.duration || 0,
       });
       await fetchCourseData();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating progress:", error);
+      // Show error message if batch access has expired
+      if (error.response?.data?.reason) {
+        alert(error.response.data.message);
+      }
     }
   };
 
-  if (loading) {
+  if (loading || checkingAccess) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-indigo-600"></div>
+      </div>
+    );
+  }
+
+  // Check if batch access is restricted
+  if (accessCheck && !accessCheck.accessible) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Navbar />
+        <div className="text-center max-w-2xl mx-auto px-4">
+          <div className="bg-white rounded-xl shadow-lg p-8">
+            <div className="mb-6">
+              <Calendar className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Course Access Restricted
+              </h2>
+              <p className="text-gray-600 text-lg mb-4">
+                {accessCheck.message}
+              </p>
+            </div>
+            
+            {enrollment?.batch && (
+              <div className="bg-indigo-50 rounded-lg p-6 border border-indigo-200">
+                <h3 className="text-lg font-semibold text-indigo-900 mb-4">
+                  Batch Information
+                </h3>
+                <div className="space-y-3 text-left">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Batch Name:</span>
+                    <span className="font-medium text-gray-900">
+                      {(enrollment.batch as any).name}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Start Date:</span>
+                    <span className="font-medium text-gray-900">
+                      {new Date(accessCheck.startDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">End Date:</span>
+                    <span className="font-medium text-gray-900">
+                      {new Date(accessCheck.endDate).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <div className="mt-6">
+              <a
+                href="/student/dashboard"
+                className="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+              >
+                Back to Dashboard
+              </a>
+            </div>
+          </div>
+        </div>
+        <Footer />
       </div>
     );
   }

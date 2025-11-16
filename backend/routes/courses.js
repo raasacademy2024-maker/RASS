@@ -11,11 +11,10 @@ const router = express.Router();
 // Get all courses
 router.get('/', async (req, res) => {
   try {
-    const { category, level, search, instructor } = req.query;
+    const { category, search, instructor } = req.query;
     let query = { isPublished: true };
 
     if (category) query.category = category;
-    if (level) query.level = level;
     if (instructor) query.instructor = instructor;
     if (search) {
       query.$or = [
