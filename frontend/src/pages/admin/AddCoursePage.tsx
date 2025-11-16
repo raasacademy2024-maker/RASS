@@ -113,6 +113,12 @@ const AddCoursePage: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [activeSection, setActiveSection] = useState('basic');
+  
+  // Edit states for inline editing
+  const [editingCurriculumIndex, setEditingCurriculumIndex] = useState<number | null>(null);
+  const [editingModuleIndex, setEditingModuleIndex] = useState<number | null>(null);
+  const [editingTestimonialIndex, setEditingTestimonialIndex] = useState<number | null>(null);
+  const [editingFaqIndex, setEditingFaqIndex] = useState<number | null>(null);
 
   // Fetch instructors on component mount
   useEffect(() => {
@@ -415,6 +421,74 @@ const AddCoursePage: React.FC = () => {
     
     // Update order numbers
     setModules(newModules.map((item, i) => ({ ...item, order: i + 1 })));
+  };
+
+  // Inline edit functions for curriculum
+  const startEditCurriculum = (index: number) => {
+    setEditingCurriculumIndex(index);
+  };
+
+  const saveEditCurriculum = () => {
+    setEditingCurriculumIndex(null);
+  };
+
+  const updateCurriculumField = (index: number, field: string, value: any) => {
+    const updated = [...curriculum];
+    updated[index] = { ...updated[index], [field]: value };
+    setCurriculum(updated);
+  };
+
+  const updateCurriculumSection = (currIndex: number, sectIndex: number, field: string, value: any) => {
+    const updated = [...curriculum];
+    const updatedSections = [...updated[currIndex].sections];
+    updatedSections[sectIndex] = { ...updatedSections[sectIndex], [field]: value };
+    updated[currIndex] = { ...updated[currIndex], sections: updatedSections };
+    setCurriculum(updated);
+  };
+
+  // Inline edit functions for modules
+  const startEditModule = (index: number) => {
+    setEditingModuleIndex(index);
+  };
+
+  const saveEditModule = () => {
+    setEditingModuleIndex(null);
+  };
+
+  const updateModuleField = (index: number, field: string, value: any) => {
+    const updated = [...modules];
+    updated[index] = { ...updated[index], [field]: value };
+    setModules(updated);
+  };
+
+  // Inline edit functions for testimonials
+  const startEditTestimonial = (index: number) => {
+    setEditingTestimonialIndex(index);
+  };
+
+  const saveEditTestimonial = () => {
+    setEditingTestimonialIndex(null);
+  };
+
+  const updateTestimonialField = (index: number, field: string, value: any) => {
+    const updated = [...testimonials];
+    updated[index] = { ...updated[index], [field]: value };
+    setTestimonials(updated);
+  };
+
+  // Inline edit functions for FAQs
+  const startEditFaq = (index: number) => {
+    setEditingFaqIndex(index);
+  };
+
+  const saveEditFaq = () => {
+    setEditingFaqIndex(null);
+  };
+
+  const updateFaqField = (index: number, field: string, value: any) => {
+    const updated = [...faqs];
+    updated[index] = { ...updated[index], [field]: value };
+    setFaqs(updated);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -783,20 +857,62 @@ const AddCoursePage: React.FC = () => {
                               {item.order}
                             </div>
                             <div className="flex-1">
-                              <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
-                              {item.logoUrl && (
-                                <img 
-                                  src={item.logoUrl} 
-                                  alt={item.title} 
-                                  className="mt-2 h-12 w-12 object-contain rounded-lg bg-gray-100 p-1"
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
-                                  }}
-                                />
+                              {editingCurriculumIndex === index ? (
+                                <div className="space-y-3">
+                                  <input
+                                    type="text"
+                                    value={item.title}
+                                    onChange={(e) => updateCurriculumField(index, 'title', e.target.value)}
+                                    className="w-full px-3 py-2 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                                    placeholder="Title"
+                                  />
+                                  <input
+                                    type="url"
+                                    value={item.logoUrl || ''}
+                                    onChange={(e) => updateCurriculumField(index, 'logoUrl', e.target.value)}
+                                    className="w-full px-3 py-2 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                                    placeholder="Logo URL (optional)"
+                                  />
+                                </div>
+                              ) : (
+                                <>
+                                  <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
+                                  {item.logoUrl && (
+                                    <img 
+                                      src={item.logoUrl} 
+                                      alt={item.title} 
+                                      className="mt-2 h-12 w-12 object-contain rounded-lg bg-gray-100 p-1"
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                      }}
+                                    />
+                                  )}
+                                </>
                               )}
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
+                            {editingCurriculumIndex === index ? (
+                              <button
+                                type="button"
+                                onClick={saveEditCurriculum}
+                                className="text-green-600 hover:text-green-700 px-3 py-1 rounded-lg hover:bg-green-50 text-sm font-medium"
+                                title="Save changes"
+                              >
+                                Save
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => startEditCurriculum(index)}
+                                className="text-blue-600 hover:text-blue-700 p-1 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+                                title="Edit"
+                              >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </button>
+                            )}
                             <button
                               type="button"
                               onClick={() => moveCurriculumItem(index, 'up')}
@@ -834,40 +950,61 @@ const AddCoursePage: React.FC = () => {
                         
                         <div className="space-y-3 ml-14">
                           {item.sections.map((section, sectionIndex) => (
-                            <div key={sectionIndex} className="bg-gray-50 rounded-lg p-4 flex items-start justify-between group">
-                              <div className="flex-1">
-                                <div className="flex items-center gap-2">
-                                  <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-200 text-amber-900 text-xs font-bold">
-                                    {item.order}.{section.order}
-                                  </span>
-                                  <h4 className="font-medium text-gray-900">{section.subtitle}</h4>
+                            <div key={sectionIndex} className="bg-gray-50 rounded-lg p-4">
+                              {editingCurriculumIndex === index ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  <input
+                                    type="text"
+                                    value={section.subtitle}
+                                    onChange={(e) => updateCurriculumSection(index, sectionIndex, 'subtitle', e.target.value)}
+                                    className="px-3 py-2 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                                    placeholder="Section subtitle"
+                                  />
+                                  <input
+                                    type="text"
+                                    value={section.description}
+                                    onChange={(e) => updateCurriculumSection(index, sectionIndex, 'description', e.target.value)}
+                                    className="px-3 py-2 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500"
+                                    placeholder="Section description"
+                                  />
                                 </div>
-                                <p className="text-gray-600 mt-1 ml-8">{section.description}</p>
-                              </div>
-                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
-                                  type="button"
-                                  onClick={() => moveSection(index, sectionIndex, 'up')}
-                                  disabled={sectionIndex === 0}
-                                  className="text-gray-400 hover:text-gray-600 p-1 rounded disabled:opacity-30 disabled:cursor-not-allowed"
-                                  title="Move up"
-                                >
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
-                                  </svg>
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => moveSection(index, sectionIndex, 'down')}
-                                  disabled={sectionIndex === item.sections.length - 1}
-                                  className="text-gray-400 hover:text-gray-600 p-1 rounded disabled:opacity-30 disabled:cursor-not-allowed"
-                                  title="Move down"
-                                >
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                  </svg>
-                                </button>
-                              </div>
+                              ) : (
+                                <div className="flex items-start justify-between group">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2">
+                                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-200 text-amber-900 text-xs font-bold">
+                                        {item.order}.{section.order}
+                                      </span>
+                                      <h4 className="font-medium text-gray-900">{section.subtitle}</h4>
+                                    </div>
+                                    <p className="text-gray-600 mt-1 ml-8">{section.description}</p>
+                                  </div>
+                                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button
+                                      type="button"
+                                      onClick={() => moveSection(index, sectionIndex, 'up')}
+                                      disabled={sectionIndex === 0}
+                                      className="text-gray-400 hover:text-gray-600 p-1 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                                      title="Move up"
+                                    >
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                      </svg>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => moveSection(index, sectionIndex, 'down')}
+                                      disabled={sectionIndex === item.sections.length - 1}
+                                      className="text-gray-400 hover:text-gray-600 p-1 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+                                      title="Move down"
+                                    >
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           ))}
                         </div>
@@ -1159,33 +1296,90 @@ const AddCoursePage: React.FC = () => {
                               {module.order}
                             </div>
                             <div className="flex-1">
-                              <h3 className="text-lg font-semibold text-gray-900">{module.title}</h3>
-                              <p className="text-gray-600 mt-1">{module.description}</p>
-                              {module.videoUrl && (
-                                <div className="mt-2">
-                                  <a 
-                                    href={module.videoUrl} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center"
-                                  >
-                                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    Preview Video
-                                  </a>
+                              {editingModuleIndex === index ? (
+                                <div className="space-y-3">
+                                  <input
+                                    type="text"
+                                    value={module.title}
+                                    onChange={(e) => updateModuleField(index, 'title', e.target.value)}
+                                    className="w-full px-3 py-2 border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                    placeholder="Module title"
+                                  />
+                                  <textarea
+                                    value={module.description}
+                                    onChange={(e) => updateModuleField(index, 'description', e.target.value)}
+                                    className="w-full px-3 py-2 border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                    placeholder="Module description"
+                                    rows={2}
+                                  />
+                                  <input
+                                    type="url"
+                                    value={module.videoUrl || ''}
+                                    onChange={(e) => updateModuleField(index, 'videoUrl', e.target.value)}
+                                    className="w-full px-3 py-2 border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                    placeholder="Video URL"
+                                  />
+                                  <input
+                                    type="number"
+                                    value={module.duration || 0}
+                                    onChange={(e) => updateModuleField(index, 'duration', parseInt(e.target.value) || 0)}
+                                    className="w-full px-3 py-2 border border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                                    placeholder="Duration (minutes)"
+                                    min="0"
+                                  />
                                 </div>
+                              ) : (
+                                <>
+                                  <h3 className="text-lg font-semibold text-gray-900">{module.title}</h3>
+                                  <p className="text-gray-600 mt-1">{module.description}</p>
+                                  {module.videoUrl && (
+                                    <div className="mt-2">
+                                      <a 
+                                        href={module.videoUrl} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="text-indigo-600 hover:text-indigo-800 text-sm flex items-center"
+                                      >
+                                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Preview Video
+                                      </a>
+                                    </div>
+                                  )}
+                                  <div className="mt-2 flex items-center text-sm text-gray-500">
+                                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    {module.duration} minutes
+                                  </div>
+                                </>
                               )}
-                              <div className="mt-2 flex items-center text-sm text-gray-500">
-                                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                {module.duration} minutes
-                              </div>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
+                            {editingModuleIndex === index ? (
+                              <button
+                                type="button"
+                                onClick={saveEditModule}
+                                className="text-green-600 hover:text-green-700 px-3 py-1 rounded-lg hover:bg-green-50 text-sm font-medium"
+                                title="Save changes"
+                              >
+                                Save
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => startEditModule(index)}
+                                className="text-blue-600 hover:text-blue-700 p-1 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+                                title="Edit"
+                              >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </button>
+                            )}
                             <button
                               type="button"
                               onClick={() => moveModule(index, 'up')}
@@ -1383,38 +1577,97 @@ const AddCoursePage: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {testimonials.map((testimonial, index) => (
                       <div key={index} className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex items-start space-x-4">
-                            <img 
-                              src={testimonial.imageUrl || 'https://via.placeholder.com/60?text=Student'} 
-                              alt={testimonial.name} 
-                              className="h-12 w-12 rounded-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.src = 'https://via.placeholder.com/60?text=Student';
-                              }}
-                            />
+                        {editingTestimonialIndex === index ? (
+                          <div className="space-y-4">
                             <div>
-                              <h3 className="font-semibold text-gray-900">{testimonial.name}</h3>
-                              <div className="flex mt-1">
-                                {[...Array(5)].map((_, i) => (
-                                  <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                                    <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
-                                  </svg>
-                                ))}
-                              </div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                              <input
+                                type="text"
+                                value={testimonial.name}
+                                onChange={(e) => updateTestimonialField(index, 'name', e.target.value)}
+                                className="w-full px-3 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500"
+                                placeholder="Student name"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
+                              <input
+                                type="url"
+                                value={testimonial.imageUrl || ''}
+                                onChange={(e) => updateTestimonialField(index, 'imageUrl', e.target.value)}
+                                className="w-full px-3 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500"
+                                placeholder="Profile image URL"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-2">Testimonial</label>
+                              <textarea
+                                value={testimonial.description}
+                                onChange={(e) => updateTestimonialField(index, 'description', e.target.value)}
+                                className="w-full px-3 py-2 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500"
+                                placeholder="Testimonial text"
+                                rows={3}
+                              />
+                            </div>
+                            <div className="flex gap-2 justify-end">
+                              <button
+                                type="button"
+                                onClick={saveEditTestimonial}
+                                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium"
+                              >
+                                Save
+                              </button>
                             </div>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => removeTestimonial(index)}
-                            className="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-50 transition-colors duration-200"
-                          >
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
-                        </div>
-                        <p className="text-gray-600 italic">"{testimonial.description}"</p>
+                        ) : (
+                          <>
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex items-start space-x-4">
+                                <img 
+                                  src={testimonial.imageUrl || 'https://via.placeholder.com/60?text=Student'} 
+                                  alt={testimonial.name} 
+                                  className="h-12 w-12 rounded-full object-cover"
+                                  onError={(e) => {
+                                    e.currentTarget.src = 'https://via.placeholder.com/60?text=Student';
+                                  }}
+                                />
+                                <div>
+                                  <h3 className="font-semibold text-gray-900">{testimonial.name}</h3>
+                                  <div className="flex mt-1">
+                                    {[...Array(5)].map((_, i) => (
+                                      <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                        <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                                      </svg>
+                                    ))}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => startEditTestimonial(index)}
+                                  className="text-blue-600 hover:text-blue-700 p-1 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+                                  title="Edit"
+                                >
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => removeTestimonial(index)}
+                                  className="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-50 transition-colors duration-200"
+                                  title="Delete"
+                                >
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+                            <p className="text-gray-600 italic">"{testimonial.description}"</p>
+                          </>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -1487,14 +1740,72 @@ const AddCoursePage: React.FC = () => {
                     {faqs.map((faq, index) => (
                       <div key={index} className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
                         <div className="p-6">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1">
-                              <h3 className="text-lg font-semibold text-gray-900 mb-2">{faq.question}</h3>
-                              <p className="text-gray-600">{faq.answer}</p>
+                          {editingFaqIndex === index ? (
+                            <div className="space-y-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Question</label>
+                                <input
+                                  type="text"
+                                  value={faq.question}
+                                  onChange={(e) => updateFaqField(index, 'question', e.target.value)}
+                                  className="w-full px-3 py-2 border border-teal-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                                  placeholder="FAQ question"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Answer</label>
+                                <textarea
+                                  value={faq.answer}
+                                  onChange={(e) => updateFaqField(index, 'answer', e.target.value)}
+                                  className="w-full px-3 py-2 border border-teal-300 rounded-lg focus:ring-2 focus:ring-teal-500"
+                                  placeholder="FAQ answer"
+                                  rows={3}
+                                />
+                              </div>
+                              <div className="flex gap-2 justify-end">
+                                <button
+                                  type="button"
+                                  onClick={saveEditFaq}
+                                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium"
+                                >
+                                  Save
+                                </button>
+                              </div>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => removeFaq(index)}
+                          ) : (
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-2">{faq.question}</h3>
+                                <p className="text-gray-600">{faq.answer}</p>
+                              </div>
+                              <div className="flex gap-2 ml-4">
+                                <button
+                                  type="button"
+                                  onClick={() => startEditFaq(index)}
+                                  className="text-blue-600 hover:text-blue-700 p-1 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+                                  title="Edit"
+                                >
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                  </svg>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => removeFaq(index)}
+                                  className="text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-50 transition-colors duration-200"
+                                  title="Delete"
+                                >
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                               className="ml-4 text-red-500 hover:text-red-700 p-1 rounded-lg hover:bg-red-50 transition-colors duration-200"
                             >
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
