@@ -387,6 +387,16 @@ export const certificateAPI = {
     apiClient.post("/certificates/generate", { courseId }),
   verifyCertificate: (certificateId: string) =>
     apiClient.get(`/certificates/verify/${certificateId}`),
+  
+  // Admin/Instructor endpoints
+  getEligibleStudents: (courseId: string, batchId?: string) =>
+    apiClient.get(`/certificates/eligible-students/${courseId}`, { params: batchId ? { batchId } : {} }),
+  generateForStudent: (data: { studentId: string; courseId: string; batchId?: string; grade?: string }) =>
+    apiClient.post("/certificates/generate-for-student", data),
+  bulkGenerate: (data: { studentIds: string[]; courseId: string; batchId?: string; grade?: string }) =>
+    apiClient.post("/certificates/bulk-generate", data),
+  getCourseCertificates: (courseId: string, batchId?: string) =>
+    apiClient.get(`/certificates/course/${courseId}`, { params: batchId ? { batchId } : {} }),
 };
 
 /* ---------------- SUPPORT TICKETS ---------------- */
