@@ -68,6 +68,7 @@ export const courseAPI = {
   updateCourse: (id: string, data: any) => apiClient.put(`/courses/${id}`, data),
   deleteCourse: (id: string) => apiClient.delete(`/courses/${id}`),
   getInstructorCourses: () => apiClient.get("/courses/instructor/my-courses"),
+  getCategories: () => apiClient.get("/courses/metadata/categories"),
 
   // --- Module Management ---
   createModule: (courseId: string, data: any) =>

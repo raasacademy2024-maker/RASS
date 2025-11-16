@@ -26,9 +26,11 @@ const CourseCatalog: React.FC = () => {
     sortBy: "popular"
   });
   const [showFilters, setShowFilters] = useState(false);
+  const [categories, setCategories] = useState<Array<{ name: string; icon: any; color: string }>>([]);
 
   useEffect(() => {
     fetchCourses();
+    fetchCategories();
   }, []);
 
   useEffect(() => {
@@ -44,6 +46,50 @@ const CourseCatalog: React.FC = () => {
       console.error("Error fetching courses:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  /**
+   * Fetch categories from the API and map them to icons/colors.
+   * Falls back to default categories if the API call fails.
+   */
+  const fetchCategories = async () => {
+    try {
+      const response = await courseAPI.getCategories();
+      const fetchedCategories = response.data;
+      
+      // Map categories to icons and colors with predefined mappings
+      const categoryIconMap: Record<string, { icon: any; color: string }> = {
+        "Web Development": { icon: Globe, color: "blue" },
+        "Data Science": { icon: TrendingUp, color: "green" },
+        "Mobile Development": { icon: FaMobile, color: "purple" },
+        "DevOps": { icon: Rocket, color: "orange" },
+        "AI/ML": { icon: BrainCog, color: "pink" },
+        "Cyber Security": { icon: Shield, color: "red" },
+      };
+      
+      // Create dynamic categories array with fallback icons for unknown categories
+      const dynamicCategories = fetchedCategories.map((categoryName: string) => {
+        const mapping = categoryIconMap[categoryName];
+        return {
+          name: categoryName,
+          icon: mapping?.icon || BookOpen, // Fallback icon for unknown categories
+          color: mapping?.color || "indigo", // Fallback color for unknown categories
+        };
+      });
+      
+      setCategories(dynamicCategories);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      // Fallback to default categories if API fails to ensure UI still works
+      setCategories([
+        { name: "Web Development", icon: Globe, color: "blue" },
+        { name: "Data Science", icon: TrendingUp, color: "green" },
+        { name: "Mobile Development", icon: FaMobile, color: "purple" },
+        { name: "DevOps", icon: Rocket, color: "orange" },
+        { name: "AI/ML", icon: BrainCog, color: "pink" },
+        { name: "Cyber Security", icon: Shield, color: "red" }
+      ]);
     }
   };
 
@@ -88,15 +134,6 @@ const CourseCatalog: React.FC = () => {
 
     setCourses(filtered);
   };
-
-  const categories = [
-    { name: "Web Development", icon: Globe, color: "blue" },
-    { name: "Data Science", icon: TrendingUp, color: "green" },
-    { name: "Mobile Development", icon: FaMobile, color: "purple" },
-    { name: "DevOps", icon: Rocket, color: "orange" },
-    { name: "AI/ML", icon: BrainCog, color: "pink" },
-    { name: "Cyber Security", icon: Shield, color: "red" }
-  ];
 
   const levels = [
     { name: "beginner", label: "Beginner", color: "emerald" },
