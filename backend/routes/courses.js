@@ -8,6 +8,16 @@ const router = express.Router();
 
 /* -------------------- Courses -------------------- */
 
+// Get unique categories from published courses
+router.get('/metadata/categories', async (req, res) => {
+  try {
+    const categories = await Course.distinct('category', { isPublished: true });
+    res.json(categories.filter(cat => cat)); // Filter out null/undefined values
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // Get all courses
 router.get('/', async (req, res) => {
   try {
