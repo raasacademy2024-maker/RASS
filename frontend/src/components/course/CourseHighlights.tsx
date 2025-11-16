@@ -161,9 +161,8 @@ const CourseHighlights: React.FC<Props> = ({ highlights }) => {
           {displayHighlights.map((highlight, idx) => (
             <motion.div
               key={idx}
-              variants={cardVariants}
-              whileHover="hover"
               variants={{ ...cardVariants, hover: hoverVariants.hover }}
+              whileHover="hover"
               className="relative group cursor-pointer"
             >
               {/* Main Card */}

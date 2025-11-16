@@ -125,9 +125,8 @@ const LearningJourney: React.FC<Props> = ({ journey }) => {
             {steps.map((step, idx) => (
               <motion.div
                 key={idx}
-                variants={itemVariants}
-                whileHover="hover"
                 variants={{ ...itemVariants, hover: hoverVariants.hover }}
+                whileHover="hover"
                 className="relative group"
               >
                 {/* Step Card */}
