@@ -8,7 +8,11 @@ const router = express.Router();
 
 /* -------------------- Courses -------------------- */
 
-// Get unique categories from published courses
+/**
+ * Get unique categories from published courses
+ * This endpoint returns a list of distinct category names from all published courses.
+ * Used by the frontend to display dynamic category filters.
+ */
 router.get('/metadata/categories', async (req, res) => {
   try {
     const categories = await Course.distinct('category', { isPublished: true });
