@@ -88,6 +88,8 @@ export const enrollmentAPI = {
     const params = batchId ? { batchId } : {};
     return apiClient.get(`/enrollments/course/${courseId}`, { params });
   },
+  cancelEnrollment: (enrollmentId: string) =>
+    apiClient.delete(`/enrollments/${enrollmentId}`),
 };
 
 /* ---------------- BATCHES ---------------- */
