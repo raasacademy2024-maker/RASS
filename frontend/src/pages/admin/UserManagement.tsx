@@ -11,6 +11,9 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  Edit2,
+  Trash2,
+  Key,
 } from "lucide-react";
 import { User } from "../../types";
 import { motion, AnimatePresence } from "framer-motion";
@@ -37,9 +40,14 @@ const UserManagement: React.FC = () => {
   const [roleFilter, setRoleFilter] = useState("");
   const [enrollmentFilter, setEnrollmentFilter] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<ExtendedUser | null>(null);
   const [expandedRows, setExpandedRows] = useState<string[]>([]);
   const [courseLoading, setCourseLoading] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [stats, setStats] = useState({
     totalStudents: 0,
     totalInstructors: 0,
@@ -53,6 +61,16 @@ const UserManagement: React.FC = () => {
     role: "student",
     password: "password123",
   });
+
+  const [editUser, setEditUser] = useState({
+    name: "",
+    email: "",
+    role: "student",
+    isActive: true,
+  });
+
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
     fetchUsers();
@@ -130,12 +148,106 @@ const UserManagement: React.FC = () => {
       await userAPI.createUser(newUser);
       setShowCreateModal(false);
       setNewUser({ name: "", email: "", role: "student", password: "password123" });
+      setSuccess("User created successfully!");
       fetchUsers();
       fetchStats();
+      setTimeout(() => setSuccess(null), 3000);
     } catch (error: any) {
       console.error("Error creating user:", error);
       setError(error.response?.data?.message || "Failed to create user");
+      setTimeout(() => setError(null), 5000);
     }
+  };
+
+  const handleEditUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUser) return;
+    
+    try {
+      await userAPI.updateUser(selectedUser._id, editUser);
+      setShowEditModal(false);
+      setSelectedUser(null);
+      setSuccess("User updated successfully!");
+      fetchUsers();
+      fetchStats();
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (error: any) {
+      console.error("Error updating user:", error);
+      setError(error.response?.data?.message || "Failed to update user");
+      setTimeout(() => setError(null), 5000);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!selectedUser) return;
+    
+    try {
+      await userAPI.deleteUser(selectedUser._id);
+      setShowDeleteModal(false);
+      setSelectedUser(null);
+      setSuccess("User deleted successfully!");
+      fetchUsers();
+      fetchStats();
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (error: any) {
+      console.error("Error deleting user:", error);
+      setError(error.response?.data?.message || "Failed to delete user");
+      setTimeout(() => setError(null), 5000);
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUser) return;
+    
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match");
+      setTimeout(() => setError(null), 5000);
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setError("Password must be at least 6 characters long");
+      setTimeout(() => setError(null), 5000);
+      return;
+    }
+    
+    try {
+      await userAPI.changeUserPassword(selectedUser._id, newPassword);
+      setShowPasswordModal(false);
+      setSelectedUser(null);
+      setNewPassword("");
+      setConfirmPassword("");
+      setSuccess("Password changed successfully!");
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (error: any) {
+      console.error("Error changing password:", error);
+      setError(error.response?.data?.message || "Failed to change password");
+      setTimeout(() => setError(null), 5000);
+    }
+  };
+
+  const openEditModal = (user: ExtendedUser) => {
+    setSelectedUser(user);
+    setEditUser({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      isActive: user.isActive !== undefined ? user.isActive : true,
+    });
+    setShowEditModal(true);
+  };
+
+  const openDeleteModal = (user: ExtendedUser) => {
+    setSelectedUser(user);
+    setShowDeleteModal(true);
+  };
+
+  const openPasswordModal = (user: ExtendedUser) => {
+    setSelectedUser(user);
+    setNewPassword("");
+    setConfirmPassword("");
+    setShowPasswordModal(true);
   };
 
   const handleEnrollmentAction = async (studentId: string, courseId: string, action: 'enroll' | 'unenroll') => {
@@ -200,6 +312,24 @@ const UserManagement: React.FC = () => {
     <div>
       <Navbar />
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        {/* Success Alert */}
+        {success && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3"
+          >
+            <CheckCircle className="h-5 w-5 text-green-600" />
+            <span className="text-green-800">{success}</span>
+            <button
+              onClick={() => setSuccess(null)}
+              className="ml-auto text-green-600 hover:text-green-800"
+            >
+              ×
+            </button>
+          </motion.div>
+        )}
+
         {/* Error Alert */}
         {error && (
           <motion.div
@@ -381,15 +511,38 @@ const UserManagement: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-500">{user._id}</td>
                       <td className="px-6 py-4">
-                        {user.role === "student" && (
+                        <div className="flex items-center gap-2">
                           <button
-                            onClick={() => toggleRowExpansion(user._id)}
-                            className="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center gap-1"
+                            onClick={() => openEditModal(user)}
+                            className="text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50 transition-colors"
+                            title="Edit user"
                           >
-                            <BookOpen className="h-4 w-4" />
-                            {expandedRows.includes(user._id) ? "Hide" : "Show"} Courses
+                            <Edit2 className="h-4 w-4" />
                           </button>
-                        )}
+                          <button
+                            onClick={() => openPasswordModal(user)}
+                            className="text-green-600 hover:text-green-800 p-1 rounded hover:bg-green-50 transition-colors"
+                            title="Change password"
+                          >
+                            <Key className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => openDeleteModal(user)}
+                            className="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition-colors"
+                            title="Delete user"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                          {user.role === "student" && (
+                            <button
+                              onClick={() => toggleRowExpansion(user._id)}
+                              className="text-indigo-600 hover:text-indigo-800 text-sm font-medium flex items-center gap-1 ml-2"
+                            >
+                              <BookOpen className="h-4 w-4" />
+                              {expandedRows.includes(user._id) ? "Hide" : "Show"}
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </motion.tr>
                     {user.role === "student" && expandedRows.includes(user._id) && (
@@ -512,6 +665,220 @@ const UserManagement: React.FC = () => {
                       className="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:shadow-md"
                     >
                       Create User
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Edit User Modal */}
+        <AnimatePresence>
+          {showEditModal && selectedUser && (
+            <motion.div
+              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md"
+              >
+                <h3 className="text-lg font-semibold mb-4">Edit User</h3>
+                <form onSubmit={handleEditUser} className="space-y-4">
+                  <input
+                    type="text"
+                    placeholder="Full Name"
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    value={editUser.name}
+                    onChange={(e) =>
+                      setEditUser({ ...editUser, name: e.target.value })
+                    }
+                    required
+                  />
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    value={editUser.email}
+                    onChange={(e) =>
+                      setEditUser({ ...editUser, email: e.target.value })
+                    }
+                    required
+                  />
+                  <select
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    value={editUser.role}
+                    onChange={(e) =>
+                      setEditUser({ ...editUser, role: e.target.value })
+                    }
+                  >
+                    <option value="student">Student</option>
+                    <option value="instructor">Instructor</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="isActive"
+                      checked={editUser.isActive}
+                      onChange={(e) =>
+                        setEditUser({ ...editUser, isActive: e.target.checked })
+                      }
+                      className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                    />
+                    <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
+                      Active Account
+                    </label>
+                  </div>
+                  <div className="flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowEditModal(false);
+                        setSelectedUser(null);
+                      }}
+                      className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 hover:shadow-md transition"
+                    >
+                      Update User
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Delete User Modal */}
+        <AnimatePresence>
+          {showDeleteModal && selectedUser && (
+            <motion.div
+              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-red-100 p-3 rounded-full">
+                    <AlertCircle className="h-6 w-6 text-red-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold">Delete User</h3>
+                </div>
+                <p className="text-gray-600 mb-6">
+                  Are you sure you want to delete <strong>{selectedUser.name}</strong> ({selectedUser.email})? This action cannot be undone.
+                </p>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => {
+                      setShowDeleteModal(false);
+                      setSelectedUser(null);
+                    }}
+                    className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDeleteUser}
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 hover:shadow-md transition"
+                  >
+                    Delete User
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Change Password Modal */}
+        <AnimatePresence>
+          {showPasswordModal && selectedUser && (
+            <motion.div
+              className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-green-100 p-3 rounded-full">
+                    <Key className="h-6 w-6 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold">Change Password</h3>
+                    <p className="text-sm text-gray-600">{selectedUser.name}</p>
+                  </div>
+                </div>
+                <form onSubmit={handleChangePassword} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      New Password
+                    </label>
+                    <input
+                      type="password"
+                      placeholder="Enter new password"
+                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Confirm Password
+                    </label>
+                    <input
+                      type="password"
+                      placeholder="Confirm new password"
+                      className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Password must be at least 6 characters long
+                  </p>
+                  <div className="flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowPasswordModal(false);
+                        setSelectedUser(null);
+                        setNewPassword("");
+                        setConfirmPassword("");
+                      }}
+                      className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 hover:shadow-md transition"
+                    >
+                      Change Password
                     </button>
                   </div>
                 </form>
