@@ -37,7 +37,6 @@ interface Course {
   about?: string;
   instructor?: string;
   category: string;
-  level: string;
   price: number;
   thumbnail?: string;
   modules: Module[];
@@ -88,7 +87,6 @@ const ManageCourses: React.FC = () => {
     description: "",
     about: "",
     category: "",
-    level: "beginner",
     price: 0,
     thumbnail: "",
     isPublished: true,
@@ -178,7 +176,6 @@ const ManageCourses: React.FC = () => {
       description: "",
       about: "",
       category: "",
-      level: "beginner",
       price: 0,
       thumbnail: "",
       isPublished: true,
@@ -410,9 +407,6 @@ const ManageCourses: React.FC = () => {
                   }`}>
                     {course.isPublished ? "Published" : "Draft"}
                   </span>
-                  <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
-                    {course.level}
-                  </span>
                 </div>
               </div>
 
@@ -483,7 +477,6 @@ const ManageCourses: React.FC = () => {
                         description: course.description,
                         about: course.about,
                         category: course.category,
-                        level: course.level,
                         price: course.price,
                         thumbnail: course.thumbnail,
                         isPublished: course.isPublished,
@@ -640,21 +633,6 @@ const ManageCourses: React.FC = () => {
                       value={formData.category || ""}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                     />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Level
-                    </label>
-                    <select
-                      className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      value={formData.level || "beginner"}
-                      onChange={(e) => setFormData({ ...formData, level: e.target.value })}
-                    >
-                      <option value="beginner">Beginner</option>
-                      <option value="intermediate">Intermediate</option>
-                      <option value="advanced">Advanced</option>
-                    </select>
                   </div>
 
                   <div>
