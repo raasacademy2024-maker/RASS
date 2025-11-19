@@ -17,6 +17,7 @@ import {
   FileText,
   ForkKnife,
   SheetIcon,
+  Bell,
 } from "lucide-react";
 import { User, Course } from "../../types";
 import { useNavigate } from "react-router-dom";
@@ -320,6 +321,13 @@ const AdminDashboard: React.FC = () => {
               icon: <Users className="h-6 w-6 text-teal-600" />,
               color: "bg-teal-100",
               action: () => navigate("/admin/batches"),
+            },
+            {
+              title: "Notification Management",
+              desc: "Send notifications and emails to users",
+              icon: <Bell className="h-6 w-6 text-orange-600" />,
+              color: "bg-orange-100",
+              action: () => navigate("/admin/notifications"),
             },
           ].map((action, i) => (
             <motion.button

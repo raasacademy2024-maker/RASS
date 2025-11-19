@@ -53,6 +53,7 @@ import AdminBatchAnalytics from './pages/admin/BatchAnalytics';
 import InstructorBatchAnalytics from './pages/instructor/BatchAnalytics';
 import AdminCertificateManagement from './pages/admin/CertificateManagement';
 import InstructorCertificates from './pages/instructor/Certificates';
+import NotificationManagement from './pages/admin/NotificationManagement';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; roles?: string[] }> = ({ 
   children, 
@@ -261,6 +262,11 @@ const AppRoutes: React.FC = () => {
         <Route path="/admin/certificates" element={
           <ProtectedRoute roles={['admin']}>
             <AdminCertificateManagement />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/notifications" element={
+          <ProtectedRoute roles={['admin']}>
+            <NotificationManagement />
           </ProtectedRoute>
         } />
     

@@ -574,5 +574,49 @@ export const analyticsAPI = {
     apiClient.get(`/analytics/batch/${batchId}/leaderboard`),
 };
 
+/* ---------------- NOTIFICATION MANAGEMENT ---------------- */
+export const notificationManagementAPI = {
+  // Get users enrolled in a specific course
+  getCourseUsers: (courseId: string) =>
+    apiClient.get(`/notification-management/courses/${courseId}/users`),
+  
+  // Get all users with filters
+  getUsers: (params?: { role?: string; search?: string }) =>
+    apiClient.get('/notification-management/users', { params }),
+  
+  // Send notification to users by course
+  sendByCourse: (data: {
+    courseId: string;
+    title: string;
+    message: string;
+    type?: string;
+    sendEmail?: boolean;
+  }) => apiClient.post('/notification-management/send-by-course', data),
+  
+  // Send notification to manually selected users
+  sendToUsers: (data: {
+    userIds: string[];
+    title: string;
+    message: string;
+    type?: string;
+    sendEmail?: boolean;
+  }) => apiClient.post('/notification-management/send-to-users', data),
+  
+  // Get notification history
+  getHistory: (params?: {
+    page?: number;
+    limit?: number;
+    type?: string;
+    emailStatus?: string;
+  }) => apiClient.get('/notification-management/history', { params }),
+  
+  // Get notification statistics
+  getStats: () => apiClient.get('/notification-management/stats'),
+  
+  // Test email sending
+  testEmail: (data: { email: string; title: string; message: string }) =>
+    apiClient.post('/notification-management/test-email', data),
+};
+
 
 export default apiClient;
