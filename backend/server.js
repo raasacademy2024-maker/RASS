@@ -31,6 +31,7 @@ import scheduleRoutes from './routes/schedules.js';
 import announcementRoutes from './routes/announcements.js';
 import doubtRoutes from './routes/doubts.js';
 import analyticsRoutes from './routes/analytics.js';
+import notificationManagementRoutes from './routes/notificationManagement.js';
 
 
 dotenv.config();
@@ -74,6 +75,7 @@ app.use('/api/schedules', scheduleRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/doubts', doubtRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/notification-management', notificationManagementRoutes);
 
 
 // Add logging for all requests

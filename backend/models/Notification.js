@@ -16,7 +16,7 @@ const notificationSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['course', 'assignment', 'announcement', 'payment', 'system', 'chat', 'discussion', 'support', 'live-session'],
+    enum: ['course', 'assignment', 'announcement', 'payment', 'system', 'chat', 'discussion', 'support', 'live-session', 'course-update', 'bulk'],
     required: true
   },
   relatedId: mongoose.Schema.Types.ObjectId,
@@ -24,7 +24,22 @@ const notificationSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  readAt: Date
+  readAt: Date,
+  emailSent: {
+    type: Boolean,
+    default: false
+  },
+  emailSentAt: Date,
+  emailStatus: {
+    type: String,
+    enum: ['pending', 'sent', 'failed'],
+    default: 'pending'
+  },
+  emailError: String,
+  sentBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }
 }, {
   timestamps: true
 });
