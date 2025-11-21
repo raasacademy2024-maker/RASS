@@ -118,11 +118,11 @@ export const BatchScheduleForm: React.FC<BatchScheduleFormProps> = ({
       </div>
 
       {/* Schedule Preview */}
-      {schedule.days.length > 0 && schedule.startTime && schedule.endTime && (
+      {schedule.days && schedule.days.length > 0 && schedule.startTime && schedule.endTime && (
         <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
           <p className="text-sm text-blue-900 font-medium mb-1">Schedule Preview:</p>
           <p className="text-sm text-blue-700">
-            {schedule.days.join(', ')} • {schedule.startTime} - {schedule.endTime} ({schedule.timezone})
+            {schedule.days.join(', ')} • {schedule.startTime} - {schedule.endTime} ({schedule.timezone || 'Asia/Kolkata'})
           </p>
         </div>
       )}

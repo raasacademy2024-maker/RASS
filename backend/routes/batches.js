@@ -1,6 +1,7 @@
 import express from 'express';
 import Batch from '../models/Batch.js';
 import Course from '../models/Course.js';
+import User from '../models/User.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -19,7 +20,6 @@ router.get('/course/:courseId', async (req, res) => {
       try {
         const jwt = await import('jsonwebtoken');
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
-        const User = (await import('../models/User.js')).default;
         const user = await User.findById(decoded.userId);
         isAdmin = user?.role === 'admin';
       } catch (err) {
@@ -86,7 +86,6 @@ router.post('/', authenticate, authorize('instructor', 'admin'), async (req, res
 
     // Validate instructors if provided
     if (instructors && instructors.length > 0) {
-      const User = (await import('../models/User.js')).default;
       const validInstructors = await User.find({
         _id: { $in: instructors },
         role: { $in: ['instructor', 'admin'] }
@@ -151,7 +150,6 @@ router.put('/:id', authenticate, authorize('instructor', 'admin'), async (req, r
     if (instructors !== undefined) {
       // Validate instructors if provided
       if (instructors.length > 0) {
-        const User = (await import('../models/User.js')).default;
         const validInstructors = await User.find({
           _id: { $in: instructors },
           role: { $in: ['instructor', 'admin'] }
@@ -692,8 +690,10 @@ router.get('/:id/analytics', authenticate, authorize('instructor', 'admin'), asy
 
     if (batch.fees && batch.fees.amount) {
       revenue.totalPotential = batch.fees.amount * enrollments.length;
-      // Count completed payments
-      const completedPayments = enrollments.filter(e => e.paymentStatus === 'completed').length;
+      // Count completed payments - check if paymentStatus exists
+      const completedPayments = enrollments.filter(e => 
+        e.paymentStatus && e.paymentStatus === 'completed'
+      ).length;
       revenue.collected = batch.fees.amount * completedPayments;
       revenue.pending = revenue.totalPotential - revenue.collected;
     }
@@ -791,7 +791,6 @@ router.post('/:id/instructors', authenticate, authorize('admin'), async (req, re
     }
 
     // Validate instructors
-    const User = (await import('../models/User.js')).default;
     const validInstructors = await User.find({
       _id: { $in: instructorIds },
       role: { $in: ['instructor', 'admin'] }
