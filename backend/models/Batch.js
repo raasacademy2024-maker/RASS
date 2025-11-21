@@ -36,6 +36,46 @@ const batchSchema = new mongoose.Schema({
   description: {
     type: String,
     trim: true
+  },
+  instructors: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  fees: {
+    amount: {
+      type: Number,
+      min: 0
+    },
+    currency: {
+      type: String,
+      default: 'INR'
+    },
+    installments: [{
+      amount: Number,
+      dueDate: Date,
+      description: String
+    }]
+  },
+  syllabus: [{
+    moduleId: {
+      type: mongoose.Schema.Types.ObjectId
+    },
+    moduleName: String,
+    topics: [String],
+    duration: String,
+    order: Number
+  }],
+  schedule: {
+    days: [{
+      type: String,
+      enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    }],
+    startTime: String,
+    endTime: String,
+    timezone: {
+      type: String,
+      default: 'Asia/Kolkata'
+    }
   }
 }, {
   timestamps: true

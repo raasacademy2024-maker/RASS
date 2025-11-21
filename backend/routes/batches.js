@@ -35,6 +35,7 @@ router.get('/course/:courseId', async (req, res) => {
     
     const batches = await Batch.find(query)
       .populate('course', 'title instructor')
+      .populate('instructors', 'name email')
       .sort({ startDate: 1 });
 
     res.json(batches);
@@ -47,7 +48,8 @@ router.get('/course/:courseId', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const batch = await Batch.findById(req.params.id)
-      .populate('course', 'title instructor');
+      .populate('course', 'title instructor')
+      .populate('instructors', 'name email');
 
     if (!batch) {
       return res.status(404).json({ message: 'Batch not found' });
@@ -62,7 +64,7 @@ router.get('/:id', async (req, res) => {
 // Create a batch (instructor/admin only)
 router.post('/', authenticate, authorize('instructor', 'admin'), async (req, res) => {
   try {
-    const { courseId, name, startDate, endDate, capacity, description } = req.body;
+    const { courseId, name, startDate, endDate, capacity, description, instructors, fees, syllabus, schedule } = req.body;
 
     // Validate required fields
     if (!courseId || !name || !startDate || !endDate || !capacity) {
@@ -82,13 +84,29 @@ router.post('/', authenticate, authorize('instructor', 'admin'), async (req, res
       return res.status(403).json({ message: 'Not authorized to create batches for this course' });
     }
 
+    // Validate instructors if provided
+    if (instructors && instructors.length > 0) {
+      const User = (await import('../models/User.js')).default;
+      const validInstructors = await User.find({
+        _id: { $in: instructors },
+        role: { $in: ['instructor', 'admin'] }
+      });
+      if (validInstructors.length !== instructors.length) {
+        return res.status(400).json({ message: 'One or more instructor IDs are invalid' });
+      }
+    }
+
     const batch = new Batch({
       course: courseId,
       name,
       startDate,
       endDate,
       capacity,
-      description
+      description,
+      instructors: instructors || [],
+      fees: fees || {},
+      syllabus: syllabus || [],
+      schedule: schedule || {}
     });
 
     await batch.save();
@@ -112,7 +130,7 @@ router.put('/:id', authenticate, authorize('instructor', 'admin'), async (req, r
       return res.status(403).json({ message: 'Not authorized to update this batch' });
     }
 
-    const { name, startDate, endDate, capacity, description, isActive } = req.body;
+    const { name, startDate, endDate, capacity, description, isActive, instructors, fees, syllabus, schedule } = req.body;
 
     if (name) batch.name = name;
     if (startDate) batch.startDate = startDate;
@@ -128,6 +146,25 @@ router.put('/:id', authenticate, authorize('instructor', 'admin'), async (req, r
     }
     if (description !== undefined) batch.description = description;
     if (isActive !== undefined) batch.isActive = isActive;
+    
+    // Handle new fields
+    if (instructors !== undefined) {
+      // Validate instructors if provided
+      if (instructors.length > 0) {
+        const User = (await import('../models/User.js')).default;
+        const validInstructors = await User.find({
+          _id: { $in: instructors },
+          role: { $in: ['instructor', 'admin'] }
+        });
+        if (validInstructors.length !== instructors.length) {
+          return res.status(400).json({ message: 'One or more instructor IDs are invalid' });
+        }
+      }
+      batch.instructors = instructors;
+    }
+    if (fees !== undefined) batch.fees = fees;
+    if (syllabus !== undefined) batch.syllabus = syllabus;
+    if (schedule !== undefined) batch.schedule = schedule;
 
     await batch.save();
     res.json(batch);
@@ -526,14 +563,22 @@ router.post('/:id/restore', authenticate, authorize('instructor', 'admin'), asyn
 // Get comprehensive batch analytics (admin/instructor only)
 router.get('/:id/analytics', authenticate, authorize('instructor', 'admin'), async (req, res) => {
   try {
-    const batch = await Batch.findById(req.params.id).populate('course');
+    const batch = await Batch.findById(req.params.id)
+      .populate('course')
+      .populate('instructors', 'name email');
     
     if (!batch) {
       return res.status(404).json({ message: 'Batch not found' });
     }
 
-    // Check if instructor owns the course (unless admin)
-    if (req.user.role !== 'admin' && batch.course.instructor.toString() !== req.user._id.toString()) {
+    // Check if instructor owns the course OR is assigned to this batch (unless admin)
+    const isAssignedInstructor = batch.instructors && batch.instructors.some(
+      instructor => instructor._id.toString() === req.user._id.toString()
+    );
+    
+    if (req.user.role !== 'admin' && 
+        batch.course.instructor.toString() !== req.user._id.toString() &&
+        !isAssignedInstructor) {
       return res.status(403).json({ message: 'Not authorized to view this batch' });
     }
 
@@ -638,6 +683,21 @@ router.get('/:id/analytics', authenticate, authorize('instructor', 'admin'), asy
         enrolledAt: e.enrolledAt
       }));
 
+    // Calculate revenue if fees are defined
+    let revenue = {
+      totalPotential: 0,
+      collected: 0,
+      pending: 0
+    };
+
+    if (batch.fees && batch.fees.amount) {
+      revenue.totalPotential = batch.fees.amount * enrollments.length;
+      // Count completed payments
+      const completedPayments = enrollments.filter(e => e.paymentStatus === 'completed').length;
+      revenue.collected = batch.fees.amount * completedPayments;
+      revenue.pending = revenue.totalPotential - revenue.collected;
+    }
+
     res.json({
       batch: {
         _id: batch._id,
@@ -647,7 +707,10 @@ router.get('/:id/analytics', authenticate, authorize('instructor', 'admin'), asy
         capacity: batch.capacity,
         enrolledCount: batch.enrolledCount,
         isActive: batch.isActive,
-        description: batch.description
+        description: batch.description,
+        instructors: batch.instructors,
+        fees: batch.fees,
+        schedule: batch.schedule
       },
       course: {
         _id: batch.course._id,
@@ -684,8 +747,80 @@ router.get('/:id/analytics', authenticate, authorize('instructor', 'admin'), asy
         upcoming: upcomingSessions,
         completed: completedSessions
       },
+      revenue,
       topPerformers,
       atRiskStudents
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get all batches assigned to an instructor (instructor only)
+router.get('/instructor/my-batches', authenticate, authorize('instructor', 'admin'), async (req, res) => {
+  try {
+    const batches = await Batch.find({ 
+      instructors: req.user._id 
+    })
+      .populate('course', 'title')
+      .populate('instructors', 'name email')
+      .sort({ startDate: -1 });
+
+    res.json(batches);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Add or remove instructors from a batch (admin only)
+router.post('/:id/instructors', authenticate, authorize('admin'), async (req, res) => {
+  try {
+    const { instructorIds, action } = req.body; // action: 'add' or 'remove'
+
+    if (!instructorIds || !Array.isArray(instructorIds) || instructorIds.length === 0) {
+      return res.status(400).json({ message: 'Instructor IDs array is required' });
+    }
+
+    if (!action || !['add', 'remove'].includes(action)) {
+      return res.status(400).json({ message: 'Action must be either "add" or "remove"' });
+    }
+
+    const batch = await Batch.findById(req.params.id);
+    if (!batch) {
+      return res.status(404).json({ message: 'Batch not found' });
+    }
+
+    // Validate instructors
+    const User = (await import('../models/User.js')).default;
+    const validInstructors = await User.find({
+      _id: { $in: instructorIds },
+      role: { $in: ['instructor', 'admin'] }
+    });
+
+    if (validInstructors.length !== instructorIds.length) {
+      return res.status(400).json({ message: 'One or more instructor IDs are invalid' });
+    }
+
+    if (action === 'add') {
+      // Add instructors (avoid duplicates)
+      instructorIds.forEach(id => {
+        if (!batch.instructors.includes(id)) {
+          batch.instructors.push(id);
+        }
+      });
+    } else {
+      // Remove instructors
+      batch.instructors = batch.instructors.filter(
+        id => !instructorIds.includes(id.toString())
+      );
+    }
+
+    await batch.save();
+    await batch.populate('instructors', 'name email');
+
+    res.json({
+      message: `Successfully ${action === 'add' ? 'added' : 'removed'} ${instructorIds.length} instructor(s)`,
+      batch
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
