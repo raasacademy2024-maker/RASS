@@ -122,6 +122,11 @@ export const batchAPI = {
     apiClient.post(`/batches/${batchId}/restore`),
   getBatchAnalytics: (batchId: string) =>
     apiClient.get(`/batches/${batchId}/analytics`),
+  // Instructor operations
+  getMyBatches: () =>
+    apiClient.get('/batches/instructor/my-batches'),
+  assignInstructors: (batchId: string, instructorIds: string[], action: 'add' | 'remove') =>
+    apiClient.post(`/batches/${batchId}/instructors`, { instructorIds, action }),
 };
 
 // ✅ New Enrollment Form API

@@ -104,15 +104,7 @@ export interface Enrollment {
     role?: string;
   }; // ✅ always an object now
   course: Course;
-  batch?: {
-    _id: string;
-    name: string;
-    startDate: string;
-    endDate: string;
-    capacity: number;
-    enrolledCount: number;
-    isActive: boolean;
-  };
+  batch?: Batch;
   enrolledAt: string;
   progress: ModuleProgress[];
   completed: boolean;
@@ -129,6 +121,43 @@ export interface ModuleProgress {
   completed: boolean;
   completedAt?: string;
   watchTime: number;
+}
+
+export interface Batch {
+  _id: string;
+  course: string | Course;
+  name: string;
+  startDate: string;
+  endDate: string;
+  capacity: number;
+  enrolledCount: number;
+  isActive: boolean;
+  description?: string;
+  instructors?: User[];
+  fees?: {
+    amount?: number;
+    currency?: string;
+    installments?: {
+      amount: number;
+      dueDate: string;
+      description: string;
+    }[];
+  };
+  syllabus?: {
+    moduleId?: string;
+    moduleName: string;
+    topics: string[];
+    duration: string;
+    order: number;
+  }[];
+  schedule?: {
+    days: ('Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday')[];
+    startTime: string;
+    endTime: string;
+    timezone?: string;
+  };
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Assignment {
