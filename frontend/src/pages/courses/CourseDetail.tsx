@@ -337,9 +337,10 @@ const CourseDetail: React.FC = () => {
   const faqs = (course as any).faqs || [];
 
   // Generate dynamic SEO data for the course
+  const META_DESCRIPTION_MAX_LENGTH = 155;
   const courseSEO = {
     title: `${course.title} - RASS Academy | Online Course & Certification`,
-    description: course.description ? course.description.slice(0, 155) + '...' : `Learn ${course.title} with RASS Academy. Expert-led online course with certification. Enroll today!`,
+    description: course.description ? course.description.slice(0, META_DESCRIPTION_MAX_LENGTH) + '...' : `Learn ${course.title} with RASS Academy. Expert-led online course with certification. Enroll today!`,
     keywords: `${course.title}, ${course.category || 'online course'}, RASS Academy, certification, professional training, ${course.level || 'all levels'}`,
     canonical: `https://www.raasacademy.com/courses/${course._id}`,
     ogImage: course.thumbnail || 'https://www.raasacademy.com/logo.webp',
