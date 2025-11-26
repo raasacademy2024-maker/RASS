@@ -131,7 +131,7 @@ const CourseShowcase = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Our Certification  Courses</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Our Certification Courses</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Master in-demand tech skills with our comprehensive courses taught by industry experts
           </p>
