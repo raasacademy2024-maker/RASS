@@ -54,6 +54,7 @@ import InstructorBatchAnalytics from './pages/instructor/BatchAnalytics';
 import AdminCertificateManagement from './pages/admin/CertificateManagement';
 import InstructorCertificates from './pages/instructor/Certificates';
 import NotificationManagement from './pages/admin/NotificationManagement';
+import NotFound from './pages/NotFound';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; roles?: string[] }> = ({ 
   children, 
@@ -269,6 +270,9 @@ const AppRoutes: React.FC = () => {
             <NotificationManagement />
           </ProtectedRoute>
         } />
+        
+        {/* 404 Not Found - Must be last route */}
+        <Route path="*" element={<NotFound />} />
     
       </Routes>
     </div>

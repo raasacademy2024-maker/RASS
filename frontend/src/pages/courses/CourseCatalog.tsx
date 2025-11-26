@@ -14,6 +14,7 @@ import { Course } from "../../types";
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 import { FaMobile } from "react-icons/fa";
+import SEO, { pageSEOConfig } from "../../components/common/SEO";
 
 const CourseCatalog: React.FC = () => {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -201,6 +202,7 @@ const CourseCatalog: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <SEO {...pageSEOConfig.courses} />
       <Navbar />
       
       {/* Animated background elements */}
