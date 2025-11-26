@@ -1,10 +1,12 @@
 import React from "react";
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
+import SEO, { pageSEOConfig } from "../../components/common/SEO";
 
 const Terms: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+      <SEO {...pageSEOConfig.terms} />
       <Navbar />
       
       <div className="flex-grow flex items-center justify-center p-4 sm:p-6 lg:p-8 w-full">

@@ -230,6 +230,31 @@ export const pageSEOConfig = {
     canonical: 'https://www.raasacademy.com/register',
     noindex: true,
   },
+  studentAmbassador: {
+    title: 'Campus Partner Program - RASS Academy | Join Our Student Ambassador Network',
+    description: 'Become a RASS Academy Campus Partner. Earn incentives, build your network, gain leadership experience, and represent RASS Academy on your campus.',
+    keywords: 'campus partner, student ambassador, college representative, RASS Academy ambassador, campus program, student leadership',
+    canonical: 'https://www.raasacademy.com/StudentAmbassadorForm',
+  },
+  universityPartnership: {
+    title: 'University Partnership - RASS Academy | Partner with Us',
+    description: 'Explore partnership opportunities with RASS Academy. Collaborate to provide industry-relevant courses and certifications to your students.',
+    keywords: 'university partnership, academic partnership, institution collaboration, RASS Academy partner',
+    canonical: 'https://www.raasacademy.com/university-partnership',
+  },
+  companyPartnership: {
+    title: 'Company Partnership - RASS Academy | Corporate Collaboration',
+    description: 'Partner with RASS Academy for hiring trained professionals, corporate training solutions, and workforce development programs.',
+    keywords: 'company partnership, corporate partnership, hire trained talent, workforce development, RASS Academy corporate',
+    canonical: 'https://www.raasacademy.com/company-partnership',
+  },
+  notFound: {
+    title: '404 - Page Not Found | RASS Academy',
+    description: 'The page you are looking for could not be found. Explore our courses, contact support, or return to the homepage.',
+    keywords: '404, page not found, RASS Academy',
+    canonical: 'https://www.raasacademy.com/404',
+    noindex: true,
+  },
 };
 
 // Helper function to generate course structured data

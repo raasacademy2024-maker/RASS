@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import Navbar from '../../components/layout/Navbar';
 import Footer from '../../components/layout/Footer';
 import ScrollToTop from '../ScrollToTop';
+import SEO, { pageSEOConfig } from '../../components/common/SEO';
 
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -72,6 +73,7 @@ const Register: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 relative overflow-hidden">
+      <SEO {...pageSEOConfig.register} />
       {/* Subtle iOS-style gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-gray-100"></div>
 

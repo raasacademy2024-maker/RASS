@@ -8,7 +8,7 @@
   <!-- Homepage -->
   <url>
     <loc>https://www.raasacademy.com/</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2025-11-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
@@ -20,7 +20,7 @@
   <!-- Courses Page -->
   <url>
     <loc>https://www.raasacademy.com/courses</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2025-11-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -28,7 +28,7 @@
   <!-- Companies Page -->
   <url>
     <loc>https://www.raasacademy.com/companies</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2025-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -36,7 +36,7 @@
   <!-- Universities Page -->
   <url>
     <loc>https://www.raasacademy.com/universities</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2025-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -44,7 +44,7 @@
   <!-- Events Page -->
   <url>
     <loc>https://www.raasacademy.com/events</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2025-11-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
@@ -52,7 +52,7 @@
   <!-- Blog Page -->
   <url>
     <loc>https://www.raasacademy.com/blog</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2025-11-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -60,7 +60,7 @@
   <!-- About Page -->
   <url>
     <loc>https://www.raasacademy.com/about</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2025-11-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -68,7 +68,7 @@
   <!-- Contact Page -->
   <url>
     <loc>https://www.raasacademy.com/contact</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2025-11-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -76,7 +76,7 @@
   <!-- FAQ/Help Center Page -->
   <url>
     <loc>https://www.raasacademy.com/faq</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2025-11-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -84,7 +84,7 @@
   <!-- Help Center Page -->
   <url>
     <loc>https://www.raasacademy.com/help-center</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2025-11-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -92,7 +92,7 @@
   <!-- Terms and Conditions -->
   <url>
     <loc>https://www.raasacademy.com/terms</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2025-11-26</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
@@ -100,7 +100,7 @@
   <!-- Privacy Policy -->
   <url>
     <loc>https://www.raasacademy.com/privacy</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2025-11-26</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
@@ -108,7 +108,7 @@
   <!-- Student Ambassador Form -->
   <url>
     <loc>https://www.raasacademy.com/StudentAmbassadorForm</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2025-11-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -116,7 +116,7 @@
   <!-- University Partnership -->
   <url>
     <loc>https://www.raasacademy.com/university-partnership</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2025-11-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -124,7 +124,7 @@
   <!-- Company Partnership -->
   <url>
     <loc>https://www.raasacademy.com/company-partnership</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2025-11-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -132,7 +132,7 @@
   <!-- Login Page -->
   <url>
     <loc>https://www.raasacademy.com/login</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2025-11-26</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -140,7 +140,7 @@
   <!-- Register Page -->
   <url>
     <loc>https://www.raasacademy.com/register</loc>
-    <lastmod>2024-01-15</lastmod>
+    <lastmod>2025-11-26</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>

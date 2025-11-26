@@ -5,6 +5,7 @@ import { courseAPI, enrollmentAPI, enrollmentFormAPI } from "../../services/api"
 import { Course, Enrollment } from "../../types";
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
+import SEO, { generateCourseSchema, generateBreadcrumbSchema } from "../../components/common/SEO";
 
 // Components
 import CourseHero from "../../components/course/CourseHero";
@@ -335,8 +336,30 @@ const CourseDetail: React.FC = () => {
 
   const faqs = (course as any).faqs || [];
 
+  // Generate dynamic SEO data for the course
+  const META_DESCRIPTION_MAX_LENGTH = 155;
+  const courseSEO = {
+    title: `${course.title} - RASS Academy | Online Course & Certification`,
+    description: course.description ? course.description.slice(0, META_DESCRIPTION_MAX_LENGTH) + '...' : `Learn ${course.title} with RASS Academy. Expert-led online course with certification. Enroll today!`,
+    keywords: `${course.title}, ${course.category || 'online course'}, RASS Academy, certification, professional training, ${course.level || 'all levels'}`,
+    canonical: `https://www.raasacademy.com/courses/${course._id}`,
+    ogImage: course.thumbnail || 'https://www.raasacademy.com/logo.webp',
+    structuredData: generateCourseSchema({
+      name: course.title,
+      description: course.description || '',
+      instructor: course.instructor?.name || 'RASS Academy Expert',
+      provider: 'RASS Academy',
+      imageUrl: course.thumbnail,
+      price: course.price,
+      currency: 'INR',
+      duration: `PT${Math.round(course.totalDuration / 60)}H`,
+      level: course.level,
+    }),
+  };
+
  return (
     <div className="flex flex-col min-h-screen">
+      <SEO {...courseSEO} />
       <Navbar />
 
       {/* ✅ Sticky Navigation */}

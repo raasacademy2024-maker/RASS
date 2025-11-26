@@ -16,6 +16,7 @@ import {
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import { countryCodes } from "../utils/countryCodes";
+import SEO, { pageSEOConfig } from "../components/common/SEO";
 
 const CompanyPartnershipForm: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -172,6 +173,7 @@ const CompanyPartnershipForm: React.FC = () => {
 
   return (
     <div>
+    <SEO {...pageSEOConfig.companyPartnership} />
     <Navbar />
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">

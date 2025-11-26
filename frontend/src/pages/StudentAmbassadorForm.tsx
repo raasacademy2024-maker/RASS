@@ -25,6 +25,7 @@ import {
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import { countryCodes } from "../utils/countryCodes";
+import SEO, { pageSEOConfig } from "../components/common/SEO";
 
 const CampusPartnerForm: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -180,6 +181,7 @@ const CampusPartnerForm: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <SEO {...pageSEOConfig.studentAmbassador} />
       <Navbar />
       
       {/* Hero Section */}
