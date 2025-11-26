@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Home, Search, BookOpen, HelpCircle, ArrowLeft, Mail, Phone } from 'lucide-react';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
+import SEO, { pageSEOConfig } from '../components/common/SEO';
 
 const NotFound: React.FC = () => {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ const NotFound: React.FC = () => {
 
   return (
     <>
+      <SEO {...pageSEOConfig.notFound} />
       <Navbar />
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center px-4 py-16">
         <div className="max-w-2xl w-full text-center">

@@ -18,6 +18,7 @@ import {
 import { motion } from "framer-motion";
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
+import SEO, { pageSEOConfig } from "../../components/common/SEO";
 
 const Login: React.FC = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -71,6 +72,7 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 relative overflow-hidden">
+      <SEO {...pageSEOConfig.login} />
       {/* Subtle iOS-style gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-gray-100"></div>
 
