@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 import apiClient from "../../services/api";
+import SEO, { pageSEOConfig } from "../../components/common/SEO";
 
 interface AgendaItem {
   day: string;
@@ -91,6 +92,7 @@ export default function AllEventsPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <SEO {...pageSEOConfig.events} />
       <Navbar />
       <main className="flex-grow bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
         <div className="max-w-7xl mx-auto">

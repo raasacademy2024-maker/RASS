@@ -1,0 +1,13 @@
+# ads.txt file for RASS Academy
+# This file is used to declare authorized digital sellers
+# For more information: https://iabtechlab.com/ads-txt/
+
+# If you use Google AdSense, add your publisher ID below:
+# google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+
+# If you use other advertising networks, add their entries below:
+# Example:
+# advertising-network.com, pub-XXXX, DIRECT
+
+# Contact: support@rassacademy.com
+# Last updated: 2024-01-15

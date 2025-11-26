@@ -1,0 +1,49 @@
+# Robots.txt for RASS Academy
+# https://www.raasacademy.com
+
+# Allow all search engines
+User-agent: *
+
+# Allow crawling of all public pages
+Allow: /
+Allow: /courses
+Allow: /companies
+Allow: /universities
+Allow: /events
+Allow: /blog
+Allow: /about
+Allow: /contact
+Allow: /faq
+Allow: /help-center
+Allow: /terms
+Allow: /privacy
+Allow: /StudentAmbassadorForm
+Allow: /university-partnership
+Allow: /company-partnership
+Allow: /login
+Allow: /register
+
+# Disallow admin and protected routes
+Disallow: /admin/
+Disallow: /instructor/
+Disallow: /student/
+Disallow: /profile
+Disallow: /learn/
+
+# Disallow API endpoints
+Disallow: /api/
+
+# Disallow common development files
+Disallow: /*.json$
+Disallow: /*.xml$
+Disallow: /src/
+Disallow: /node_modules/
+
+# Crawl delay (optional - be polite to server)
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://www.raasacademy.com/sitemap.xml
+
+# Host
+Host: https://www.raasacademy.com

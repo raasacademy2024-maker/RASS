@@ -18,6 +18,8 @@ import TestimonialCarousel from './publicpages/TestimonialCarousel';
 import MediaPresenceSection from './publicpages/MediaPresenceSection';
 import TrainingAssessment from './publicpages/TrainingAssessment';
 import UpcomingEvents from '../components/home/UpcomingEvents';
+import SEO, { pageSEOConfig } from '../components/common/SEO';
+
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
@@ -90,8 +92,11 @@ const Home: React.FC = () => {
 
   return (
     <div>
+      <SEO {...pageSEOConfig.home} />
       <Navbar/>
       <div className="min-h-screen overflow-hidden bg-white">
+        {/* Main heading for SEO - hidden visually but accessible to screen readers */}
+        <h1 className="sr-only">RASS Academy - Online Courses, Certifications & Professional Training</h1>
         <HeroCarousel/>
         <ClientsSection/>
         <IntroCourse/>
