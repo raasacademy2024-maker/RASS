@@ -16,6 +16,7 @@ import {
 import Footer from '../../components/layout/Footer';
 import Navbar from '../../components/layout/Navbar';
 import { countryCodes } from '../../utils/countryCodes';
+import SEO, { pageSEOConfig } from '../../components/common/SEO';
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -109,6 +110,7 @@ const ContactUs = () => {
 
   return (
     <div>
+      <SEO {...pageSEOConfig.contact} />
       <Navbar />
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
         

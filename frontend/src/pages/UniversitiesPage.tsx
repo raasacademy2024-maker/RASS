@@ -12,6 +12,7 @@ import {
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import { Link, useNavigate } from "react-router-dom";
+import SEO, { pageSEOConfig } from "../components/common/SEO";
 
 const heroImages = [
     "/images/universities/university-cta-bg.jpg",
@@ -133,6 +134,7 @@ const UniversitiesPage: React.FC = () => {
 
   return (
     <div>
+      <SEO {...pageSEOConfig.universities} />
       <Navbar />
 {/* Hero Section */}
 <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">

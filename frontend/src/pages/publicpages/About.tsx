@@ -17,6 +17,7 @@ import {
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 import { useNavigate } from "react-router-dom";
+import SEO, { pageSEOConfig } from "../../components/common/SEO";
 
 const heroImages = [
   "/images/universities/university-cta-bg.jpg",
@@ -108,6 +109,7 @@ const About: React.FC = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen">
+      <SEO {...pageSEOConfig.about} />
       <Navbar />
 
       {/* HERO */}

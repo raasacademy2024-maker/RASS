@@ -16,6 +16,7 @@ import {
 import { useParams, Link } from 'react-router-dom';
 import Footer from '../../components/layout/Footer';
 import Navbar from '../../components/layout/Navbar';
+import SEO, { pageSEOConfig } from '../../components/common/SEO';
 
 // Types for our blog data
 interface BlogPost {
@@ -240,6 +241,7 @@ const BlogPage = () => {
 
   return (
     <div>
+        <SEO {...pageSEOConfig.blog} />
         <Navbar/>
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 py-12 px-4 sm:px-6 lg:px-8">
       {/* Header Section */}

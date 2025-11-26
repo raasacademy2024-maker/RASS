@@ -1,12 +1,6 @@
 import { FaFacebookF, FaInstagram, FaLinkedinIn } from "react-icons/fa";
 
 const Footer = () => {
-  // Email obfuscation function to prevent spam bots
-  const handleEmailClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    window.location.href = 'mailto:support@rassacademy.com';
-  };
-
   return (
     <footer className="bg-gray-900 text-gray-300 py-12" role="contentinfo" aria-label="Site footer">
       <div className="container mx-auto px-6 md:px-12 lg:px-24">
@@ -84,12 +78,11 @@ const Footer = () => {
             <p className="text-sm">
               <strong>Email:</strong>{" "}
               <a 
-                href="#" 
-                onClick={handleEmailClick}
+                href="mailto:support@rassacademy.com"
                 className="hover:text-white transition"
                 aria-label="Email us at support@rassacademy.com"
               >
-                support[at]rassacademy[dot]com
+                support@rassacademy.com
               </a>
             </p>
             <p className="text-sm mt-1">

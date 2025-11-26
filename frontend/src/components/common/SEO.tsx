@@ -39,8 +39,11 @@ const SEO: React.FC<SEOProps> = ({
 
     // Helper function to update or create meta tag
     const updateMetaTag = (selector: string, attribute: string, content: string) => {
-      let element = document.querySelector(selector) as HTMLMetaElement;
-      if (element) {
+      const existingElement = document.querySelector(selector);
+      let element: HTMLMetaElement;
+      
+      if (existingElement && existingElement instanceof HTMLMetaElement) {
+        element = existingElement;
         element.setAttribute(attribute === 'content' ? 'content' : attribute, content);
       } else {
         element = document.createElement('meta');

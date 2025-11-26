@@ -22,6 +22,7 @@ import {
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import HTDSection from "./HTDSection";
+import SEO, { pageSEOConfig } from "../components/common/SEO";
 
 const Companies: React.FC = () => {
   const heroImages = [
@@ -59,6 +60,7 @@ const Companies: React.FC = () => {
 
   return (
     <div>
+      <SEO {...pageSEOConfig.companies} />
       <Navbar />
       <div className="bg-white overflow-hidden">
 {/* 🟣 Hero Section - Fixed for Mobile */}
