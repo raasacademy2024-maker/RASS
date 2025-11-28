@@ -195,7 +195,7 @@ const About: React.FC = () => {
             <ul className="mt-4 space-y-2">
               <li className="text-gray-700">• Curriculum co-created with industry hiring partners</li>
               <li className="text-gray-700">• Real projects and skills mentorship from industry experts</li>
-              <li className="text-gray-700">• Placement & talent support for top performers</li>
+              <li className="text-gray-700">• Placement & career support for top performers</li>
             </ul>
           </motion.div>
 

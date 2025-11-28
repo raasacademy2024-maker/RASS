@@ -32,7 +32,7 @@ const CompaniesPage: React.FC = () => {
         <div className="container mx-auto max-w-6xl text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Flexible Talent & Skills Hiring Solutions for Your Industry</h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-12">
-            We offer tailored learning pathways to help companies seamlessly integrate skilled talent into their teams with industry-ready skills.
+            We offer tailored learning pathways to help companies seamlessly integrate industry-ready talent into their teams.
           </p>
 
           {/* Tabs */}

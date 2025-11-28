@@ -18,8 +18,8 @@ interface SEOProps {
 }
 
 const SEO: React.FC<SEOProps> = ({
-  title = 'RASS Academy - India\'s Premier Skills & Learning Platform | Industry-Ready Talent',
-  description = 'RASS Academy - India\'s #1 outcome-focused learning platform for skills development and industry-ready talent. Join 10,000+ learners building in-demand skills.',
+  title = `RASS Academy - India's Premier Skills & Learning Platform | Industry-Ready Talent`,
+  description = `RASS Academy - India's #1 outcome-focused learning platform for skills development and industry-ready talent. Join 10,000+ learners building in-demand skills.`,
   keywords = 'learning, industry, india, skills, talent, online courses, professional training, certifications, e-learning, coding courses, data science, RASS Academy',
   canonical,
   ogTitle,
