@@ -187,9 +187,9 @@ const SkillInsightsDashboard = () => {
         {/* Header */}
         <header className="mb-10">
           <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-500 pb-3 leading-tight">
-            Skill Survey Insights 2025
+            Skills Survey Insights 2025
           </h1>
-          <p className="mt-2 text-lg text-gray-600 font-medium">Indian Talent trends, forecasts, and industry shifts shaping the future workforce.</p>
+          <p className="mt-2 text-lg text-gray-600 font-medium">India's talent trends, industry forecasts, and learning shifts shaping the future workforce.</p>
         </header>
 
         {/* Main Content */}

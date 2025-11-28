@@ -193,13 +193,13 @@ const CertificationCourses: React.FC = () => {
           <h1 className="text-5xl lg:text-5xl font-bold text-gray-900 mb-6 tracking-tight">
             
             <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent pb-3 leading-tight">
-               How are we different from others 
+               How Our Skills Learning is Different 
 
             </span>
           </h1>
           
           <p className="text-xl lg:text-2xl text-gray-600 font-light max-w-3xl mx-auto leading-relaxed">
-            "Bridging the gap between learning and real-world success"
+            "Bridging India's talent gap with industry-ready learning programs"
           </p>
         </header>
 

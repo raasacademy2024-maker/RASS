@@ -118,10 +118,10 @@ const About: React.FC = () => {
           <motion.div {...minimalFade} className="space-y-6">
             <div className="uppercase text-sm font-semibold text-indigo-600">About RASS Academy</div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight">
-              Transforming Education into Career Outcomes
+              Transforming India's Learning into Industry-Ready Talent
             </h1>
             <p className="text-lg text-gray-700 max-w-2xl">
-              We partner with universities, companies and communities to equip graduates with certifications, hands-on projects and connections for day-one productivity.
+              We partner with universities, companies and communities across India to equip learners with in-demand skills, certifications, and industry connections for career success.
             </p>
 
             <div className="flex flex-wrap gap-3 items-center">
@@ -188,14 +188,14 @@ const About: React.FC = () => {
         <div className="grid md:grid-cols-2 gap-10 items-center">
           <motion.div {...minimalFade} className="space-y-4">
             <h3 className="text-xl text-indigo-600 font-semibold">Our Mission</h3>
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Democratize industry-relevant education at scale</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Democratize Industry-Relevant Skills Learning Across India</h2>
             <p className="text-gray-700">
-              We close the gap between campus learning and industry expectations by offering certifications, project-based learning and placement support — so students step into jobs confidently.
+              We close the gap between campus learning and industry expectations by offering skills certifications, project-based learning and talent placement support — so learners become industry-ready professionals.
             </p>
             <ul className="mt-4 space-y-2">
-              <li className="text-gray-700">• Curriculum co-created with hiring partners</li>
-              <li className="text-gray-700">• Real projects and mentorship from industry experts</li>
-              <li className="text-gray-700">• Placement & internship support for top performers</li>
+              <li className="text-gray-700">• Curriculum co-created with industry hiring partners</li>
+              <li className="text-gray-700">• Real projects and skills mentorship from industry experts</li>
+              <li className="text-gray-700">• Placement & career support for top performers</li>
             </ul>
           </motion.div>
 
@@ -278,13 +278,13 @@ const About: React.FC = () => {
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <motion.div {...minimalFade} className="space-y-4">
             <h3 className="text-xl text-indigo-600 font-semibold">Proven Benefits</h3>
-            <h2 className="text-3xl font-bold text-gray-900">Why universities and students choose us</h2>
-            <p className="text-gray-700">Lower time-to-hire, better job readiness and a repeatable pipeline for industry-ready candidates.</p>
+            <h2 className="text-3xl font-bold text-gray-900">Why India's Universities and Learners Choose Us</h2>
+            <p className="text-gray-700">Faster skill development, industry-ready talent pipeline, and proven learning outcomes across India.</p>
 
             <ul className="mt-6 space-y-3 text-gray-700">
-              <li>• Pre-trained talent ready for internships & roles</li>
-              <li>• Industry-verified curriculum & assessments</li>
-              <li>• Scalable faculty enablement models</li>
+              <li>• Pre-skilled talent ready for industry roles</li>
+              <li>• Industry-verified skills curriculum & assessments</li>
+              <li>• Scalable learning and faculty enablement models</li>
             </ul>
           </motion.div>
 
@@ -341,9 +341,9 @@ const About: React.FC = () => {
         >
           <div className="absolute inset-0 bg-gradient-to-r from-blue-800/70 to-indigo-700/60"></div>
           <div className="relative z-10 px-6 py-16 text-center text-white">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Join the movement creating future-ready graduates</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Join India's Movement for Industry-Ready Talent</h2>
             <p className="max-w-3xl mx-auto text-lg mb-8 text-indigo-100">
-              Partner with RASS Academy for curriculum, faculty enablement, and direct hire pipelines for your students.
+              Partner with RASS Academy for industry-aligned skills learning, faculty enablement, and talent pipelines for your learners.
             </p>
             <div className="flex justify-center gap-4">
               <button onClick={() => {

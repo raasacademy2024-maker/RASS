@@ -10,8 +10,8 @@ const heroImages = {
 
 const slide = {
   id: 1,
-  title: ["Become the Talent", "that every company wants to Hire."],
-  subtitle: "India's #1 Outcome-Focused Skill Development Initiative, trusted by learners with proven results.",
+  title: ["Become the Talent", "that every Industry wants to Hire."],
+  subtitle: "India's #1 Outcome-Focused Skills Learning Initiative, trusted by learners with proven results.",
   cta: "Explore Our Impact",
   accentColor: "blue",
   stats: [

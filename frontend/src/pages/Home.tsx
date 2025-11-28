@@ -96,7 +96,7 @@ const Home: React.FC = () => {
       <Navbar/>
       <div className="min-h-screen overflow-hidden bg-white">
         {/* Main heading for SEO - hidden visually but accessible to screen readers */}
-        <h1 className="sr-only">RASS Academy - Online Courses, Certifications & Professional Training</h1>
+        <h1 className="sr-only">RASS Academy - India's Premier Skills & Learning Platform for Industry-Ready Talent Development</h1>
         <HeroCarousel/>
         <ClientsSection/>
         <IntroCourse/>
@@ -111,11 +111,11 @@ const Home: React.FC = () => {
         <section className="py-20 bg-gradient-to-r from-indigo-700 to-indigo-800 text-white">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Ready to Start Your Learning Journey?
+              Ready to Build Industry-Ready Skills?
             </h2>
             <p className="text-xl mb-10 max-w-2xl mx-auto opacity-90">
-              Join a pool of students already learning with RASS Academy. 
-              Start your journey today with our comprehensive courses.
+              Join India's fastest-growing talent community. Start your learning journey today with RASS Academy 
+              and become the skilled professional that industry leaders want to hire.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button 
