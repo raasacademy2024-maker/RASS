@@ -56,10 +56,10 @@ export function ClientsSection() {
           viewport={{ once: true }}
         >
           <h2 className="text-5xl font-bold text-gray-800 pb-3 leading-tight">
-            Trusted by Industry Leaders
+            Trusted by Industry Leaders Across India
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Our instructors and students work at leading companies.
+            Our skilled talent and learning programs are recognized by top companies.
           </p>
         </motion.div>
 

@@ -10,8 +10,8 @@ const CompaniesPage: React.FC = () => {
         <div className="container mx-auto max-w-6xl">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="md:w-2/3 mb-10 md:mb-0">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6">Build Your Talent Pipeline with Vetted and Ready to Work Interns. At Zero Cost.</h1>
-              <p className="text-xl mb-8">Streamline your operations by engaging focus driven, pre-qualified interns who bring fresh perspectives, support critical projects, and deliver tangible outcomes completely free to your business.</p>
+              <h1 className="text-4xl md:text-5xl font-bold mb-6">Access India's Industry-Ready Talent Pipeline. At Zero Cost.</h1>
+              <p className="text-xl mb-8">Streamline your hiring by engaging pre-skilled, industry-ready interns from India who bring fresh perspectives, support critical projects, and deliver tangible outcomes.</p>
               <button className="bg-white text-blue-700 font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-blue-100 transition-all duration-300 transform hover:scale-105">
                 Schedule a call
               </button>
@@ -19,8 +19,8 @@ const CompaniesPage: React.FC = () => {
             <div className="md:w-1/3 flex justify-center">
               <div className="bg-white/20 p-6 rounded-2xl backdrop-blur-md border border-white/30">
                 <div className="text-5xl mb-4">👥</div>
-                <h3 className="text-xl font-semibold">Zero Cost Talent</h3>
-                <p className="text-sm mt-2">Access pre-vetted interns without any recruitment fees</p>
+                <h3 className="text-xl font-semibold">Skilled Talent</h3>
+                <p className="text-sm mt-2">Access pre-skilled talent from India without any recruitment fees</p>
               </div>
             </div>
           </div>
@@ -30,9 +30,9 @@ const CompaniesPage: React.FC = () => {
       {/* Solutions Section */}
       <section className="py-16 px-4">
         <div className="container mx-auto max-w-6xl text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Flexible Internship Hiring Solutions for Your Company</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Flexible Talent & Skills Hiring Solutions for Your Industry</h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-12">
-            We offer tailored pathways to help companies seamlessly integrate skilled interns into their teams ensuring the right talent is ready to make an immediate impact.
+            We offer tailored learning pathways to help companies seamlessly integrate skilled talent into their teams with industry-ready skills.
           </p>
 
           {/* Tabs */}
@@ -57,8 +57,8 @@ const CompaniesPage: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-lg p-6 md:p-10 max-w-4xl mx-auto">
             {activeTab === 'direct' ? (
               <div className="text-left">
-                <h3 className="text-2xl font-bold text-gray-800 mb-2">Direct Hire from Our Pre-Screened Talent Pool</h3>
-                <p className="text-gray-600 mb-8">Ideal for companies ready to onboard trained interns right away.</p>
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">Direct Hire from Our Pre-Skilled Talent Pool in India</h3>
+                <p className="text-gray-600 mb-8">Ideal for companies ready to onboard industry-ready talent with proven skills.</p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
                   <div className="text-center">
@@ -138,15 +138,15 @@ const CompaniesPage: React.FC = () => {
       {/* Stats Section */}
       <section className="py-16 px-4 bg-white">
         <div className="container mx-auto max-w-6xl">
-          <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">Why Companies Choose Our Interns</h2>
+          <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">Why Industry Leaders Choose Our Skilled Talent</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="text-4xl font-bold text-blue-600 mb-2">95%</div>
-              <p className="text-gray-600">Ready to contribute from day one</p>
+              <p className="text-gray-600">Industry-ready from day one</p>
             </div>
             <div className="text-center">
               <div className="text-4xl font-bold text-blue-600 mb-2">100%</div>
-              <p className="text-gray-600">Pre-vetted and screened</p>
+              <p className="text-gray-600">Pre-skilled and screened</p>
             </div>
             <div className="text-center">
               <div className="text-4xl font-bold text-blue-600 mb-2">$0</div>
@@ -163,8 +163,8 @@ const CompaniesPage: React.FC = () => {
       {/* CTA Section */}
       <section className="py-16 px-4 bg-gradient-to-r from-blue-600 to-indigo-700">
         <div className="container mx-auto max-w-4xl text-center text-white">
-          <h2 className="text-3xl font-bold mb-6">Ready to Build Your Talent Pipeline?</h2>
-          <p className="text-xl mb-8">Join hundreds of companies that have found their next great talent through our intern program.</p>
+          <h2 className="text-3xl font-bold mb-6">Ready to Access India's Industry-Ready Talent?</h2>
+          <p className="text-xl mb-8">Join hundreds of companies that have found skilled talent through our learning and placement programs.</p>
           <button className="bg-white text-blue-700 font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-blue-100 transition-all duration-300 mr-4">
             Schedule a call
           </button>
