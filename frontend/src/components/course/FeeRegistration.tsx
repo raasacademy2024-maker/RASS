@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { Award, Play, BookOpen } from "lucide-react";
+import { Award, BookOpen } from "lucide-react";
 import { Course, Enrollment } from "../../types";
 import { useAuth } from "../../context/AuthContext";
 
@@ -39,10 +39,7 @@ const FeeRegistration: React.FC<Props> = ({ course, enrollment, onEnroll }) => {
       </p>
 
       {/* Perks */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-left mb-8">
-        <div className="bg-white bg-opacity-10 rounded-lg p-4 flex items-center gap-2">
-          <Play className="h-5 w-5" /> {course.modules?.length ?? 0} modules
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-left mb-8">
         <div className="bg-white bg-opacity-10 rounded-lg p-4 flex items-center gap-2">
           <BookOpen className="h-5 w-5" /> Downloadable resources
         </div>

@@ -5,7 +5,7 @@ import { courseAPI } from "../../services/api";
 import { 
   BookOpen, Clock, Users, Star, Search, Filter, 
   X, Zap, Bookmark, Eye, Award,
-  PlayCircle, Shield, Globe, Rocket,
+  Shield, Globe, Rocket,
   Phone,
   BrainCog,
   TrendingUp
@@ -477,10 +477,6 @@ const CourseCatalog: React.FC = () => {
                           <span className="flex items-center gap-1">
                             <Clock className="h-4 w-4" />
                             {Math.round(course.totalDuration / 60)}h
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <PlayCircle className="h-4 w-4" />
-                            {course.modules?.length || 12} modules
                           </span>
                         </div>
                         <span className="flex items-center gap-1 font-semibold">

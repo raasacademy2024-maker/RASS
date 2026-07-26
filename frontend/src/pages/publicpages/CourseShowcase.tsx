@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Star, Clock, Users, BookOpen, Search, Filter, X, ChevronDown, Play } from "lucide-react";
+import { Star, Clock, Users, Search, Filter, X, ChevronDown, Play } from "lucide-react";
 import { resolveImageUrl } from "../../utils/imageUrl";
 
 const CourseShowcase = () => {
@@ -325,10 +325,6 @@ const CourseCard = ({ course }) => {
           <span className="flex items-center mr-4">
             <Clock className="h-4 w-4 mr-1" />
             {formatDuration(course.totalDuration)}
-          </span>
-          <span className="flex items-center mr-4">
-            <BookOpen className="h-4 w-4 mr-1" />
-            {course.modules.length} modules
           </span>
           <span className="flex items-center">
             <Users className="h-4 w-4 mr-1" />

@@ -1,8 +1,5 @@
 import React from "react";
 import { motion } from "framer-motion";
-import {
-  Clock,
-} from "lucide-react";
 import { Enrollment } from "../../types"; // Import the Enrollment type
 import { resolveImageUrl } from "../../utils/imageUrl";
 
@@ -59,13 +56,6 @@ const CourseHero: React.FC<CourseHeroProps> = ({
           <p className="text-gray-600 text-lg leading-relaxed">
             {course.description}
           </p>
-
-          {/* Stats */}
-          <div className="flex flex-wrap items-center gap-6 text-gray-600">
-            <div className="flex items-center gap-2">
-              <Clock size={18} /> {course.totalDuration || 0} mins
-            </div>
-          </div>
 
           {/* Buttons */}
           <div className="flex flex-wrap gap-4 pt-4">
