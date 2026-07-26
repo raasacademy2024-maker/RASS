@@ -55,7 +55,7 @@ router.post('/generate', authenticate, async (req, res) => {
       course: courseId,
       batch: enrollment.batch,
       completionDate: enrollment.completedAt,
-      certificateUrl: `https://certificates.rassacademy.com/${req.user._id}/${courseId}`
+      certificateUrl: `https://certificates.raasacademy.com/${req.user._id}/${courseId}`
     });
 
     await certificate.save();
@@ -209,7 +209,7 @@ router.post('/generate-for-student', authenticate, authorize('admin', 'instructo
       batch: enrollment.batch,
       completionDate: enrollment.completedAt,
       grade: grade || 'B',
-      certificateUrl: `https://certificates.rassacademy.com/${studentId}/${courseId}`
+      certificateUrl: `https://certificates.raasacademy.com/${studentId}/${courseId}`
     });
 
     await certificate.save();
@@ -313,7 +313,7 @@ router.post('/bulk-generate', authenticate, authorize('admin', 'instructor'), as
           batch: enrollment.batch,
           completionDate: enrollment.completedAt,
           grade: grade || 'B',
-          certificateUrl: `https://certificates.rassacademy.com/${studentId}/${courseId}`
+          certificateUrl: `https://certificates.raasacademy.com/${studentId}/${courseId}`
         });
 
         await certificate.save();

@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { resolveImageUrl } from "../../utils/imageUrl";
 
 export interface Company {
   name: string;
@@ -23,7 +24,7 @@ const DreamCompanies: React.FC<Props> = ({ companies }) => {
           >
             {c.logo ? (
               <img
-                src={c.logo}
+                src={resolveImageUrl(c.logo, 400)}
                 alt={c.name}
                 className="max-h-12 object-contain mb-2"
               />

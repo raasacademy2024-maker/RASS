@@ -1,6 +1,6 @@
-# RASS Academy SEO Optimization Guide
+# RAAS Academy SEO Optimization Guide
 
-This document provides a comprehensive overview of the SEO optimizations implemented for the RASS Academy website (https://www.raasacademy.com).
+This document provides a comprehensive overview of the SEO optimizations implemented for the RAAS Academy website (https://www.raasacademy.com).
 
 ## 🎯 SEO Score Target: 90+
 
@@ -21,10 +21,10 @@ This document provides a comprehensive overview of the SEO optimizations impleme
 ```html
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://www.raasacademy.com/" />
-<meta property="og:title" content="RASS Academy - Online Courses, Certifications & Professional Training" />
+<meta property="og:title" content="RAAS Academy - Online Courses, Certifications & Professional Training" />
 <meta property="og:description" content="..." />
 <meta property="og:image" content="https://www.raasacademy.com/logo.webp" />
-<meta property="og:site_name" content="RASS Academy" />
+<meta property="og:site_name" content="RAAS Academy" />
 ```
 
 ### 3. Twitter Card Tags
@@ -211,5 +211,5 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
 ## 📞 Support
 
 For questions or issues related to SEO implementation, please contact:
-- Email: support@rassacademy.com
+- Email: support@raasacademy.com
 - Phone: +91 9063194887

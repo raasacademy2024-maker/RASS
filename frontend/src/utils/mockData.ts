@@ -1,5 +1,5 @@
 /**
- * Comprehensive Mock Data for RASS Academy LMS
+ * Comprehensive Mock Data for RAAS Academy LMS
  * 
  * This file contains all mock data used across the entire application.
  * Use this for development, testing, and preview purposes.
@@ -12,7 +12,7 @@ export const mockUsers = {
     {
       _id: 'admin001',
       name: 'Admin User',
-      email: 'admin@rassacademy.com',
+      email: 'admin@raasacademy.com',
       role: 'admin',
       profile: {
         bio: 'System Administrator',
@@ -28,7 +28,7 @@ export const mockUsers = {
     {
       _id: 'instructor001',
       name: 'Dr. Rajesh Kumar',
-      email: 'rajesh@rassacademy.com',
+      email: 'rajesh@raasacademy.com',
       role: 'instructor',
       profile: {
         bio: 'Expert MERN Stack Developer with 10+ years of experience in full-stack development',
@@ -44,7 +44,7 @@ export const mockUsers = {
     {
       _id: 'instructor002',
       name: 'Prof. Priya Sharma',
-      email: 'priya@rassacademy.com',
+      email: 'priya@raasacademy.com',
       role: 'instructor',
       profile: {
         bio: 'Data Science and AI expert, former Google engineer',
@@ -295,7 +295,7 @@ export const mockEnrollments = [
     completed: true,
     completedAt: '2024-03-20T00:00:00.000Z',
     certificateIssued: true,
-    certificateUrl: 'https://certificates.rassacademy.com/student002/course001',
+    certificateUrl: 'https://certificates.raasacademy.com/student002/course001',
     paymentStatus: 'completed',
     completionPercentage: 100,
   },
@@ -344,9 +344,9 @@ export const mockCertificates = [
       },
     },
     batch: mockBatches[0],
-    certificateId: 'RASS-2024-ABC123XYZ',
+    certificateId: 'RAAS-2024-ABC123XYZ',
     issuedAt: '2024-03-21T00:00:00.000Z',
-    certificateUrl: 'https://certificates.rassacademy.com/student002/course001',
+    certificateUrl: 'https://certificates.raasacademy.com/student002/course001',
     grade: 'A+',
     completionDate: '2024-03-20T00:00:00.000Z',
     verified: true,

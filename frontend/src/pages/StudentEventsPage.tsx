@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import apiClient from "../services/api";
+import { resolveImageUrl } from "../utils/imageUrl";
 
 interface AgendaItem {
   _id?: string;
@@ -144,7 +145,7 @@ export default function StudentEventsPage() {
   };
 
   const getImageUrl = (event: Event) => {
-    return event.imageUrl || `https://picsum.photos/600/400?random=${event._id}`;
+    return resolveImageUrl(event.imageUrl, 800) || `https://picsum.photos/600/400?random=${event._id}`;
   };
 
   if (loading) {

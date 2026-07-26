@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Clock, Mail, Phone, Play, User, Zap } from "lucide-react";
 import { countryCodes } from "../../utils/countryCodes";
+import { resolveImageUrl } from "../../utils/imageUrl";
 
 interface CurriculumSection {
   subtitle: string;
@@ -262,7 +263,7 @@ const AdminCurriculum: React.FC<Props> = ({
                             {item.logoUrl ? (
                               <div className="relative">
                                 <img 
-                                  src={item.logoUrl} 
+                                  src={resolveImageUrl(item.logoUrl, 200)}
                                   alt={`${item.title} logo`}
                                   className="w-14 h-14 object-contain rounded-xl shadow-lg border"
                                   onError={(e) => {
@@ -349,7 +350,7 @@ const AdminCurriculum: React.FC<Props> = ({
                 {item.logoUrl ? (
                   <div className="relative overflow-hidden rounded-md shadow group-hover/image:shadow-md transition-all duration-300">
                     <img 
-                      src={item.logoUrl} 
+                      src={resolveImageUrl(item.logoUrl, 200)}
                       alt={`${item.title} logo`}
                       className="w-8 h-8 object-contain bg-white p-0.5 group-hover/image:scale-110 transition-transform duration-300"
                       onError={(e) => {

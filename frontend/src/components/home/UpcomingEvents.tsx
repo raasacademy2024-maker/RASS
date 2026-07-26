@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import apiClient from "../../services/api";
+import { resolveImageUrl } from "../../utils/imageUrl";
 
 interface AgendaItem {
   day: string;
@@ -279,7 +280,7 @@ export default function UpcomingEvents() {
   };
 
   const getImageUrl = (event: Event) => {
-    return event.imageUrl || `https://picsum.photos/600/400?random=${event._id}`;
+    return resolveImageUrl(event.imageUrl, 800) || `https://picsum.photos/600/400?random=${event._id}`;
   };
 
   const getRegisteredEventsForCurrentGroup = () => {

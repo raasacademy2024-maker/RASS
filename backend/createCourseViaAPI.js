@@ -25,7 +25,7 @@ async function loginAsInstructor() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      email: 'instructor@rassacademy.com',
+      email: 'instructor@raasacademy.com',
       password: 'instructor123'
     })
   });
@@ -38,8 +38,8 @@ async function loginAsInstructor() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        name: 'RASS Academy Instructor',
-        email: 'instructor@rassacademy.com',
+        name: 'RAAS Academy Instructor',
+        email: 'instructor@raasacademy.com',
         password: 'instructor123',
         role: 'instructor'
       })

@@ -138,7 +138,7 @@ const Register: React.FC = () => {
                     transition={{ delay: 0.2 }}
                     className="text-4xl font-bold text-gray-900"
                   >
-                    Join RASS Academy
+                    Join RAAS Academy
                   </motion.h2>
                   <motion.p
                     initial={{ y: 20, opacity: 0 }}

@@ -4,6 +4,7 @@ import {
   Clock,
 } from "lucide-react";
 import { Enrollment } from "../../types"; // Import the Enrollment type
+import { resolveImageUrl } from "../../utils/imageUrl";
 
 interface CourseHeroProps {
   course: {
@@ -87,7 +88,7 @@ const CourseHero: React.FC<CourseHeroProps> = ({
           {/* Thumbnail Image - Filled to whole card */}
           <div className="h-[400px] overflow-hidden">
             <img 
-              src={course.thumbnail || "https://via.placeholder.com/400x400?text=Course+Thumbnail"} 
+              src={resolveImageUrl(course.thumbnail) || "https://via.placeholder.com/400x400?text=Course+Thumbnail"}
               alt={course.title}
               className="w-full h-full object-cover"
             />

@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { courseAPI } from "../../services/api";
+import { resolveImageUrl, isGoogleDriveUrl } from "../../utils/imageUrl";
 
 interface Module {
   _id?: string;
@@ -395,7 +396,7 @@ const ManageCourses: React.FC = () => {
               {/* Course Image */}
               <div className="relative overflow-hidden">
                 <img
-                  src={course.thumbnail || "https://via.placeholder.com/400x200?text=Course+Thumbnail"}
+                  src={resolveImageUrl(course.thumbnail, 800) || "https://via.placeholder.com/400x200?text=Course+Thumbnail"}
                   alt={course.title}
                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                 />
@@ -659,6 +660,24 @@ const ManageCourses: React.FC = () => {
                       value={formData.thumbnail || ""}
                       onChange={(e) => setFormData({ ...formData, thumbnail: e.target.value })}
                     />
+                    {formData.thumbnail && (
+                      <div className="mt-3">
+                        <img
+                          src={resolveImageUrl(formData.thumbnail, 800)}
+                          alt="Thumbnail preview"
+                          className="w-full h-32 object-cover rounded-lg border border-gray-300"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                        {isGoogleDriveUrl(formData.thumbnail) && (
+                          <p className="mt-2 text-xs text-gray-500">
+                            Google Drive link detected &mdash; make sure the file is shared as
+                            &ldquo;Anyone with the link&rdquo; or it won&apos;t load.
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div>

@@ -119,11 +119,11 @@ const NotFound: React.FC = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <a
-                href="mailto:support@rassacademy.com"
+                href="mailto:support@raasacademy.com"
                 className="inline-flex items-center text-indigo-600 hover:text-indigo-700 font-medium"
               >
                 <Mail className="w-5 h-5 mr-2" />
-                support@rassacademy.com
+                support@raasacademy.com
               </a>
               <span className="hidden sm:block text-gray-300">|</span>
               <a
@@ -136,12 +136,12 @@ const NotFound: React.FC = () => {
             </div>
           </div>
 
-          {/* RASS Academy Branding */}
+          {/* RAAS Academy Branding */}
           <div className="mt-10">
             <Link to="/" className="inline-block">
               <img 
                 src="/logo.webp" 
-                alt="RASS Academy" 
+                alt="RAAS Academy" 
                 className="h-12 mx-auto opacity-50 hover:opacity-100 transition-opacity"
                 loading="lazy"
               />

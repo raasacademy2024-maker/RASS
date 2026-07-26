@@ -44,7 +44,7 @@ app.post("/send-mail", async (req, res) => {
     const htmlContent = generateEmailTemplate(name, email, mobileNumber);
 
     await resend.emails.send({
-      from: "RASS Academy <onboarding@resend.dev>",
+      from: "RAAS Academy <onboarding@resend.dev>",
       to: [process.env.NODEMAILER_USER_EMAIL],
       subject: `🚀 New Course Inquiry - ${name}`,
       html: htmlContent,
@@ -69,7 +69,7 @@ app.post("/send-mail/support", async (req, res) => {
     const htmlContent = generateEmailTemplate(name, email, mobileNumber);
 
     await resend.emails.send({
-      from: "RASS Academy <onboarding@resend.dev>",
+      from: "RAAS Academy <onboarding@resend.dev>",
       to: [process.env.NODEMAILER_USER_EMAIL],
       subject: `🚀 New Course Inquiry - ${name}`,
       html: htmlContent,
@@ -104,7 +104,7 @@ function generateEmailTemplate(name, email, mobileNumber) {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>New Course Inquiry - RASS Academy</title>
+    <title>New Course Inquiry - RAAS Academy</title>
     <style>
       body {
         font-family: 'Inter', sans-serif;
@@ -185,7 +185,7 @@ function generateEmailTemplate(name, email, mobileNumber) {
     <div class="container">
       <div class="header">
         <h1>New Course Inquiry 🚀</h1>
-        <p>Potential student interested in RASS Academy</p>
+        <p>Potential student interested in RAAS Academy</p>
       </div>
 
       <div class="content">
@@ -207,7 +207,7 @@ function generateEmailTemplate(name, email, mobileNumber) {
       </div>
 
       <div class="footer">
-        <div class="brand">RASS Academy</div>
+        <div class="brand">RAAS Academy</div>
         <p>Transforming careers through quality education 🎓</p>
         <div class="timestamp">📅 Received: ${timestamp}</div>
       </div>

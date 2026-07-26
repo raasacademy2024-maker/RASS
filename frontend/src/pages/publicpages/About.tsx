@@ -116,7 +116,7 @@ const About: React.FC = () => {
       <section className="relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 py-16 grid md:grid-cols-2 items-center gap-10">
           <motion.div {...minimalFade} className="space-y-6">
-            <div className="uppercase text-sm font-semibold text-indigo-600">About RASS Academy</div>
+            <div className="uppercase text-sm font-semibold text-indigo-600">About RAAS Academy</div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight">
               Transforming India's Learning into Industry-Ready Talent
             </h1>
@@ -343,7 +343,7 @@ const About: React.FC = () => {
           <div className="relative z-10 px-6 py-16 text-center text-white">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Join India's Movement for Industry-Ready Talent</h2>
             <p className="max-w-3xl mx-auto text-lg mb-8 text-indigo-100">
-              Partner with RASS Academy for industry-aligned skills learning, faculty enablement, and talent pipelines for your learners.
+              Partner with RAAS Academy for industry-aligned skills learning, faculty enablement, and talent pipelines for your learners.
             </p>
             <div className="flex justify-center gap-4">
               <button onClick={() => {

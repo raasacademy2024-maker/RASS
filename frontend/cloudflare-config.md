@@ -1,4 +1,4 @@
-# Cloudflare Configuration for RASS Academy
+# Cloudflare Configuration for RAAS Academy
 # This file contains recommended settings for Cloudflare CDN
 
 # ================================================

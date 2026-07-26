@@ -1,7 +1,7 @@
 {
   "name": "rass-academy-backend",
   "version": "1.0.0",
-  "description": "RASS Academy LMS Backend",
+  "description": "RAAS Academy LMS Backend",
   "main": "server.js",
   "type": "module",
   "scripts": {

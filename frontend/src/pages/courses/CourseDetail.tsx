@@ -29,6 +29,7 @@ import microsoftLogo from "../../assets/companies/microsoft.png";
 import amazonLogo from "../../assets/companies/amazon.png";
 import wiproLogo from "../../assets/companies/wipro.png";
 import { ClientsSection } from "../publicpages/ClientSection";
+import { resolveImageUrl } from "../../utils/imageUrl";
 
 const CourseDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -168,7 +169,7 @@ const CourseDetail: React.FC = () => {
         key: (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || "rzp_test_RfTsUpkyueFD5f", // ✅ Use env var
         amount: order.amount,
         currency: order.currency,
-        name: "RASS Academy",
+        name: "RAAS Academy",
         description: `Payment for ${course.title}`,
         order_id: order.id,
         handler: async function (response: any) {
@@ -339,17 +340,17 @@ const CourseDetail: React.FC = () => {
   // Generate dynamic SEO data for the course
   const META_DESCRIPTION_MAX_LENGTH = 155;
   const courseSEO = {
-    title: `${course.title} - RASS Academy | Online Course & Certification`,
-    description: course.description ? course.description.slice(0, META_DESCRIPTION_MAX_LENGTH) + '...' : `Learn ${course.title} with RASS Academy. Expert-led online course with certification. Enroll today!`,
-    keywords: `${course.title}, ${course.category || 'online course'}, RASS Academy, certification, professional training, ${course.level || 'all levels'}`,
+    title: `${course.title} - RAAS Academy | Online Course & Certification`,
+    description: course.description ? course.description.slice(0, META_DESCRIPTION_MAX_LENGTH) + '...' : `Learn ${course.title} with RAAS Academy. Expert-led online course with certification. Enroll today!`,
+    keywords: `${course.title}, ${course.category || 'online course'}, RAAS Academy, certification, professional training, ${course.level || 'all levels'}`,
     canonical: `https://www.raasacademy.com/courses/${course._id}`,
-    ogImage: course.thumbnail || 'https://www.raasacademy.com/logo.webp',
+    ogImage: resolveImageUrl(course.thumbnail) || 'https://www.raasacademy.com/logo.webp',
     structuredData: generateCourseSchema({
       name: course.title,
       description: course.description || '',
-      instructor: course.instructor?.name || 'RASS Academy Expert',
-      provider: 'RASS Academy',
-      imageUrl: course.thumbnail,
+      instructor: course.instructor?.name || 'RAAS Academy Expert',
+      provider: 'RAAS Academy',
+      imageUrl: resolveImageUrl(course.thumbnail),
       price: course.price,
       currency: 'INR',
       duration: `PT${Math.round(course.totalDuration / 60)}H`,

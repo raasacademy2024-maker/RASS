@@ -1,5 +1,5 @@
 /**
- * Rate Limiting Middleware for RASS Academy LMS
+ * Rate Limiting Middleware for RAAS Academy LMS
  * 
  * Implements various rate limiters to protect against abuse, DDoS attacks,
  * and brute force attempts. Uses express-rate-limit with in-memory store.

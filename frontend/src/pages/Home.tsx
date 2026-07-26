@@ -73,7 +73,7 @@ const Home: React.FC = () => {
     {
       name: "Bhaskar Lekkala",
       role: "Web Developer",
-      content: "RASS Academy completely transformed my career. The courses are well-structured and the instructors are incredibly knowledgeable.",
+      content: "RAAS Academy completely transformed my career. The courses are well-structured and the instructors are incredibly knowledgeable.",
       avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
     },
     {
@@ -96,7 +96,7 @@ const Home: React.FC = () => {
       <Navbar/>
       <div className="min-h-screen overflow-hidden bg-white">
         {/* Main heading for SEO - hidden visually but accessible to screen readers */}
-        <h1 className="sr-only">RASS Academy - India's Premier Skills & Learning Platform for Industry-Ready Talent Development</h1>
+        <h1 className="sr-only">RAAS Academy - India's Premier Skills & Learning Platform for Industry-Ready Talent Development</h1>
         <HeroCarousel/>
         <ClientsSection/>
         <IntroCourse/>
@@ -114,7 +114,7 @@ const Home: React.FC = () => {
               Ready to Build Industry-Ready Skills?
             </h2>
             <p className="text-xl mb-10 max-w-2xl mx-auto opacity-90">
-              Join India's fastest-growing talent community. Start your learning journey today with RASS Academy 
+              Join India's fastest-growing talent community. Start your learning journey today with RAAS Academy 
               and become the skilled professional that industry leaders want to hire.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -139,7 +139,7 @@ const Home: React.FC = () => {
                 }}
                 className="bg-white text-indigo-700 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-all duration-300 transform hover:-translate-y-1 shadow-lg flex items-center justify-center gap-2"
               >
-                Join RASS Academy <TrendingUp size={20} />
+                Join RAAS Academy <TrendingUp size={20} />
               </button>
               <Link 
                 to="/courses" 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-A comprehensive **MERN Stack Development** course has been successfully created for the RASS Academy platform. This course is production-ready with complete content, multiple batches, and all necessary documentation.
+A comprehensive **MERN Stack Development** course has been successfully created for the RAAS Academy platform. This course is production-ready with complete content, multiple batches, and all necessary documentation.
 
 ## What Was Created
 
@@ -343,7 +343,7 @@ The MERN Stack Development course is now complete and ready for deployment. It i
 - Automated and manual creation options
 - Production-ready configuration
 
-The course can be deployed immediately and is ready to accept student enrollments. All code follows the existing repository structure and integrates seamlessly with the RASS Academy platform.
+The course can be deployed immediately and is ready to accept student enrollments. All code follows the existing repository structure and integrates seamlessly with the RAAS Academy platform.
 
 ---
 

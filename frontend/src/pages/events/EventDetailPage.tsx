@@ -5,6 +5,7 @@ import apiClient from "../../services/api";
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 import { countryCodes } from "../../utils/countryCodes";
+import { resolveImageUrl } from "../../utils/imageUrl";
 
 interface AgendaItem {
   _id?: string;
@@ -111,7 +112,7 @@ export default function EventDetailPage() {
         key: (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || "rzp_test_RJqt4AZALMZEYE", // Use env var or fallback
         amount: order.amount,
         currency: order.currency,
-        name: "RASS Academy",
+        name: "RAAS Academy",
         description: `Payment for ${event.title}`,
         order_id: order.id,
         handler: async function (response: any) {
@@ -294,7 +295,7 @@ export default function EventDetailPage() {
             {event.imageUrl && (
               <div className="h-96 overflow-hidden">
                 <img 
-                  src={event.imageUrl} 
+                  src={resolveImageUrl(event.imageUrl, 1200)}
                   alt={event.title} 
                   className="w-full h-full object-cover"
                   onError={(e) => {

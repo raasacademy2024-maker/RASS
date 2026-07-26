@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle } from "lucide-react";
+import { resolveImageUrl } from "../../utils/imageUrl";
 
 export interface Tool {
   name: string;
@@ -109,7 +110,7 @@ const ToolsTechnologies: React.FC<Props> = ({ tools }) => {
                   {/* Background Image */}
                   {tool.imageUrl ? (
                     <img
-                      src={tool.imageUrl}
+                      src={resolveImageUrl(tool.imageUrl, 400)}
                       alt={tool.name}
                       className="w-full h-full object-contain filter group-hover:scale-110 transition-transform duration-300"
                     />

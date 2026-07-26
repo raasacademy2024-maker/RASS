@@ -53,7 +53,7 @@ function generateCourseUpdateTemplate(data) {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Course Update - RASS Academy</title>
+    <title>Course Update - RAAS Academy</title>
     <style>
       body {
         font-family: 'Inter', sans-serif;
@@ -156,7 +156,7 @@ function generateCourseUpdateTemplate(data) {
       </div>
 
       <div class="footer">
-        <div class="brand">RASS Academy</div>
+        <div class="brand">RAAS Academy</div>
         <p>Transforming careers through quality education 🎓</p>
         <div class="timestamp">📅 Sent: ${timestamp}</div>
       </div>
@@ -185,7 +185,7 @@ function generateBulkNotificationTemplate(data) {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>${title} - RASS Academy</title>
+    <title>${title} - RAAS Academy</title>
     <style>
       body {
         font-family: 'Inter', sans-serif;
@@ -247,7 +247,7 @@ function generateBulkNotificationTemplate(data) {
     <div class="container">
       <div class="header">
         <h1>🔔 ${title}</h1>
-        <p>Important notification from RASS Academy</p>
+        <p>Important notification from RAAS Academy</p>
       </div>
 
       <div class="content">
@@ -261,7 +261,7 @@ function generateBulkNotificationTemplate(data) {
       </div>
 
       <div class="footer">
-        <div class="brand">RASS Academy</div>
+        <div class="brand">RAAS Academy</div>
         <p>Transforming careers through quality education 🎓</p>
         <div class="timestamp">📅 Sent: ${timestamp}</div>
       </div>
@@ -290,7 +290,7 @@ function generateAnnouncementTemplate(data) {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>${title} - RASS Academy</title>
+    <title>${title} - RAAS Academy</title>
     <style>
       body {
         font-family: 'Inter', sans-serif;
@@ -352,7 +352,7 @@ function generateAnnouncementTemplate(data) {
     <div class="container">
       <div class="header">
         <h1>📢 ${title}</h1>
-        <p>New announcement from RASS Academy</p>
+        <p>New announcement from RAAS Academy</p>
       </div>
 
       <div class="content">
@@ -366,7 +366,7 @@ function generateAnnouncementTemplate(data) {
       </div>
 
       <div class="footer">
-        <div class="brand">RASS Academy</div>
+        <div class="brand">RAAS Academy</div>
         <p>Transforming careers through quality education 🎓</p>
         <div class="timestamp">📅 Sent: ${timestamp}</div>
       </div>
@@ -395,7 +395,7 @@ function generateSystemNotificationTemplate(data) {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>${title} - RASS Academy</title>
+    <title>${title} - RAAS Academy</title>
     <style>
       body {
         font-family: 'Inter', sans-serif;
@@ -457,7 +457,7 @@ function generateSystemNotificationTemplate(data) {
     <div class="container">
       <div class="header">
         <h1>🔔 ${title}</h1>
-        <p>System notification from RASS Academy</p>
+        <p>System notification from RAAS Academy</p>
       </div>
 
       <div class="content">
@@ -467,11 +467,11 @@ function generateSystemNotificationTemplate(data) {
           ${message}
         </div>
 
-        <p>Thank you for being part of RASS Academy.</p>
+        <p>Thank you for being part of RAAS Academy.</p>
       </div>
 
       <div class="footer">
-        <div class="brand">RASS Academy</div>
+        <div class="brand">RAAS Academy</div>
         <p>Transforming careers through quality education 🎓</p>
         <div class="timestamp">📅 Sent: ${timestamp}</div>
       </div>
@@ -510,7 +510,7 @@ export const sendNotificationEmail = async (options) => {
     const transporter = createTransporter();
     
     const mailOptions = {
-      from: `"RASS Academy" <${process.env.NODEMAILER_USER_EMAIL}>`,
+      from: `"RAAS Academy" <${process.env.NODEMAILER_USER_EMAIL}>`,
       to,
       subject: emailContent.subject,
       html: emailContent.html,

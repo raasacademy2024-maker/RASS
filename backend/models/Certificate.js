@@ -42,7 +42,7 @@ const certificateSchema = new mongoose.Schema({
 // Generate unique certificate ID
 certificateSchema.pre('save', function(next) {
   if (!this.certificateId) {
-    this.certificateId = `RASS-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    this.certificateId = `RAAS-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
   }
   next();
 });

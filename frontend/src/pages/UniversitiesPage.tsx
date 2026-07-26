@@ -94,21 +94,21 @@ const UniversitiesPage: React.FC = () => {
       name: "Dr. Sarah Johnson",
       position: "Dean of Computer Science",
       university: "TechVision University",
-      content: "Our partnership with RASS Academy has transformed our computer science program. Students are now more industry-ready and our placement rates have increased significantly.",
+      content: "Our partnership with RAAS Academy has transformed our computer science program. Students are now more industry-ready and our placement rates have increased significantly.",
       avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80"
     },
     {
       name: "Prof. Michael Chen",
       position: "Head of Engineering",
       university: "Global Institute of Technology",
-      content: "The industry-aligned curriculum provided by RASS Academy has been instrumental in bridging the gap between academic knowledge and practical skills.",
+      content: "The industry-aligned curriculum provided by RAAS Academy has been instrumental in bridging the gap between academic knowledge and practical skills.",
       avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80"
     },
     {
       name: "Dr. Emily Rodriguez",
       position: "Director of Career Services",
       university: "Innovation University",
-      content: "RASS Academy's placement support has been exceptional. Our students are now getting placed in top companies with competitive packages.",
+      content: "RAAS Academy's placement support has been exceptional. Our students are now getting placed in top companies with competitive packages.",
       avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=688&q=80"
     }
   ];
@@ -163,7 +163,7 @@ const UniversitiesPage: React.FC = () => {
           </h1>
 
           <p className="text-lg md:text-xl text-indigo-100 leading-relaxed max-w-2xl">
-            RASS Academy partners with institutions to bridge the gap between{" "}
+            RAAS Academy partners with institutions to bridge the gap between{" "}
             <span className="font-semibold text-yellow-300">education</span> and{" "}
             <span className="font-semibold text-yellow-300">employability</span>, 
             preparing students with real-world skills and industry-recognized certifications.
@@ -358,7 +358,7 @@ const UniversitiesPage: React.FC = () => {
               Benefits
             </div>
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Why Universities Partner with RASS Academy
+              Why Universities Partner with RAAS Academy
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Discover the transformative benefits our university partners experience
@@ -464,7 +464,7 @@ const UniversitiesPage: React.FC = () => {
               Let's Build Future-Ready Graduates Together
             </h2>
             <p className="text-xl text-indigo-100 mb-10 max-w-2xl mx-auto">
-              Join the network of universities shaping the next generation of skilled professionals through RASS Academy's industry-aligned programs.
+              Join the network of universities shaping the next generation of skilled professionals through RAAS Academy's industry-aligned programs.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">

@@ -20,7 +20,7 @@ const PrivacyPolicy: React.FC = () => {
             
             <div className="prose prose-lg max-w-none">
               <p className="text-gray-600 mb-6 text-base sm:text-lg leading-relaxed">
-                At RASS Academy, safeguarding your privacy is a top priority. We employ industry-standard tools and best practices to protect your data and maintain confidentiality. All personal information is handled in accordance with our Terms of Service and this Privacy Policy.
+                At RAAS Academy, safeguarding your privacy is a top priority. We employ industry-standard tools and best practices to protect your data and maintain confidentiality. All personal information is handled in accordance with our Terms of Service and this Privacy Policy.
               </p>
               
               <div className="space-y-8 sm:space-y-10">
@@ -152,7 +152,7 @@ const PrivacyPolicy: React.FC = () => {
                   
                   <h3 className="text-lg sm:text-xl font-semibold text-indigo-600 mb-2 mt-4">b. Data Controller Responsibilities</h3>
                   <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
-                    RASS Academy is the official Data Controller of any personal data you submit. The organization managing the platform and services is responsible for how your data is used and stored.
+                    RAAS Academy is the official Data Controller of any personal data you submit. The organization managing the platform and services is responsible for how your data is used and stored.
                   </p>
                 </section>
                 
@@ -218,7 +218,7 @@ const PrivacyPolicy: React.FC = () => {
                     Third-Party Services
                   </h2>
                   <p className="text-gray-600 mb-3 text-base sm:text-lg leading-relaxed">
-                    We may offer services or integrate features from third-party providers. RASS Academy is not responsible for these external services or their privacy practices.
+                    We may offer services or integrate features from third-party providers. RAAS Academy is not responsible for these external services or their privacy practices.
                   </p>
                   <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
                     For any inquiries regarding your data, including access requests, updates, or complaints, contact our Privacy Compliance Officer at:

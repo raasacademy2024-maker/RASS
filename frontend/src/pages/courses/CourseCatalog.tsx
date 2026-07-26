@@ -15,6 +15,7 @@ import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 import { FaMobile } from "react-icons/fa";
 import SEO, { pageSEOConfig } from "../../components/common/SEO";
+import { resolveImageUrl } from "../../utils/imageUrl";
 
 const CourseCatalog: React.FC = () => {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -430,7 +431,7 @@ const CourseCatalog: React.FC = () => {
                     <div className="relative h-48 overflow-hidden">
                       {course.thumbnail ? (
                         <img
-                          src={course.thumbnail}
+                          src={resolveImageUrl(course.thumbnail, 800)}
                           alt={course.title}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                         />

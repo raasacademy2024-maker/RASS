@@ -89,7 +89,7 @@ const Navbar: React.FC = () => {
             </motion.div>
             <img 
   src="/logo.webp" 
-  alt="RASS Academy Logo" 
+  alt="RAAS Academy Logo" 
   className="h-12 w-auto"
 />
           </Link>

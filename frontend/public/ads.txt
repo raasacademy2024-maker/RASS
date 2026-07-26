@@ -1,4 +1,4 @@
-# ads.txt file for RASS Academy
+# ads.txt file for RAAS Academy
 # This file is used to declare authorized digital sellers
 # For more information: https://iabtechlab.com/ads-txt/
 
@@ -9,5 +9,5 @@
 # Example:
 # advertising-network.com, pub-XXXX, DIRECT
 
-# Contact: support@rassacademy.com
+# Contact: support@raasacademy.com
 # Last updated: 2024-01-15

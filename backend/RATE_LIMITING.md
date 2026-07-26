@@ -2,7 +2,7 @@
 
 ## Overview
 
-Rate limiting has been implemented across the RASS Academy LMS backend to protect against abuse, DDoS attacks, brute force attempts, and excessive API usage. This document explains the implementation, configuration, and best practices.
+Rate limiting has been implemented across the RAAS Academy LMS backend to protect against abuse, DDoS attacks, brute force attempts, and excessive API usage. This document explains the implementation, configuration, and best practices.
 
 ## What is Rate Limiting?
 

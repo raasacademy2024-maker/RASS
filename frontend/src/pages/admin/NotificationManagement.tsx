@@ -256,7 +256,7 @@ const NotificationManagement: React.FC = () => {
       setLoading(true);
       await notificationManagementAPI.testEmail({
         email: testEmail,
-        title: 'Test Email from RASS Academy',
+        title: 'Test Email from RAAS Academy',
         message: 'This is a test email to verify your email configuration.',
       });
       toast.success('Test email sent successfully!');

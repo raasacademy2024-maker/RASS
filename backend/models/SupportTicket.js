@@ -72,7 +72,7 @@ const supportTicketSchema = new mongoose.Schema({
 // ✅ Generate unique ticket ID automatically
 supportTicketSchema.pre("save", function (next) {
   if (!this.ticketId) {
-    this.ticketId = `RASS-${Date.now().toString().slice(-6)}-${Math.random()
+    this.ticketId = `RAAS-${Date.now().toString().slice(-6)}-${Math.random()
       .toString(36)
       .substr(2, 4)
       .toUpperCase()}`;

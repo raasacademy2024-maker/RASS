@@ -10,14 +10,14 @@ const Footer = () => {
           <div>
             <img 
               src="/logo.webp" 
-              alt="RASS Academy Logo - Online Learning Platform" 
+              alt="RAAS Academy Logo - Online Learning Platform" 
               className="h-12 w-auto"
               width="auto"
               height="48"
               loading="lazy"
             />
             <p className="text-sm leading-relaxed mt-4">
-              RASS Academy offers comprehensive LMS solutions, online courses, webinars, and community support  
+              RAAS Academy offers comprehensive LMS solutions, online courses, webinars, and community support  
               to help learners achieve their goals. Join us to unlock your potential.
             </p>
           </div>
@@ -78,11 +78,11 @@ const Footer = () => {
             <p className="text-sm">
               <strong>Email:</strong>{" "}
               <a 
-                href="mailto:support@rassacademy.com"
+                href="mailto:support@raasacademy.com"
                 className="hover:text-white transition"
-                aria-label="Email us at support@rassacademy.com"
+                aria-label="Email us at support@raasacademy.com"
               >
-                support@rassacademy.com
+                support@raasacademy.com
               </a>
             </p>
             <p className="text-sm mt-1">
@@ -99,7 +99,7 @@ const Footer = () => {
         
         {/* Bottom */}
         <div className="mt-6 flex flex-col md:flex-row justify-between items-center text-xs text-gray-500">
-          <p>© {new Date().getFullYear()} RASS Academy. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} RAAS Academy. All rights reserved.</p>
           <nav className="mt-4 md:mt-0 space-x-4" aria-label="Legal links">
             <a href="/terms" className="hover:text-white transition">Terms and Conditions</a>
             <span className="text-gray-600" aria-hidden="true">·</span>

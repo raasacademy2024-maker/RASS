@@ -15,7 +15,7 @@ const Terms: React.FC = () => {
             <div className="text-center mb-10">
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-indigo-700 mb-3">Terms and Conditions</h1>
               <div className="w-24 h-1 bg-indigo-300 rounded-full mx-auto mt-4"></div>
-              <p className="text-lg sm:text-xl text-indigo-500 mt-6">Welcome to RASS Academy!</p>
+              <p className="text-lg sm:text-xl text-indigo-500 mt-6">Welcome to RAAS Academy!</p>
             </div>
             
             <div className="prose prose-lg max-w-none">
@@ -25,7 +25,7 @@ const Terms: React.FC = () => {
               </p>
               
               <p className="text-gray-600 mb-8 text-base sm:text-lg leading-relaxed">
-                In this document, "RASS Academy", "Company", "we", or "us" refers to the provider of the services, 
+                In this document, "RAAS Academy", "Company", "we", or "us" refers to the provider of the services, 
                 while "user", "you", or "customer" refers to the individual or entity using our services.
               </p>
               
@@ -52,7 +52,7 @@ const Terms: React.FC = () => {
                     Usage Rights
                   </h2>
                   <p className="text-gray-600 mb-3 text-base sm:text-lg leading-relaxed">
-                    RASS Academy is the sole owner and operator of the website, its content, products, and services. 
+                    RAAS Academy is the sole owner and operator of the website, its content, products, and services. 
                     Unless otherwise explicitly permitted, you may only use the site and its materials for personal 
                     and non-commercial purposes under specified conditions.
                   </p>
@@ -69,7 +69,7 @@ const Terms: React.FC = () => {
                     Access and Availability
                   </h2>
                   <p className="text-gray-600 mb-3 text-base sm:text-lg leading-relaxed">
-                    Any user with an internet connection can access certain free services. However, RASS Academy is not 
+                    Any user with an internet connection can access certain free services. However, RAAS Academy is not 
                     responsible for any internet, hardware, or software costs incurred. The user is solely responsible 
                     for the functionality of their own equipment and connection.
                   </p>
@@ -86,7 +86,7 @@ const Terms: React.FC = () => {
                   </h2>
                   <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
                     We collaborate with third-party service providers to enhance functionality. By accepting these Terms, 
-                    you also agree to abide by the terms of these providers. RASS Academy is not liable for disruptions 
+                    you also agree to abide by the terms of these providers. RAAS Academy is not liable for disruptions 
                     caused by third-party services.
                   </p>
                 </section>
@@ -117,7 +117,7 @@ const Terms: React.FC = () => {
                   </ul>
                   <p className="text-gray-600 mb-3 text-base sm:text-lg leading-relaxed">Users shall not:</p>
                   <ul className="list-disc pl-6 text-gray-600 space-y-2 text-base sm:text-lg leading-relaxed">
-                    <li>Copy, redistribute, or modify any RASS Academy content for commercial purposes.</li>
+                    <li>Copy, redistribute, or modify any RAAS Academy content for commercial purposes.</li>
                     <li>Share or upload any unauthorized, illegal, obscene, or defamatory content.</li>
                     <li>Use bots, scripts, or automated tools to access or manipulate the platform.</li>
                   </ul>
@@ -129,7 +129,7 @@ const Terms: React.FC = () => {
                     Intellectual Property
                   </h2>
                   <p className="text-gray-600 mb-3 text-base sm:text-lg leading-relaxed">
-                    All content available on RASS Academy's platform is copyrighted and owned by RASS Academy or its affiliates. 
+                    All content available on RAAS Academy's platform is copyrighted and owned by RAAS Academy or its affiliates. 
                     Any unauthorized use constitutes copyright infringement.
                   </p>
                   <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
@@ -152,15 +152,15 @@ const Terms: React.FC = () => {
                     User-Generated Content
                   </h2>
                   <p className="text-gray-600 mb-3 text-base sm:text-lg leading-relaxed">
-                    RASS Academy does not pre-screen user comments or content. Such content reflects the views of the user 
-                    and not of RASS Academy. However, we reserve the right to:
+                    RAAS Academy does not pre-screen user comments or content. Such content reflects the views of the user 
+                    and not of RAAS Academy. However, we reserve the right to:
                   </p>
                   <ul className="list-disc pl-6 text-gray-600 space-y-2 mb-3 text-base sm:text-lg leading-relaxed">
                     <li>Remove comments that are offensive, unlawful, or violate third-party rights.</li>
                     <li>Monitor and manage posted content on any of our digital forums or social media platforms.</li>
                   </ul>
                   <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
-                    By posting, you grant RASS Academy the right to use, reproduce, and publish your contributions.
+                    By posting, you grant RAAS Academy the right to use, reproduce, and publish your contributions.
                   </p>
                 </section>
                 
@@ -174,7 +174,7 @@ const Terms: React.FC = () => {
                     links at any time. Linking to our site:
                   </p>
                   <ul className="list-disc pl-6 text-gray-600 space-y-2 text-base sm:text-lg leading-relaxed">
-                    <li>Should not misrepresent RASS Academy.</li>
+                    <li>Should not misrepresent RAAS Academy.</li>
                     <li>Must not connect our content with inappropriate, offensive, or illegal websites.</li>
                     <li>Should not imply endorsement where none exists.</li>
                   </ul>
@@ -193,7 +193,7 @@ const Terms: React.FC = () => {
                     <li>No warranties are provided regarding our products or services unless stated in writing.</li>
                   </ul>
                   <p className="text-gray-600 text-base sm:text-lg leading-relaxed">
-                    RASS Academy reserves the right to modify pricing, limit orders, or refuse service at its discretion.
+                    RAAS Academy reserves the right to modify pricing, limit orders, or refuse service at its discretion.
                   </p>
                 </section>
                 
@@ -211,7 +211,7 @@ const Terms: React.FC = () => {
                     <li>Post illegal, explicit, or misleading content.</li>
                   </ul>
                   <p className="text-gray-600 mt-3 text-base sm:text-lg leading-relaxed">
-                    Violations may lead to civil or criminal prosecution, and RASS Academy will cooperate with law 
+                    Violations may lead to civil or criminal prosecution, and RAAS Academy will cooperate with law 
                     enforcement as necessary.
                   </p>
                 </section>
@@ -222,7 +222,7 @@ const Terms: React.FC = () => {
                     Termination of Access
                   </h2>
                   <p className="text-gray-600 mb-3 text-base sm:text-lg leading-relaxed">
-                    RASS Academy may, at its discretion, suspend or terminate user access to the platform without prior 
+                    RAAS Academy may, at its discretion, suspend or terminate user access to the platform without prior 
                     notice if:
                   </p>
                   <ul className="list-disc pl-6 text-gray-600 space-y-2 text-base sm:text-lg leading-relaxed">
@@ -242,7 +242,7 @@ const Terms: React.FC = () => {
                     Career Services Terms
                   </h2>
                   <p className="text-gray-600 mb-3 text-base sm:text-lg leading-relaxed">
-                    RASS Academy may collect and use personal information from job seekers only for recruitment and 
+                    RAAS Academy may collect and use personal information from job seekers only for recruitment and 
                     management purposes. This data will be:
                   </p>
                   <ul className="list-disc pl-6 text-gray-600 space-y-2 text-base sm:text-lg leading-relaxed">
@@ -297,7 +297,7 @@ const Terms: React.FC = () => {
                     Entire Agreement
                   </h2>
                   <p className="text-gray-600 mb-3 text-base sm:text-lg leading-relaxed">
-                    These Terms constitute the complete agreement between you and RASS Academy. Any additional terms 
+                    These Terms constitute the complete agreement between you and RAAS Academy. Any additional terms 
                     must be agreed upon in writing. You may not transfer your rights or obligations under this agreement 
                     to another party.
                   </p>

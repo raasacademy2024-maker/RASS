@@ -16,8 +16,8 @@ const seedMernCourse = async () => {
     let instructor = await User.findOne({ role: 'instructor' });
     if (!instructor) {
       instructor = await User.create({
-        name: 'RASS Academy Instructor',
-        email: 'instructor@rassacademy.com',
+        name: 'RAAS Academy Instructor',
+        email: 'instructor@raasacademy.com',
         password: 'instructor123',
         role: 'instructor',
         profile: {

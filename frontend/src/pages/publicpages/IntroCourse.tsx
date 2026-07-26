@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { courseAPI } from "../../services/api";
 import { BookOpen, Clock, Users, Star, Search } from "lucide-react";
 import { Course } from "../../types";
+import { resolveImageUrl } from "../../utils/imageUrl";
 
 
 const IntroCourse: React.FC = () => {
@@ -148,7 +149,7 @@ const IntroCourse: React.FC = () => {
               <div className="aspect-video relative">
                 {course.thumbnail ? (
                   <img
-                    src={course.thumbnail}
+                    src={resolveImageUrl(course.thumbnail, 800)}
                     alt={course.title}
                     className="w-full h-full object-cover"
                   />

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This test infrastructure provides comprehensive testing capabilities for the RASS Academy LMS backend, focusing on unit tests for core business logic, authentication, validation, and utilities.
+This test infrastructure provides comprehensive testing capabilities for the RAAS Academy LMS backend, focusing on unit tests for core business logic, authentication, validation, and utilities.
 
 ## Tech Stack
 
@@ -209,4 +209,4 @@ JWT_SECRET=test-secret-key
 - Ready for CI/CD integration
 - Extensible for future test additions
 
-The test infrastructure provides a solid foundation for maintaining code quality and preventing regressions in the RASS Academy LMS backend.
+The test infrastructure provides a solid foundation for maintaining code quality and preventing regressions in the RAAS Academy LMS backend.

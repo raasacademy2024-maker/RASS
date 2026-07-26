@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 interface LazyImageProps {
   src: string;
@@ -88,7 +89,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   return (
     <img
       ref={imgRef}
-      src={hasError ? errorFallback : isInView ? src : placeholder}
+      src={hasError ? errorFallback : isInView ? resolveImageUrl(src) : placeholder}
       alt={alt}
       className={`${className} ${
         isLoaded ? 'opacity-100' : 'opacity-0'
@@ -144,7 +145,7 @@ export const supportsWebP = (): boolean => {
 };
 
 /**
- * Image optimization guidelines for RASS Academy:
+ * Image optimization guidelines for RAAS Academy:
  * 
  * 1. Use WebP format for all images with JPEG/PNG fallback
  * 2. Provide multiple sizes using srcset for responsive loading

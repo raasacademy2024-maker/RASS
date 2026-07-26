@@ -14,7 +14,7 @@ const PaymentPage: React.FC = () => {
         key: (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || "rzp_test_RfTsUpkyueFD5f", // Test Key ID
         amount: data.amount,
         currency: data.currency,
-        name: "RASS Academy",
+        name: "RAAS Academy",
         description: "Course Purchase",
         order_id: data.id,
         handler: async function (response: any) {

@@ -4,6 +4,7 @@ import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 import apiClient from "../../services/api";
 import SEO, { pageSEOConfig } from "../../components/common/SEO";
+import { resolveImageUrl } from "../../utils/imageUrl";
 
 interface AgendaItem {
   day: string;
@@ -68,7 +69,7 @@ export default function AllEventsPage() {
   };
 
   const getImageUrl = (event: Event) => {
-    return event.imageUrl || `https://picsum.photos/600/400?random=${event._id}`;
+    return resolveImageUrl(event.imageUrl, 800) || `https://picsum.photos/600/400?random=${event._id}`;
   };
 
   const filteredEvents = events.filter(event => {

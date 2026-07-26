@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Star, Clock, Users, BookOpen, Search, Filter, X, ChevronDown, Play } from "lucide-react";
+import { resolveImageUrl } from "../../utils/imageUrl";
 
 const CourseShowcase = () => {
   const [courses, setCourses] = useState([]);
@@ -278,8 +279,8 @@ const CourseCard = ({ course }) => {
     <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
       {/* Course Image */}
       <div className="relative">
-        <img 
-          src={course.thumbnail} 
+        <img
+          src={resolveImageUrl(course.thumbnail, 800)}
           alt={course.title}
           className="w-full h-48 object-cover"
           onError={(e) => {

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { mediaPresenceAPI } from '../../services/api';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { resolveImageUrl } from '../../utils/imageUrl';
 
 interface MediaItem {
   _id: string;
@@ -211,8 +212,8 @@ const MediaPresenceSection: React.FC = () => {
                   >
                     <div className="h-32 overflow-hidden">
                       <motion.img 
-                        src={item.imageUrl} 
-                        alt={item.title} 
+                        src={resolveImageUrl(item.imageUrl, 600)}
+                        alt={item.title}
                         className="w-full h-full object-contain p-4"
                         whileHover={{ scale: 1.05 }}
                         transition={{ duration: 0.3 }}

@@ -4,6 +4,7 @@ import { Trash2, Edit, Plus, Save, X, ArrowUp, ArrowDown, AlertCircle, CheckCirc
 import { Link } from 'react-router-dom';
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
+import { resolveImageUrl, isGoogleDriveUrl } from "../../utils/imageUrl";
 
 interface MediaItem {
   _id: string;
@@ -255,7 +256,7 @@ const MediaPresenceManagement: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">Image Preview</label>
                   <div className="border border-gray-300 rounded-lg p-4">
                     <img
-                      src={newItem.imageUrl}
+                      src={resolveImageUrl(newItem.imageUrl, 800)}
                       alt="Preview"
                       className="max-w-full max-h-64 object-contain rounded-lg mx-auto"
                       onError={(e) => {
@@ -263,6 +264,12 @@ const MediaPresenceManagement: React.FC = () => {
                         target.src = 'https://placehold.co/200x150?text=Image+Not+Found';
                       }}
                     />
+                    {isGoogleDriveUrl(newItem.imageUrl) && (
+                      <p className="mt-2 text-xs text-gray-500 text-center">
+                        Google Drive link detected &mdash; make sure the file is shared as
+                        &ldquo;Anyone with the link&rdquo; or it won&apos;t load.
+                      </p>
+                    )}
                   </div>
                 </div>
               )}
@@ -423,8 +430,8 @@ const MediaPresenceManagement: React.FC = () => {
                           <div className="mt-3">
                             <div className="flex justify-center">
                               <img 
-                                src={item.imageUrl} 
-                                alt={item.title} 
+                                src={resolveImageUrl(item.imageUrl, 400)}
+                                alt={item.title}
                                 className="h-24 w-auto object-contain rounded"
                                 onError={(e) => {
                                   const target = e.target as HTMLImageElement;
@@ -603,8 +610,8 @@ const MediaPresenceManagement: React.FC = () => {
                           <>
                             <td className="px-6 py-4">
                               <img 
-                                src={item.imageUrl} 
-                                alt={item.title} 
+                                src={resolveImageUrl(item.imageUrl, 400)}
+                                alt={item.title}
                                 className="h-12 w-auto object-contain"
                                 onError={(e) => {
                                   const target = e.target as HTMLImageElement;

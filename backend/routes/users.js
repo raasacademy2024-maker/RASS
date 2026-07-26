@@ -224,13 +224,20 @@ router.put('/:id', authenticate, authorize('admin'), async (req, res) => {
       updateData,
       { new: true, runValidators: true }
     ).select('-password');
-    
+
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    
+
     res.json(user);
   } catch (error) {
+    // Duplicate key on the unique email index
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'That email address is already in use by another user.' });
+    }
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ message: error.message });
+    }
     res.status(500).json({ message: error.message });
   }
 });

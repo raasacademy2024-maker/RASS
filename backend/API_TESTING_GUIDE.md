@@ -17,8 +17,8 @@ POST http://localhost:8000/api/auth/register
 Content-Type: application/json
 
 {
-  "name": "RASS Academy Instructor",
-  "email": "instructor@rassacademy.com",
+  "name": "RAAS Academy Instructor",
+  "email": "instructor@raasacademy.com",
   "password": "instructor123",
   "role": "instructor"
 }
@@ -31,7 +31,7 @@ POST http://localhost:8000/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "instructor@rassacademy.com",
+  "email": "instructor@raasacademy.com",
   "password": "instructor123"
 }
 ```

@@ -1,6 +1,6 @@
 # MERN Stack Development Course Setup
 
-This document explains how to create the MERN Stack Development course with batches in the RASS Academy platform.
+This document explains how to create the MERN Stack Development course with batches in the RAAS Academy platform.
 
 ## Overview
 
@@ -186,4 +186,4 @@ If you encounter issues:
 
 ## Support
 
-For any issues or questions regarding the course setup, please contact the RASS Academy technical team.
+For any issues or questions regarding the course setup, please contact the RAAS Academy technical team.

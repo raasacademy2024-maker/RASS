@@ -82,7 +82,7 @@ const Companies: React.FC = () => {
       Ready Before Day One
     </h1>
     <p className="text-lg text-white/90 mb-8 max-w-md mx-auto md:mx-0">
-      Partner with RASS Academy to access pre-trained, project-ready
+      Partner with RAAS Academy to access pre-trained, project-ready
       professionals who contribute from the very first day.
     </p>
     <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
@@ -130,7 +130,7 @@ const Companies: React.FC = () => {
         >
           <div className="max-w-4xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-              About RASS Academy
+              About RAAS Academy
             </h2>
             <p className="text-base md:text-lg text-gray-600 leading-relaxed">
               We bridge the gap between academia and industry by providing
@@ -270,7 +270,7 @@ const Companies: React.FC = () => {
             {/* Solutions */}
             <div className="bg-white rounded-xl p-6 shadow-lg">
               <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <Lightbulb className="text-green-500 h-6 w-6 md:h-7 md:w-7" /> RASS Solutions
+                <Lightbulb className="text-green-500 h-6 w-6 md:h-7 md:w-7" /> RAAS Solutions
               </h3>
               <ul className="space-y-4 text-gray-700">
                 <li className="flex items-start gap-3">
@@ -299,7 +299,7 @@ const Companies: React.FC = () => {
           className="py-16 md:py-20 max-w-7xl mx-auto px-6 text-center bg-gradient-to-br from-purple-50 to-pink-50"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8 md:mb-10">
-            Why Partner with RASS Academy
+            Why Partner with RAAS Academy
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {[

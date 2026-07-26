@@ -3,6 +3,7 @@ import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 import apiClient from "../../services/api";
 import { Edit, Copy, Download, Trash2, ArrowLeft, Users, User, X } from "lucide-react";
+import { resolveImageUrl } from "../../utils/imageUrl";
 
 interface AgendaItem {
   day: string;
@@ -819,7 +820,7 @@ export default function ManageEventsPage() {
                       </label>
                       <div className="border border-gray-300 rounded-lg p-3">
                         <img
-                          src={form.imageUrl}
+                          src={resolveImageUrl(form.imageUrl, 800)}
                           alt="Event preview"
                           className="max-w-full max-h-40 object-contain rounded-lg mx-auto"
                           onError={(e) => {

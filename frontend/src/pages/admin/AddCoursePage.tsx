@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 import { userAPI } from "../../services/api";
+import { resolveImageUrl, isGoogleDriveUrl } from "../../utils/imageUrl";
 
 interface CurriculumSection {
   order: number;
@@ -107,6 +108,13 @@ const AddCoursePage: React.FC = () => {
   // Instructors list for dropdown
   const [instructors, setInstructors] = useState<any[]>([]);
   const [loadingInstructors, setLoadingInstructors] = useState(false);
+
+  // Inline editing of the selected instructor
+  const [editingInstructor, setEditingInstructor] = useState(false);
+  const [instructorForm, setInstructorForm] = useState({ name: '', email: '' });
+  const [savingInstructor, setSavingInstructor] = useState(false);
+  const [instructorError, setInstructorError] = useState('');
+  const [instructorSuccess, setInstructorSuccess] = useState('');
   
   // UI State
   const [isLoading, setIsLoading] = useState(false);
@@ -126,6 +134,72 @@ const AddCoursePage: React.FC = () => {
   const [editingRequirementIndex, setEditingRequirementIndex] = useState<number | null>(null);
   const [editingLearningOutcomeIndex, setEditingLearningOutcomeIndex] = useState<number | null>(null);
   const [editingFeatureIndex, setEditingFeatureIndex] = useState<number | null>(null);
+
+  // The instructor object currently chosen in the dropdown
+  const selectedInstructor = instructors.find((inst) => inst._id === instructor);
+
+  // Open the inline editor pre-filled with the selected instructor's details
+  const startEditingInstructor = () => {
+    if (!selectedInstructor) return;
+    setInstructorForm({
+      name: selectedInstructor.name || '',
+      email: selectedInstructor.email || '',
+    });
+    setInstructorError('');
+    setInstructorSuccess('');
+    setEditingInstructor(true);
+  };
+
+  const cancelEditingInstructor = () => {
+    setEditingInstructor(false);
+    setInstructorError('');
+  };
+
+  const handleSaveInstructor = async () => {
+    if (!selectedInstructor) return;
+
+    const name = instructorForm.name.trim();
+    const email = instructorForm.email.trim();
+
+    if (!name || !email) {
+      setInstructorError('Name and email are both required.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setInstructorError('Please enter a valid email address.');
+      return;
+    }
+
+    // Nothing changed - just close the editor
+    if (name === selectedInstructor.name && email === selectedInstructor.email) {
+      setEditingInstructor(false);
+      return;
+    }
+
+    try {
+      setSavingInstructor(true);
+      setInstructorError('');
+      const updated = await userAPI.updateUser(selectedInstructor._id, { name, email });
+
+      // Reflect the change in the dropdown without a full refetch
+      setInstructors((prev) =>
+        prev.map((inst) =>
+          inst._id === selectedInstructor._id
+            ? { ...inst, name: updated?.name ?? name, email: updated?.email ?? email }
+            : inst
+        )
+      );
+      setEditingInstructor(false);
+      setInstructorSuccess('Instructor updated successfully.');
+    } catch (err) {
+      const apiError = err as { response?: { data?: { message?: string } }; message?: string };
+      setInstructorError(
+        apiError?.response?.data?.message || apiError?.message || 'Failed to update instructor.'
+      );
+    } finally {
+      setSavingInstructor(false);
+    }
+  };
 
   // Fetch instructors on component mount
   useEffect(() => {
@@ -764,20 +838,115 @@ const AddCoursePage: React.FC = () => {
                             Loading instructors...
                           </div>
                         ) : instructors.length > 0 ? (
-                          <select
-                            id="instructor"
-                            value={instructor}
-                            onChange={(e) => setInstructor(e.target.value)}
-                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                            required
-                          >
-                            <option value="">Select an instructor</option>
-                            {instructors.map((inst) => (
-                              <option key={inst._id} value={inst._id}>
-                                {inst.name} ({inst.email})
-                              </option>
-                            ))}
-                          </select>
+                          <>
+                            <select
+                              id="instructor"
+                              value={instructor}
+                              onChange={(e) => {
+                                setInstructor(e.target.value);
+                                // Reset the editor when a different instructor is picked
+                                setEditingInstructor(false);
+                                setInstructorError('');
+                                setInstructorSuccess('');
+                              }}
+                              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                              required
+                            >
+                              <option value="">Select an instructor</option>
+                              {instructors.map((inst) => (
+                                <option key={inst._id} value={inst._id}>
+                                  {inst.name} ({inst.email})
+                                </option>
+                              ))}
+                            </select>
+
+                            {/* Edit the selected instructor's details inline */}
+                            {selectedInstructor && !editingInstructor && (
+                              <div className="mt-2 flex items-center justify-between gap-3">
+                                <p className="text-sm text-gray-600 truncate">
+                                  Selected: <span className="font-medium">{selectedInstructor.name}</span>
+                                </p>
+                                <button
+                                  type="button"
+                                  onClick={startEditingInstructor}
+                                  className="flex-shrink-0 text-sm font-semibold text-blue-600 hover:text-blue-800 hover:underline"
+                                >
+                                  Edit instructor
+                                </button>
+                              </div>
+                            )}
+
+                            {selectedInstructor && instructorSuccess && !editingInstructor && (
+                              <p className="mt-2 text-sm text-green-600">{instructorSuccess}</p>
+                            )}
+
+                            {selectedInstructor && editingInstructor && (
+                              <div className="mt-3 p-4 border border-blue-200 bg-blue-50 rounded-xl space-y-3">
+                                <p className="text-sm font-semibold text-gray-700">
+                                  Edit instructor details
+                                </p>
+                                <div>
+                                  <label
+                                    htmlFor="instructor-name"
+                                    className="block text-xs font-medium text-gray-600 mb-1"
+                                  >
+                                    Name
+                                  </label>
+                                  <input
+                                    type="text"
+                                    id="instructor-name"
+                                    value={instructorForm.name}
+                                    onChange={(e) =>
+                                      setInstructorForm({ ...instructorForm, name: e.target.value })
+                                    }
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="Instructor name"
+                                  />
+                                </div>
+                                <div>
+                                  <label
+                                    htmlFor="instructor-email"
+                                    className="block text-xs font-medium text-gray-600 mb-1"
+                                  >
+                                    Email
+                                  </label>
+                                  <input
+                                    type="email"
+                                    id="instructor-email"
+                                    value={instructorForm.email}
+                                    onChange={(e) =>
+                                      setInstructorForm({ ...instructorForm, email: e.target.value })
+                                    }
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                    placeholder="instructor@example.com"
+                                  />
+                                </div>
+
+                                {instructorError && (
+                                  <p className="text-sm text-red-600">{instructorError}</p>
+                                )}
+
+                                <div className="flex gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={handleSaveInstructor}
+                                    disabled={savingInstructor}
+                                    className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                                  >
+                                    {savingInstructor ? 'Saving...' : 'Save'}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={cancelEditingInstructor}
+                                    disabled={savingInstructor}
+                                    className="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-300 disabled:opacity-60"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </>
                         ) : (
                           <input
                             type="text"
@@ -840,14 +1009,20 @@ const AddCoursePage: React.FC = () => {
                         {thumbnail && (
                           <div className="mt-3">
                             <p className="text-sm text-gray-600 mb-2">Preview:</p>
-                            <img 
-                              src={thumbnail} 
-                              alt="Thumbnail preview" 
+                            <img
+                              src={resolveImageUrl(thumbnail)}
+                              alt="Thumbnail preview"
                               className="w-full h-32 object-cover rounded-lg border border-gray-300"
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none';
                               }}
                             />
+                            {isGoogleDriveUrl(thumbnail) && (
+                              <p className="mt-2 text-xs text-gray-500">
+                                Google Drive link detected — make sure the file is shared as
+                                &ldquo;Anyone with the link&rdquo; or it won&apos;t load.
+                              </p>
+                            )}
                           </div>
                         )}
                       </div>
@@ -927,9 +1102,9 @@ const AddCoursePage: React.FC = () => {
                                 <>
                                   <h3 className="text-lg font-semibold text-gray-900">{item.title}</h3>
                                   {item.logoUrl && (
-                                    <img 
-                                      src={item.logoUrl} 
-                                      alt={item.title} 
+                                    <img
+                                      src={resolveImageUrl(item.logoUrl, 200)}
+                                      alt={item.title}
                                       className="mt-2 h-12 w-12 object-contain rounded-lg bg-gray-100 p-1"
                                       onError={(e) => {
                                         e.currentTarget.style.display = 'none';
@@ -1206,9 +1381,9 @@ const AddCoursePage: React.FC = () => {
                         ) : (
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-3">
-                              <img 
-                                src={item.imageUrl} 
-                                alt={item.name} 
+                              <img
+                                src={resolveImageUrl(item.imageUrl, 200)}
+                                alt={item.name}
                                 className="h-10 w-10 object-contain rounded-lg bg-gray-100 p-1"
                                 onError={(e) => {
                                   e.currentTarget.src = 'https://via.placeholder.com/40?text=?';
@@ -1799,7 +1974,7 @@ const AddCoursePage: React.FC = () => {
                             <div className="flex items-start justify-between mb-4">
                               <div className="flex items-start space-x-4">
                                 <img 
-                                  src={testimonial.imageUrl || 'https://via.placeholder.com/60?text=Student'} 
+                                  src={resolveImageUrl(testimonial.imageUrl, 200) || 'https://via.placeholder.com/60?text=Student'}
                                   alt={testimonial.name} 
                                   className="h-12 w-12 rounded-full object-cover"
                                   onError={(e) => {
@@ -2439,7 +2614,7 @@ const AddCoursePage: React.FC = () => {
                 <h3 className="text-2xl font-bold text-gray-900">{title || 'Untitled Course'}</h3>
                 <p className="text-gray-600 mt-2">{description}</p>
                 {thumbnail && (
-                  <img src={thumbnail} alt={title} className="mt-4 w-full h-64 object-cover rounded-lg" />
+                  <img src={resolveImageUrl(thumbnail)} alt={title} className="mt-4 w-full h-64 object-cover rounded-lg" />
                 )}
                 <div className="mt-4 flex flex-wrap gap-4">
                   <div className="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg">
@@ -2511,7 +2686,7 @@ const AddCoursePage: React.FC = () => {
                   <div className="flex flex-wrap gap-3">
                     {techStack.map((tech, idx) => (
                       <div key={idx} className="bg-gray-100 px-4 py-2 rounded-lg flex items-center gap-2">
-                        <img src={tech.imageUrl} alt={tech.name} className="w-6 h-6 object-contain" />
+                        <img src={resolveImageUrl(tech.imageUrl, 200)} alt={tech.name} className="w-6 h-6 object-contain" />
                         <span className="font-medium">{tech.name}</span>
                       </div>
                     ))}

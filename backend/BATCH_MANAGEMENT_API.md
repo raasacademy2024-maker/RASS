@@ -1,6 +1,6 @@
 # Batch-wise Student Management API Guide
 
-This guide explains how to use the batch-wise management features in the RASS Academy platform. All course features now support batch-level filtering and management.
+This guide explains how to use the batch-wise management features in the RAAS Academy platform. All course features now support batch-level filtering and management.
 
 ## Overview
 
@@ -314,7 +314,7 @@ All batch features are **optional**. Courses can still operate without batches, 
 [
   {
     "_id": "cert123",
-    "certificateId": "RASS-1234567890-ABC",
+    "certificateId": "RAAS-1234567890-ABC",
     "student": "student123",
     "course": {
       "_id": "course123",

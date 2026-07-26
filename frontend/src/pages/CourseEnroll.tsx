@@ -18,7 +18,7 @@ const CourseEnroll = ({ courseId, course }: any) => {
         key: "rzp_test_RJqt4AZALMZEYE",
         amount: order.amount,
         currency: order.currency,
-        name: "RASS Academy",
+        name: "RAAS Academy",
         description: `Enroll in ${course.title}`,
         order_id: order.id,
         handler: async function (response: any) {
