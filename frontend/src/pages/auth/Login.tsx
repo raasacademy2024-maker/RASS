@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
   BookOpen,
@@ -28,6 +28,10 @@ const Login: React.FC = () => {
 
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  // Set when we bounced the user here from a page that needs a login
+  // (e.g. clicking Enroll on a course), so we can send them back.
+  const redirectTo = (location.state as { from?: string } | null)?.from;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +40,7 @@ const Login: React.FC = () => {
 
     try {
       await login(formData.email, formData.password);
-      navigate("/");
+      navigate(redirectTo || "/");
     } catch (err: any) {
       setError(
         err.response?.data?.message ||

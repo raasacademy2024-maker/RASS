@@ -16,6 +16,7 @@ import Footer from "../../components/layout/Footer";
 import { FaMobile } from "react-icons/fa";
 import SEO, { pageSEOConfig } from "../../components/common/SEO";
 import { resolveImageUrl } from "../../utils/imageUrl";
+import { displayRating } from "../../utils/courseDisplay";
 
 const CourseCatalog: React.FC = () => {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -472,16 +473,10 @@ const CourseCatalog: React.FC = () => {
                       </p>
 
                       {/* Stats */}
-                      <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                        <div className="flex items-center gap-4">
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            {Math.round(course.totalDuration / 60)}h
-                          </span>
-                        </div>
+                      <div className="flex items-center justify-end text-sm text-gray-500 mb-4">
                         <span className="flex items-center gap-1 font-semibold">
                           <Star className="h-4 w-4 text-amber-400" />
-                          {course.rating.average.toFixed(1)}
+                          {displayRating(course)}
                         </span>
                       </div>
 

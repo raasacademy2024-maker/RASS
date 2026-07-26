@@ -42,6 +42,8 @@ const CourseDetail: React.FC = () => {
   const [showEnrollmentForm, setShowEnrollmentForm] = useState(false);
   // Set once a paid-course request is recorded - our team then contacts the student.
   const [requestSubmitted, setRequestSubmitted] = useState(false);
+  // An already-submitted request for this course, if any.
+  const [existingRequest, setExistingRequest] = useState<any>(null);
 
   // ✅ Section Refs
   const sectionRefs: Record<string, React.RefObject<HTMLDivElement>> = {
@@ -80,6 +82,17 @@ const CourseDetail: React.FC = () => {
         } catch {
           setEnrollment(null);
         }
+
+        // Has this student already sent us a request for this course?
+        try {
+          const formsRes = await enrollmentFormAPI.getMyForms();
+          const mine = (formsRes.data || []).find(
+            (f: any) => (f.course?._id || f.course) === id
+          );
+          setExistingRequest(mine || null);
+        } catch {
+          setExistingRequest(null);
+        }
       }
     } catch (error) {
       console.error("Error fetching course:", error);
@@ -89,11 +102,25 @@ const CourseDetail: React.FC = () => {
   };
 
   const handleEnroll = async () => {
-    if (!isAuthenticated || !course) return;
+    if (!course) return;
+
+    // Logged-out visitors used to get a button that silently did nothing.
+    // Send them to log in and come back to this course.
+    if (!isAuthenticated) {
+      navigate("/login", { state: { from: `/courses/${course._id}` } });
+      return;
+    }
 
     // If user is already enrolled and payment is completed, go directly to course
     if (enrollment && enrollment.paymentStatus === "completed") {
       navigate(`/learn/${course._id}`);
+      return;
+    }
+
+    // A paid request can only be submitted once (the API rejects duplicates),
+    // so show its status instead of re-opening a form that cannot be submitted.
+    if (existingRequest && course.price !== 0) {
+      setRequestSubmitted(true);
       return;
     }
 
@@ -125,10 +152,23 @@ const CourseDetail: React.FC = () => {
       }
 
       // Paid courses: payment is collected offline, so confirm and stop here.
+      await fetchCourseData();
       setRequestSubmitted(true);
     } catch (error: any) {
       console.error("Error submitting enrollment request:", error);
-      alert(error.response?.data?.message || "Failed to submit your request. Please try again.");
+
+      // The API rejects a second request for the same course. That is not a
+      // failure from the student's point of view - their details are already
+      // with us - so confirm rather than dead-ending them on an error.
+      const message: string = error.response?.data?.message || "";
+      if (error.response?.status === 400 && /already submitted/i.test(message)) {
+        setShowEnrollmentForm(false);
+        await fetchCourseData();
+        setRequestSubmitted(true);
+        return;
+      }
+
+      alert(message || "Failed to submit your request. Please try again.");
       // Keep the form open so the details aren't lost
     }
   };
@@ -301,7 +341,12 @@ const CourseDetail: React.FC = () => {
           <ClientsSection/>
         </div>
         <div ref={sectionRefs.fee}>
-          <FeeRegistration course={course} enrollment={enrollment} onEnroll={handleEnroll} />
+          <FeeRegistration
+            course={course}
+            enrollment={enrollment}
+            onEnroll={handleEnroll}
+            requestPending={!!existingRequest && course.price !== 0 && enrollment?.paymentStatus !== "completed"}
+          />
         </div>
         <div ref={sectionRefs.faq}>
           <FAQSection faqs={faqs} />
@@ -332,13 +377,16 @@ const CourseDetail: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">Request received</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">
+              {existingRequest ? "Request in progress" : "Request received"}
+            </h2>
             <p className="text-gray-600 mb-2">
               Thanks for your interest in <span className="font-semibold">{course.title}</span>.
             </p>
             <p className="text-gray-600 mb-6">
-              Our team will contact you shortly on the phone number and email you provided to
-              confirm your enrollment and arrange the payment.
+              {existingRequest
+                ? "We already have your details and our team will be in touch to confirm your enrollment and arrange the payment. Need help sooner? Contact us and mention this course."
+                : "Our team will contact you shortly on the phone number and email you provided to confirm your enrollment and arrange the payment."}
             </p>
             <div className="flex flex-col sm:flex-row gap-3">
               <button

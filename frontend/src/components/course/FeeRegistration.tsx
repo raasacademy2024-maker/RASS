@@ -2,20 +2,21 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Award, BookOpen } from "lucide-react";
 import { Course, Enrollment } from "../../types";
-import { useAuth } from "../../context/AuthContext";
 
 interface Props {
   course: Course;
   enrollment?: Enrollment | null;
   onEnroll?: () => Promise<void>;
+  requestPending?: boolean;
 }
 
-const FeeRegistration: React.FC<Props> = ({ course, enrollment, onEnroll }) => {
-  const { isAuthenticated } = useAuth();
+const FeeRegistration: React.FC<Props> = ({ course, enrollment, onEnroll, requestPending }) => {
   const [enrolling, setEnrolling] = useState(false);
 
   const handleEnrollClick = async () => {
-    if (!isAuthenticated || !onEnroll) return;
+    // Do NOT bail out when logged out - onEnroll redirects to login.
+    // Returning early here made the button silently do nothing.
+    if (!onEnroll) return;
     setEnrolling(true);
     try {
       await onEnroll();
@@ -62,7 +63,13 @@ const FeeRegistration: React.FC<Props> = ({ course, enrollment, onEnroll }) => {
           disabled={enrolling}
           className="px-8 py-3 bg-white text-indigo-700 rounded-lg font-semibold shadow hover:bg-gray-100 transition disabled:opacity-60"
         >
-          {enrolling ? "Please wait..." : course.price === 0 ? "Enroll Now" : "Request Enrollment"}
+          {enrolling
+            ? "Please wait..."
+            : requestPending
+              ? "View Request Status"
+              : course.price === 0
+                ? "Enroll Now"
+                : "Request Enrollment"}
         </button>
       )}
 
