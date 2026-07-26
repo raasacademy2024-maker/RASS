@@ -150,13 +150,13 @@ export default SEO;
 export const pageSEOConfig = {
   home: {
     title: 'RAAS Academy - India\'s Premier Skills & Learning Platform | Industry-Ready Talent Development',
-    description: 'RAAS Academy - India\'s #1 outcome-focused learning platform for skills development and industry-ready talent. Join 10,000+ learners building in-demand skills through hands-on training, certifications, and placement support.',
+    description: 'India\'s outcome-focused learning platform for skills development and industry-ready talent. Hands-on training, certifications and placement support.',
     keywords: 'learning, industry, india, skills, talent, online courses, professional training, certifications, e-learning, coding courses, data science, AI courses, career development, RAAS Academy, skill development',
     canonical: 'https://www.raasacademy.com/',
   },
   courses: {
     title: 'Skills Development Courses - RAAS Academy | India\'s Leading Learning Platform',
-    description: 'Explore industry-aligned skills courses at RAAS Academy. Build talent in web development, data science, AI, and more. India\'s premier learning destination for career growth.',
+    description: 'Explore industry-aligned skills courses at RAAS Academy: web development, data science, AI and more. India\'s learning destination for career growth.',
     keywords: 'learning, industry, india, skills, talent, online courses, web development, data science, AI courses, professional certifications, skill development, RAAS Academy courses',
     canonical: 'https://www.raasacademy.com/courses',
   },

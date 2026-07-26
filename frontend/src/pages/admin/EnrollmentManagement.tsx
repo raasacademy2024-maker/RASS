@@ -15,10 +15,13 @@ import {
   Eye,
   IndianRupee,
   Download,
-  Ban
+  Ban,
+  X
 } from "lucide-react";
 import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
+import ConfirmDialog from "../../components/common/ConfirmDialog";
+import { filterEnrollmentRequests, countPaymentStatuses } from "../../utils/enrollmentFilters";
 
 const EnrollmentManagement: React.FC = () => {
   const { user } = useAuth();
@@ -34,6 +37,44 @@ const EnrollmentManagement: React.FC = () => {
   const [showFormDetails, setShowFormDetails] = useState(false);
   const [contactDraft, setContactDraft] = useState({ contactStatus: "not_contacted", adminNotes: "" });
   const [savingContact, setSavingContact] = useState(false);
+
+  // Filters
+  const [paymentFilter, setPaymentFilter] = useState<string>("all");
+  const [contactFilter, setContactFilter] = useState<string>("all");
+
+  // Every action routes through one confirmation box.
+  const [confirmState, setConfirmState] = useState<{
+    open: boolean;
+    title: string;
+    message: React.ReactNode;
+    confirmLabel: string;
+    variant: "danger" | "primary" | "success";
+    onConfirm: () => void | Promise<void>;
+  } | null>(null);
+  const [confirmBusy, setConfirmBusy] = useState(false);
+
+  const askConfirm = (config: {
+    title: string;
+    message: React.ReactNode;
+    confirmLabel: string;
+    variant: "danger" | "primary" | "success";
+    onConfirm: () => void | Promise<void>;
+  }) => setConfirmState({ open: true, ...config });
+
+  const closeConfirm = () => {
+    setConfirmState(null);
+    setConfirmBusy(false);
+  };
+
+  const runConfirmedAction = async () => {
+    if (!confirmState) return;
+    setConfirmBusy(true);
+    try {
+      await confirmState.onConfirm();
+    } finally {
+      closeConfirm();
+    }
+  };
 
   useEffect(() => {
     fetchCourses();
@@ -107,18 +148,38 @@ const EnrollmentManagement: React.FC = () => {
     }
   };
 
-  const updatePaymentStatus = async (formId: string, status: string) => {
-    // Marking a request paid is what actually enrols the student and unlocks
-    // the course, so confirm it explicitly.
-    if (
-      status === "completed" &&
-      !confirm(
-        "Mark this request as paid?\n\nThis enrolls the student and immediately gives them access to the course content."
-      )
-    ) {
-      return;
-    }
+  /** Asks for confirmation, then applies the payment status. */
+  const confirmPaymentStatus = (form: any, status: string) => {
+    const name = form.fullName || form.name || "this student";
+    const config =
+      status === "completed"
+        ? {
+            title: "Mark payment as collected?",
+            message: (
+              <>
+                This records payment as collected for <strong>{name}</strong>, enrolls them,
+                and <strong>immediately gives them access</strong> to the course content.
+              </>
+            ),
+            confirmLabel: "Yes, payment collected",
+            variant: "success" as const,
+          }
+        : {
+            title: "Mark payment as not collected?",
+            message: (
+              <>
+                This marks the request from <strong>{name}</strong> as failed. They will not be
+                enrolled and will not get course access.
+              </>
+            ),
+            confirmLabel: "Yes, mark failed",
+            variant: "danger" as const,
+          };
 
+    askConfirm({ ...config, onConfirm: () => updatePaymentStatus(form._id, status) });
+  };
+
+  const updatePaymentStatus = async (formId: string, status: string) => {
     try {
       await enrollmentFormAPI.updatePaymentStatus(formId, status);
       // Refresh the forms
@@ -150,11 +211,21 @@ const EnrollmentManagement: React.FC = () => {
     }
   };
 
-  const cancelEnrollment = async (enrollmentId: string, studentName: string) => {
-    if (!confirm(`Are you sure you want to cancel enrollment for ${studentName}? This will immediately block their course access.`)) {
-      return;
-    }
-    
+  const confirmCancelEnrollment = (enrollmentId: string, studentName: string) =>
+    askConfirm({
+      title: "Cancel this enrollment?",
+      message: (
+        <>
+          <strong>{studentName}</strong> will <strong>immediately lose access</strong> to the
+          course content. This cannot be undone.
+        </>
+      ),
+      confirmLabel: "Yes, cancel enrollment",
+      variant: "danger",
+      onConfirm: () => cancelEnrollment(enrollmentId),
+    });
+
+  const cancelEnrollment = async (enrollmentId: string) => {
     try {
       await enrollmentAPI.cancelEnrollment(enrollmentId);
       alert('Enrollment cancelled successfully');
@@ -177,6 +248,21 @@ const EnrollmentManagement: React.FC = () => {
     setShowFormDetails(true);
   };
 
+  const confirmSaveContactStatus = (formId: string) =>
+    askConfirm({
+      title: "Save follow-up details?",
+      message: (
+        <>
+          This updates the contact status to{" "}
+          <strong>{formatContactStatus(contactDraft.contactStatus)}</strong> and saves your
+          internal notes against this request.
+        </>
+      ),
+      confirmLabel: "Save follow-up",
+      variant: "primary",
+      onConfirm: () => saveContactStatus(formId),
+    });
+
   const saveContactStatus = async (formId: string) => {
     try {
       setSavingContact(true);
@@ -197,6 +283,29 @@ const EnrollmentManagement: React.FC = () => {
       setSavingContact(false);
     }
   };
+
+  const formatContactStatus = (status?: string) =>
+    ({
+      not_contacted: "Not contacted",
+      contacted: "Contacted",
+      follow_up: "Needs follow-up",
+      not_interested: "Not interested",
+    }[status || "not_contacted"] || "Not contacted");
+
+  const confirmExportCSV = () =>
+    askConfirm({
+      title: "Export these requests to CSV?",
+      message: (
+        <>
+          This downloads <strong>{filteredForms.length}</strong> request
+          {filteredForms.length === 1 ? "" : "s"} including names, emails and phone numbers.
+          Handle the file carefully - it contains personal data.
+        </>
+      ),
+      confirmLabel: "Download CSV",
+      variant: "primary",
+      onConfirm: exportToCSV,
+    });
 
   const formatContactMode = (mode?: string) =>
     ({ call: "Phone call", whatsapp: "WhatsApp", email: "Email" }[mode || "call"] || "Phone call");
@@ -292,27 +401,28 @@ const EnrollmentManagement: React.FC = () => {
     document.body.removeChild(link);
   };
 
-  const filteredForms = forms.filter(form => {
-    if (!searchTerm && selectedBatch === "all") return true;
-    
-    // Search term filter
-    const term = searchTerm.toLowerCase();
-    const matchesSearch = !searchTerm || (
-      (form.fullName && form.fullName.toLowerCase().includes(term)) ||
-      (form.email && form.email.toLowerCase().includes(term)) ||
-      (form.mobileNumber && form.mobileNumber.includes(term)) ||
-      (form.courseTitle && form.courseTitle.toLowerCase().includes(term))
-    );
-
-    // Batch filter
-    const matchesBatch =
-      selectedBatch === "all" ||
-      (selectedBatch === "no-batch" && !form.batch) ||
-      (typeof form.batch === "object" && form.batch?._id === selectedBatch) ||
-      (typeof form.batch === "string" && form.batch === selectedBatch);
-
-    return matchesSearch && matchesBatch;
+  const filteredForms = filterEnrollmentRequests(forms, {
+    searchTerm,
+    selectedBatch,
+    paymentFilter,
+    contactFilter,
   });
+
+  // Counts for the summary tiles - based on everything loaded, not the filtered view
+  const paymentCounts = countPaymentStatuses(forms);
+
+  const activeFilterCount =
+    (selectedBatch !== "all" ? 1 : 0) +
+    (paymentFilter !== "all" ? 1 : 0) +
+    (contactFilter !== "all" ? 1 : 0) +
+    (searchTerm.trim() ? 1 : 0);
+
+  const clearAllFilters = () => {
+    setSelectedBatch("all");
+    setPaymentFilter("all");
+    setContactFilter("all");
+    setSearchTerm("");
+  };
 
   const getPaymentStatusBadge = (status: string) => {
     switch (status) {
@@ -400,6 +510,55 @@ const EnrollmentManagement: React.FC = () => {
             )}
 
             <div>
+              <label htmlFor="paymentFilter" className="block text-sm font-medium text-gray-700 mb-2">
+                Payment Collected
+              </label>
+              <div className="relative">
+                <select
+                  id="paymentFilter"
+                  value={paymentFilter}
+                  onChange={(e) => setPaymentFilter(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white"
+                >
+                  <option value="all">All payments</option>
+                  <option value="collected">Collected</option>
+                  <option value="not_collected">Not collected yet</option>
+                  <option value="failed">Failed / declined</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="contactFilter" className="block text-sm font-medium text-gray-700 mb-2">
+                Follow-up Status
+              </label>
+              <div className="relative">
+                <select
+                  id="contactFilter"
+                  value={contactFilter}
+                  onChange={(e) => setContactFilter(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white"
+                >
+                  <option value="all">All follow-ups</option>
+                  <option value="not_contacted">Not contacted</option>
+                  <option value="contacted">Contacted</option>
+                  <option value="follow_up">Needs follow-up</option>
+                  <option value="not_interested">Not interested</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+                  <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <div>
               <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
                 Search Enrollments
               </label>
@@ -421,6 +580,45 @@ const EnrollmentManagement: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Payment collection summary - click a tile to filter by it */}
+          <div className="mt-6 grid grid-cols-2 lg:grid-cols-4 gap-3">
+            {[
+              { key: "all", label: "Total requests", value: paymentCounts.total, cls: "border-gray-200 bg-gray-50 text-gray-900" },
+              { key: "collected", label: "Payment collected", value: paymentCounts.collected, cls: "border-green-200 bg-green-50 text-green-800" },
+              { key: "not_collected", label: "Not collected yet", value: paymentCounts.notCollected, cls: "border-amber-200 bg-amber-50 text-amber-800" },
+              { key: "failed", label: "Failed / declined", value: paymentCounts.failed, cls: "border-red-200 bg-red-50 text-red-800" },
+            ].map((tile) => (
+              <button
+                key={tile.key}
+                type="button"
+                onClick={() => setPaymentFilter(tile.key)}
+                className={`text-left border rounded-lg p-4 transition-all ${tile.cls} ${
+                  paymentFilter === tile.key ? "ring-2 ring-indigo-500" : "hover:shadow-sm"
+                }`}
+              >
+                <div className="text-2xl font-bold">{tile.value}</div>
+                <div className="text-xs font-medium mt-1">{tile.label}</div>
+              </button>
+            ))}
+          </div>
+
+          {activeFilterCount > 0 && (
+            <div className="mt-4 flex items-center justify-between flex-wrap gap-2">
+              <p className="text-sm text-gray-600">
+                {activeFilterCount} filter{activeFilterCount === 1 ? "" : "s"} active &mdash;
+                showing <strong>{filteredForms.length}</strong> of {forms.length} requests
+              </p>
+              <button
+                type="button"
+                onClick={clearAllFilters}
+                className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg"
+              >
+                <X className="h-4 w-4 mr-1" />
+                Clear all filters
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Forms Table */}
@@ -443,7 +641,7 @@ const EnrollmentManagement: React.FC = () => {
               )}
               {filteredForms.length > 0 && (
                 <button
-                  onClick={exportToCSV}
+                  onClick={confirmExportCSV}
                   className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   <Download className="h-4 w-4 mr-2" />
@@ -550,7 +748,7 @@ const EnrollmentManagement: React.FC = () => {
                         </button>
                         <div className="flex space-x-2">
                           <button
-                            onClick={() => updatePaymentStatus(form._id, "completed")}
+                            onClick={() => confirmPaymentStatus(form, "completed")}
                             className="text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50"
                             title="Mark as paid & enroll student"
                             disabled={form.paymentStatus === "completed"}
@@ -558,7 +756,7 @@ const EnrollmentManagement: React.FC = () => {
                             <CheckCircle className="h-4 w-4" />
                           </button>
                           <button
-                            onClick={() => updatePaymentStatus(form._id, "failed")}
+                            onClick={() => confirmPaymentStatus(form, "failed")}
                             className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50"
                             title="Mark as failed"
                             disabled={form.paymentStatus === "failed"}
@@ -679,7 +877,7 @@ const EnrollmentManagement: React.FC = () => {
                               <Eye className="h-4 w-4" />
                             </button>
                             <button
-                              onClick={() => updatePaymentStatus(form._id, "completed")}
+                              onClick={() => confirmPaymentStatus(form, "completed")}
                               className="text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50"
                               title="Mark as paid & enroll student"
                               disabled={form.paymentStatus === "completed"}
@@ -687,7 +885,7 @@ const EnrollmentManagement: React.FC = () => {
                               <CheckCircle className="h-4 w-4" />
                             </button>
                             <button
-                              onClick={() => updatePaymentStatus(form._id, "failed")}
+                              onClick={() => confirmPaymentStatus(form, "failed")}
                               className="text-red-600 hover:text-red-900 p-1 rounded-full hover:bg-red-50"
                               title="Mark as failed"
                               disabled={form.paymentStatus === "failed"}
@@ -794,7 +992,7 @@ const EnrollmentManagement: React.FC = () => {
                       </td>
                       <td className="px-4 py-3 text-sm font-medium">
                         <button
-                          onClick={() => cancelEnrollment(enrollment._id, enrollment.student?.name || 'this student')}
+                          onClick={() => confirmCancelEnrollment(enrollment._id, enrollment.student?.name || 'this student')}
                           className="inline-flex items-center px-3 py-1.5 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-xs font-medium"
                           title="Cancel enrollment and block access"
                         >
@@ -986,7 +1184,7 @@ const EnrollmentManagement: React.FC = () => {
                       />
                     </div>
                     <button
-                      onClick={() => saveContactStatus(selectedForm._id)}
+                      onClick={() => confirmSaveContactStatus(selectedForm._id)}
                       disabled={savingContact}
                       className="px-4 py-2 bg-amber-600 text-white text-sm font-semibold rounded-lg hover:bg-amber-700 disabled:opacity-60"
                     >
@@ -1005,7 +1203,7 @@ const EnrollmentManagement: React.FC = () => {
                 </button>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => updatePaymentStatus(selectedForm._id, "completed")}
+                    onClick={() => confirmPaymentStatus(selectedForm, "completed")}
                     disabled={selectedForm.paymentStatus === "completed"}
                     className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
                       selectedForm.paymentStatus === "completed"
@@ -1017,7 +1215,7 @@ const EnrollmentManagement: React.FC = () => {
                     Mark as Completed
                   </button>
                   <button
-                    onClick={() => updatePaymentStatus(selectedForm._id, "failed")}
+                    onClick={() => confirmPaymentStatus(selectedForm, "failed")}
                     disabled={selectedForm.paymentStatus === "failed"}
                     className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
                       selectedForm.paymentStatus === "failed"
@@ -1034,6 +1232,18 @@ const EnrollmentManagement: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Single confirmation box shared by every action on this page */}
+      <ConfirmDialog
+        open={!!confirmState?.open}
+        title={confirmState?.title || ""}
+        message={confirmState?.message}
+        confirmLabel={confirmState?.confirmLabel}
+        variant={confirmState?.variant}
+        busy={confirmBusy}
+        onConfirm={runConfirmedAction}
+        onCancel={closeConfirm}
+      />
 
       <Footer />
     </div>

@@ -190,13 +190,13 @@ const CertificationCourses: React.FC = () => {
         <header className="text-center mb-20">
           
           
-          <h1 className="text-5xl lg:text-5xl font-bold text-gray-900 mb-6 tracking-tight">
+          <h2 className="text-5xl lg:text-5xl font-bold text-gray-900 mb-6 tracking-tight">
             
             <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent pb-3 leading-tight">
                How Our Skills Learning is Different 
 
             </span>
-          </h1>
+          </h2>
           
           <p className="text-xl lg:text-2xl text-gray-600 font-light max-w-3xl mx-auto leading-relaxed">
             "Bridging India's talent gap with industry-ready learning programs"

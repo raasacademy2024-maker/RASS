@@ -59,9 +59,9 @@ const IntroCourse: React.FC = () => {
     <div className="max-w-7xl mx-auto px-6 py-12">
       {/* Hero Header */}
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-extrabold text-gray-900">
+        <h2 className="text-4xl font-extrabold text-gray-900">
           Explore Our Courses
-        </h1>
+        </h2>
         <p className="mt-3 text-gray-600">
           Upskill with industry-aligned programs and real-world projects.
         </p>

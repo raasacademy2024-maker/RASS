@@ -111,14 +111,14 @@ export function HeroCarousel() {
         {/* Left Content - Full Width on Mobile, 60% on Desktop */}
         <div className="w-full lg:w-3/5 xl:w-2/3">
           <div className="max-w-2xl">
-            <motion.h1
+            <motion.h2
               initial={{ y: 40, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 1, delay: 0.3 }}
               className="text-4xl sm:text-5xl md:text-5xl lg:text-6xl xl:text-6xl font-bold text-blue-700 leading-tight pb-2"
             >
               {currentSlideData.title[0]}<br/>{currentSlideData.title[1]}
-            </motion.h1>
+            </motion.h2>
 
             <motion.p
               initial={{ y: 20, opacity: 0 }}

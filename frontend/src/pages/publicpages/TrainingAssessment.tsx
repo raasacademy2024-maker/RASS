@@ -122,7 +122,7 @@ const TrainingAssessment: React.FC = () => {
             className="text-center"
           >
             {/* Main Heading */}
-            <motion.h1
+            <motion.h2
               className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 mb-6 leading-tight"
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
@@ -133,7 +133,7 @@ const TrainingAssessment: React.FC = () => {
               </span>{" "}
               <br className="hidden md:block" />
               Career-Ready Training Pathway
-            </motion.h1>
+            </motion.h2>
 
             {/* Enhanced Subtitle */}
             <motion.p
