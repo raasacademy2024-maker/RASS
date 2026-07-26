@@ -301,6 +301,61 @@ export const generateCourseSchema = (course: {
   }),
 });
 
+/**
+ * Event schema for a single event page.
+ * Lets Google show the event in rich results / the events carousel.
+ */
+export const generateEventSchema = (event: {
+  name: string;
+  description: string;
+  startDate: string;
+  location?: string;
+  imageUrl?: string;
+  price?: number;
+  currency?: string;
+  isOnline?: boolean;
+  url?: string;
+}) => ({
+  '@context': 'https://schema.org',
+  '@type': 'Event',
+  name: event.name,
+  description: event.description,
+  startDate: event.startDate,
+  eventStatus: 'https://schema.org/EventScheduled',
+  eventAttendanceMode: event.isOnline
+    ? 'https://schema.org/OnlineEventAttendanceMode'
+    : 'https://schema.org/OfflineEventAttendanceMode',
+  location: event.isOnline
+    ? {
+        '@type': 'VirtualLocation',
+        url: event.url || 'https://www.raasacademy.com/events',
+      }
+    : {
+        '@type': 'Place',
+        name: event.location || 'RAAS Academy',
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: event.location || 'India',
+          addressCountry: 'IN',
+        },
+      },
+  organizer: {
+    '@type': 'Organization',
+    name: 'RAAS Academy',
+    url: 'https://www.raasacademy.com',
+  },
+  ...(event.imageUrl && { image: event.imageUrl }),
+  ...(event.price !== undefined && {
+    offers: {
+      '@type': 'Offer',
+      price: event.price,
+      priceCurrency: event.currency || 'INR',
+      availability: 'https://schema.org/InStock',
+      ...(event.url && { url: event.url }),
+    },
+  }),
+});
+
 // Helper function to generate breadcrumb schema
 export const generateBreadcrumbSchema = (
   items: Array<{ name: string; url: string }>

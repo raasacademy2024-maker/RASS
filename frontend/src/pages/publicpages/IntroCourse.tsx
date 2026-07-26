@@ -2,10 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { courseAPI } from "../../services/api";
-import { BookOpen, Clock, Users, Star, Search } from "lucide-react";
+import { BookOpen, Search } from "lucide-react";
 import { Course } from "../../types";
 import { resolveImageUrl } from "../../utils/imageUrl";
-import { displayRating } from "../../utils/courseDisplay";
 
 
 const IntroCourse: React.FC = () => {
@@ -169,17 +168,6 @@ const IntroCourse: React.FC = () => {
                 <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                   {course.description}
                 </p>
-
-                <div className="flex items-center justify-between text-xs text-gray-600 mb-3">
-                  <span className="flex items-center">
-                    <Users className="h-4 w-4 mr-1" />
-                    {course.enrollmentCount}
-                  </span>
-                  <span className="flex items-center">
-                    <Star className="h-4 w-4 mr-1 text-yellow-400" />
-                    {displayRating(course)}
-                  </span>
-                </div>
 
                 <div className="flex items-center justify-between mb-4">
                   <span

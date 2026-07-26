@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { courseAPI } from "../../services/api";
-import { 
-  BookOpen, Clock, Users, Star, Search, Filter, 
+import {
+  BookOpen, Search, Filter,
   X, Zap, Bookmark, Eye, Award,
   Shield, Globe, Rocket,
   Phone,
@@ -16,7 +16,6 @@ import Footer from "../../components/layout/Footer";
 import { FaMobile } from "react-icons/fa";
 import SEO, { pageSEOConfig } from "../../components/common/SEO";
 import { resolveImageUrl } from "../../utils/imageUrl";
-import { displayRating } from "../../utils/courseDisplay";
 
 const CourseCatalog: React.FC = () => {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -452,11 +451,6 @@ const CourseCatalog: React.FC = () => {
                       }`}>
                         {course.level}
                       </span>
-                      
-                      {/* Enrollment Count */}
-                      <div className="absolute top-4 right-4 bg-black/50 text-white px-2 py-1 rounded-full text-xs font-medium">
-                        👥 {course.enrollmentCount}+ enrolled
-                      </div>
                     </div>
 
                     {/* Course Content */}
@@ -471,14 +465,6 @@ const CourseCatalog: React.FC = () => {
                       <p className="text-gray-600 text-sm mb-4 line-clamp-2">
                         {course.description}
                       </p>
-
-                      {/* Stats */}
-                      <div className="flex items-center justify-end text-sm text-gray-500 mb-4">
-                        <span className="flex items-center gap-1 font-semibold">
-                          <Star className="h-4 w-4 text-amber-400" />
-                          {displayRating(course)}
-                        </span>
-                      </div>
 
                       {/* Instructor & Price */}
                       <div className="flex items-center justify-between mb-4">

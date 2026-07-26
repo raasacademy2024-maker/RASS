@@ -6,6 +6,7 @@ import Navbar from "../../components/layout/Navbar";
 import Footer from "../../components/layout/Footer";
 import { countryCodes } from "../../utils/countryCodes";
 import { resolveImageUrl } from "../../utils/imageUrl";
+import SEO, { generateEventSchema } from "../../components/common/SEO";
 
 interface AgendaItem {
   _id?: string;
@@ -207,8 +208,33 @@ export default function EventDetailPage() {
     );
   }
 
+  const META_DESCRIPTION_MAX_LENGTH = 155;
+  const eventUrl = `https://www.raasacademy.com/events/${event._id}`;
+  const eventSEO = {
+    title: `${event.title} - RAAS Academy Event`,
+    description: event.description
+      ? event.description.slice(0, META_DESCRIPTION_MAX_LENGTH)
+      : `Join ${event.title} by RAAS Academy. Learn industry skills from experts.`,
+    keywords: `${event.title}, RAAS Academy events, webinar, workshop, ${event.location || 'online'}, learning, skills, india`,
+    canonical: eventUrl,
+    ogImage: resolveImageUrl(event.imageUrl) || 'https://www.raasacademy.com/logo.webp',
+    ogType: 'article',
+    structuredData: generateEventSchema({
+      name: event.title,
+      description: event.description || '',
+      startDate: event.date,
+      location: event.location,
+      imageUrl: resolveImageUrl(event.imageUrl),
+      price: event.price,
+      currency: 'INR',
+      isOnline: /online|virtual|webinar/i.test(event.location || ''),
+      url: eventUrl,
+    }),
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
+      <SEO {...eventSEO} />
       <Navbar />
       <main className="flex-grow bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
         <div className="max-w-7xl mx-auto">

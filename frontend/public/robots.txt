@@ -33,9 +33,12 @@ Disallow: /learn/
 # Disallow API endpoints
 Disallow: /api/
 
-# Disallow common development files
-Disallow: /*.json$
-Disallow: /*.xml$
+# Disallow user-specific pages (no SEO value, and they need a login)
+Disallow: /support-tickets
+
+# Disallow source directories
+# NOTE: do NOT disallow *.xml here - that would block sitemap.xml itself,
+# which is declared at the bottom of this file.
 Disallow: /src/
 Disallow: /node_modules/
 
