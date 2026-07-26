@@ -52,7 +52,6 @@ export default function EventDetailPage() {
   });
   const [phoneError, setPhoneError] = useState('');
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
-  const [paymentData, setPaymentData] = useState<any>(null);
   const [openFaqItems, setOpenFaqItems] = useState<Set<number>>(new Set()); // Track open FAQ items
 
   useEffect(() => {
@@ -79,75 +78,17 @@ export default function EventDetailPage() {
       return;
     }
 
-    if (event?.type === "Paid") {
-      handlePaidEventRegistration();
-    } else {
-      // For free events, show registration form with user's authenticated info
-      setRegistrationForm({ 
-        name: user?.name || "", 
-        email: user?.email || "",
-        phone: "",
-        countryCode: "+91"
-      });
-      setPhoneError('');
-      setShowRegistrationForm(true);
-      setRegistrationSuccess(false);
-    }
-  };
-
-  const handlePaidEventRegistration = async () => {
-    if (!event || !user) return;
-
-    try {
-      // 1. Create Razorpay order from backend
-      const res = await apiClient.post("/payments/event-order", { eventId: event._id });
-
-      const { order } = res.data;
-      if (!order) {
-        alert("Failed to create payment order");
-        return;
-      }
-
-      const options = {
-        key: (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || "rzp_test_RJqt4AZALMZEYE", // Use env var or fallback
-        amount: order.amount,
-        currency: order.currency,
-        name: "RAAS Academy",
-        description: `Payment for ${event.title}`,
-        order_id: order.id,
-        handler: async function (response: any) {
-          try {
-            // Store payment data for later verification
-            setPaymentData(response);
-            
-            // Show registration form after successful payment with user's authenticated info
-            setRegistrationForm({ 
-              name: user?.name || "", 
-              email: user?.email || "",
-              phone: "",
-              countryCode: "+91"
-            });
-            setPhoneError('');
-            setShowRegistrationForm(true);
-          } catch (err) {
-            console.error("Payment handler error:", err);
-            alert("Something went wrong after payment.");
-          }
-        },
-        prefill: {
-          name: user.name || "Student",
-          email: user.email || "student@example.com",
-          contact: user.profile?.phone || ""
-        },
-        theme: { color: "#6366f1" },
-      };
-
-      const razor = new (window as any).Razorpay(options);
-      razor.open();
-    } catch (error: any) {
-      console.error("Payment error:", error);
-      alert(`Something went wrong during payment: ${error.message}`);
-    }
+    // Paid and free events now follow the same path: we collect the attendee's
+    // details and, for paid events, our team contacts them to arrange payment.
+    setRegistrationForm({
+      name: user?.name || "",
+      email: user?.email || "",
+      phone: "",
+      countryCode: "+91"
+    });
+    setPhoneError('');
+    setShowRegistrationForm(true);
+    setRegistrationSuccess(false);
   };
 
   const validatePhone = (phone: string): boolean => {
@@ -191,30 +132,12 @@ export default function EventDetailPage() {
     }
 
     try {
-      // For paid events, we need to verify payment and register
-      if (event.type === "Paid" && paymentData) {
-        // Verify payment first
-        const verifyRes = await apiClient.post("/payments/verify-event", {
-          razorpay_order_id: paymentData.razorpay_order_id,
-          razorpay_payment_id: paymentData.razorpay_payment_id,
-          razorpay_signature: paymentData.razorpay_signature,
-          eventId: event._id,
-        });
-
-        const result = verifyRes.data;
-
-        if (!result.success) {
-          alert("Payment verification failed.");
-          return;
-        }
-      }
-
-      // Register attendee with payment ID for paid events (userId is optional)
+      // Payment (for paid events) is arranged offline after we contact the attendee,
+      // so registration just records their details.
       const registrationData = {
         name: registrationForm.name,
         email: registrationForm.email,
         phone: registrationForm.phone ? `${registrationForm.countryCode} ${registrationForm.phone}` : '',
-        ...(paymentData && { paymentId: paymentData.razorpay_payment_id })
       };
 
       const res = await apiClient.post(`/admin/events/${event._id}/attendees`, registrationData);
@@ -222,7 +145,6 @@ export default function EventDetailPage() {
       if (res.status === 201) {
         setRegistrationSuccess(true);
         setShowRegistrationForm(false);
-        setPaymentData(null); // Clear payment data
         setPhoneError('');
         // Refresh event data to show updated attendee count
         fetchEvent();
@@ -551,10 +473,7 @@ export default function EventDetailPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      setShowRegistrationForm(false);
-                      setPaymentData(null); // Clear payment data if user cancels
-                    }}
+                    onClick={() => setShowRegistrationForm(false)}
                     className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-semibold transition-colors duration-200"
                   >
                     Cancel

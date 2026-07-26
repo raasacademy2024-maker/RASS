@@ -11,6 +11,13 @@ const enrollmentFormSchema = new mongoose.Schema({
     ref: 'Course',
     required: true
   },
+  // The batch the student asked for, so the team knows what they signed up
+  // for when they call to collect payment.
+  batch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Batch',
+    default: null
+  },
   fullName: {
     type: String,
     required: true
@@ -22,6 +29,52 @@ const enrollmentFormSchema = new mongoose.Schema({
   mobileNumber: {
     type: String,
     required: true
+  },
+  // --- Contact details, so the team can actually reach this lead ---
+  whatsappNumber: {
+    type: String,
+    default: ''
+  },
+  city: {
+    type: String,
+    default: ''
+  },
+  preferredContactMode: {
+    type: String,
+    enum: ['call', 'whatsapp', 'email'],
+    default: 'call'
+  },
+  preferredContactTime: {
+    type: String,
+    enum: ['morning', 'afternoon', 'evening', 'anytime'],
+    default: 'anytime'
+  },
+  // --- Context for the sales conversation ---
+  highestQualification: {
+    type: String,
+    default: ''
+  },
+  collegeOrCompany: {
+    type: String,
+    default: ''
+  },
+  heardAboutUs: {
+    type: String,
+    default: ''
+  },
+  message: {
+    type: String,
+    default: ''
+  },
+  // --- Follow-up tracking, owned by the admin side ---
+  contactStatus: {
+    type: String,
+    enum: ['not_contacted', 'contacted', 'follow_up', 'not_interested'],
+    default: 'not_contacted'
+  },
+  adminNotes: {
+    type: String,
+    default: ''
   },
   hasPriorExperience: {
     type: String,

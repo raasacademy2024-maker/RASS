@@ -34,8 +34,9 @@ const FeeRegistration: React.FC<Props> = ({ course, enrollment, onEnroll }) => {
         {course.price === 0 ? "Free" : `₹${course.price}`}
       </div>
       <p className="text-indigo-100 mb-6">
-        One-time payment. Lifetime access to content, projects, and placement
-        support.
+        {course.price === 0
+          ? "Free access to content, projects, and placement support."
+          : "One-time fee. Lifetime access to content, projects, and placement support. Share your details and our team will contact you to complete the payment."}
       </p>
 
       {/* Perks */}
@@ -61,7 +62,7 @@ const FeeRegistration: React.FC<Props> = ({ course, enrollment, onEnroll }) => {
           disabled={enrolling}
           className="px-8 py-3 bg-white text-indigo-700 rounded-lg font-semibold shadow hover:bg-gray-100 transition disabled:opacity-60"
         >
-          {enrolling ? "Enrolling..." : "Enroll Now"}
+          {enrolling ? "Please wait..." : course.price === 0 ? "Enroll Now" : "Request Enrollment"}
         </button>
       )}
 

@@ -117,6 +117,71 @@ router.put('/:id', authenticate, authorize('instructor', 'admin'), async (req, r
   }
 });
 
+// Delete course (and all data that references it)
+router.delete('/:id', authenticate, authorize('instructor', 'admin'), async (req, res) => {
+  try {
+    const course = await Course.findById(req.params.id);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    // Check ownership
+    if (req.user.role !== 'admin' && course.instructor.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to delete this course' });
+    }
+
+    const courseId = course._id;
+
+    // Every collection that holds a reference to this course. Without this cleanup
+    // the documents survive with a dangling course id and break any page that
+    // populates them.
+    const dependents = [
+      ['Announcement', '../models/Announcement.js'],
+      ['Assignment', '../models/Assignment.js'],
+      ['Attendance', '../models/Attendance.js'],
+      ['Batch', '../models/Batch.js'],
+      ['Certificate', '../models/Certificate.js'],
+      ['Chat', '../models/Chat.js'],
+      ['Doubt', '../models/Doubt.js'],
+      ['Enrollment', '../models/Enrollment.js'],
+      ['EnrollmentForm', '../models/EnrollmentForm.js'],
+      ['Forum', '../models/Forum.js'],
+      ['LiveSession', '../models/LiveSession.js'],
+      ['Quiz', '../models/Quiz.js'],
+      ['Schedule', '../models/Schedule.js'],
+      ['VideoNote', '../models/VideoNote.js'],
+    ];
+
+    const deleted = {};
+    for (const [name, path] of dependents) {
+      try {
+        const Model = (await import(path)).default;
+        const result = await Model.deleteMany({ course: courseId });
+        if (result.deletedCount) deleted[name] = result.deletedCount;
+      } catch (depError) {
+        // A single dependent collection failing must not abort the whole delete,
+        // otherwise the course is left half-cleaned.
+        console.error(`Failed clearing ${name} for course ${courseId}:`, depError.message);
+      }
+    }
+
+    // Drop the course from every user's enrolled/created lists
+    await User.updateMany(
+      { $or: [{ enrolledCourses: courseId }, { createdCourses: courseId }] },
+      { $pull: { enrolledCourses: courseId, createdCourses: courseId } }
+    );
+
+    await Course.findByIdAndDelete(courseId);
+
+    res.json({
+      message: 'Course deleted successfully',
+      courseId,
+      deletedRelated: deleted,
+    });
+  } catch (error) {
+    console.error('Course deletion error:', error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // Get instructor's courses
 router.get('/instructor/my-courses', authenticate, authorize('instructor', 'admin'), async (req, res) => {
   try {

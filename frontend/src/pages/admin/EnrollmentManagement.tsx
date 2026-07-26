@@ -32,6 +32,8 @@ const EnrollmentManagement: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedForm, setSelectedForm] = useState<any>(null);
   const [showFormDetails, setShowFormDetails] = useState(false);
+  const [contactDraft, setContactDraft] = useState({ contactStatus: "not_contacted", adminNotes: "" });
+  const [savingContact, setSavingContact] = useState(false);
 
   useEffect(() => {
     fetchCourses();
@@ -106,6 +108,17 @@ const EnrollmentManagement: React.FC = () => {
   };
 
   const updatePaymentStatus = async (formId: string, status: string) => {
+    // Marking a request paid is what actually enrols the student and unlocks
+    // the course, so confirm it explicitly.
+    if (
+      status === "completed" &&
+      !confirm(
+        "Mark this request as paid?\n\nThis enrolls the student and immediately gives them access to the course content."
+      )
+    ) {
+      return;
+    }
+
     try {
       await enrollmentFormAPI.updatePaymentStatus(formId, status);
       // Refresh the forms
@@ -117,6 +130,13 @@ const EnrollmentManagement: React.FC = () => {
       }
     } catch (error) {
       console.error("Error updating payment status:", error);
+      // This can fail while granting access - the admin has to know.
+      const apiError = error as { response?: { data?: { message?: string } }; message?: string };
+      alert(
+        apiError?.response?.data?.message ||
+          apiError?.message ||
+          "Failed to update this request. Please try again."
+      );
     }
   };
 
@@ -149,9 +169,59 @@ const EnrollmentManagement: React.FC = () => {
   };
 
   const viewFormDetails = (form: any) => {
-    console.log('Viewing form details:', form);
     setSelectedForm(form);
+    setContactDraft({
+      contactStatus: form.contactStatus || "not_contacted",
+      adminNotes: form.adminNotes || "",
+    });
     setShowFormDetails(true);
+  };
+
+  const saveContactStatus = async (formId: string) => {
+    try {
+      setSavingContact(true);
+      await enrollmentFormAPI.updateContactStatus(formId, contactDraft);
+      // Keep the open modal and the list in sync with what was just saved
+      setSelectedForm((prev) => (prev ? { ...prev, ...contactDraft } : prev));
+      setForms((prev) =>
+        prev.map((f) => (f._id === formId ? { ...f, ...contactDraft } : f))
+      );
+    } catch (error) {
+      const apiError = error as { response?: { data?: { message?: string } }; message?: string };
+      alert(
+        apiError?.response?.data?.message ||
+          apiError?.message ||
+          "Failed to save follow-up details."
+      );
+    } finally {
+      setSavingContact(false);
+    }
+  };
+
+  const formatContactMode = (mode?: string) =>
+    ({ call: "Phone call", whatsapp: "WhatsApp", email: "Email" }[mode || "call"] || "Phone call");
+
+  const formatContactTime = (time?: string) =>
+    ({
+      morning: "Morning (9 AM - 12 PM)",
+      afternoon: "Afternoon (12 PM - 5 PM)",
+      evening: "Evening (5 PM - 9 PM)",
+      anytime: "Anytime",
+    }[time || "anytime"] || "Anytime");
+
+  const contactStatusBadge = (status?: string) => {
+    const map: Record<string, { label: string; className: string }> = {
+      not_contacted: { label: "Not contacted", className: "bg-gray-100 text-gray-700" },
+      contacted: { label: "Contacted", className: "bg-blue-100 text-blue-700" },
+      follow_up: { label: "Follow-up", className: "bg-amber-100 text-amber-700" },
+      not_interested: { label: "Not interested", className: "bg-red-100 text-red-700" },
+    };
+    const entry = map[status || "not_contacted"] || map.not_contacted;
+    return (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${entry.className}`}>
+        {entry.label}
+      </span>
+    );
   };
 
   const exportToCSV = () => {
@@ -162,26 +232,51 @@ const EnrollmentManagement: React.FC = () => {
       "Student Name",
       "Email",
       "Mobile Number",
+      "WhatsApp Number",
+      "City",
+      "Preferred Contact",
+      "Best Time to Call",
       "Student Status",
+      "Highest Qualification",
+      "College / Company",
+      "Heard About Us",
       "Prior Experience",
       "Experience Details",
+      "Their Message",
       "Course",
+      "Requested Batch",
+      "Contact Status",
+      "Internal Notes",
       "Payment Status",
       "Submitted Date"
     ];
-    
+
+    // Escape embedded quotes so a note containing " doesn't break the CSV row
+    const cell = (value: unknown) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+
     const csvContent = [
       headers.join(","),
       ...filteredForms.map(form => [
-        `"${form.fullName || form.name || 'Unknown Student'}"`,
-        `"${form.email || ''}"`,
-        `"${form.mobileNumber || ''}"`,
-        `"${form.isStudent === 'yes' ? 'Student' : 'Non-student'}"`,
-        `"${form.hasPriorExperience === 'yes' ? 'Yes' : 'No'}"`,
-        `"${form.experienceDetails || ''}"`,
-        `"${form.courseTitle || courses.find(c => c._id === form.course)?.title || 'Unknown Course'}"`,
-        `"${form.paymentStatus || 'pending'}"`,
-        `"${form.submittedAt ? new Date(form.submittedAt).toLocaleDateString() : ''}"`
+        cell(form.fullName || form.name || 'Unknown Student'),
+        cell(form.email),
+        cell(form.mobileNumber),
+        cell(form.whatsappNumber),
+        cell(form.city),
+        cell(formatContactMode(form.preferredContactMode)),
+        cell(formatContactTime(form.preferredContactTime)),
+        cell(form.isStudent === 'yes' ? 'Student' : 'Non-student'),
+        cell(form.highestQualification),
+        cell(form.collegeOrCompany),
+        cell(form.heardAboutUs),
+        cell(form.hasPriorExperience === 'yes' ? 'Yes' : 'No'),
+        cell(form.experienceDetails),
+        cell(form.message),
+        cell(form.courseTitle || courses.find(c => c._id === form.course)?.title || 'Unknown Course'),
+        cell(form.batch?.name || 'No specific batch'),
+        cell(form.contactStatus || 'not_contacted'),
+        cell(form.adminNotes),
+        cell(form.paymentStatus || 'pending'),
+        cell(form.submittedAt ? new Date(form.submittedAt).toLocaleDateString() : '')
       ].join(","))
     ].join("\n");
     
@@ -393,11 +488,12 @@ const EnrollmentManagement: React.FC = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="flex-shrink-0">
+                        <div className="flex-shrink-0 flex flex-col items-end gap-1">
                           {getPaymentStatusBadge(form.paymentStatus)}
+                          {contactStatusBadge(form.contactStatus)}
                         </div>
                       </div>
-                      
+
                       <div className="mt-3 grid grid-cols-2 gap-2">
                         <div className="text-xs">
                           <div className="text-gray-500">Email</div>
@@ -406,6 +502,14 @@ const EnrollmentManagement: React.FC = () => {
                         <div className="text-xs">
                           <div className="text-gray-500">Phone</div>
                           <div className="text-gray-900 truncate">{form.mobileNumber || 'No phone'}</div>
+                        </div>
+                        <div className="text-xs">
+                          <div className="text-gray-500">City</div>
+                          <div className="text-gray-900 truncate">{form.city || 'Not provided'}</div>
+                        </div>
+                        <div className="text-xs">
+                          <div className="text-gray-500">Best time</div>
+                          <div className="text-gray-900 truncate">{formatContactTime(form.preferredContactTime)}</div>
                         </div>
                         <div className="text-xs">
                           <div className="text-gray-500">Course</div>
@@ -448,7 +552,7 @@ const EnrollmentManagement: React.FC = () => {
                           <button
                             onClick={() => updatePaymentStatus(form._id, "completed")}
                             className="text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50"
-                            title="Mark as completed"
+                            title="Mark as paid & enroll student"
                             disabled={form.paymentStatus === "completed"}
                           >
                             <CheckCircle className="h-4 w-4" />
@@ -484,6 +588,9 @@ const EnrollmentManagement: React.FC = () => {
                       </th>
                       <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Experience
+                      </th>
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Follow-up
                       </th>
                       <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Status
@@ -522,6 +629,9 @@ const EnrollmentManagement: React.FC = () => {
                               <Phone className="flex-shrink-0 mr-1 h-4 w-4 text-gray-400" />
                               <span className="truncate max-w-[100px]">{form.mobileNumber || 'No phone'}</span>
                             </div>
+                            <div className="text-xs text-gray-500 mt-1 truncate max-w-[120px]">
+                              {form.city || 'No city'} · {formatContactTime(form.preferredContactTime)}
+                            </div>
                           </div>
                         </td>
                         <td className="px-4 py-3">
@@ -536,6 +646,17 @@ const EnrollmentManagement: React.FC = () => {
                           {form.hasPriorExperience === "yes" && (
                             <div className="text-xs text-gray-500 truncate max-w-[80px]" title={form.experienceDetails}>
                               {form.experienceDetails}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap">
+                          {contactStatusBadge(form.contactStatus)}
+                          {form.adminNotes && (
+                            <div
+                              className="text-xs text-gray-500 truncate max-w-[110px] mt-1"
+                              title={form.adminNotes}
+                            >
+                              {form.adminNotes}
                             </div>
                           )}
                         </td>
@@ -560,7 +681,7 @@ const EnrollmentManagement: React.FC = () => {
                             <button
                               onClick={() => updatePaymentStatus(form._id, "completed")}
                               className="text-green-600 hover:text-green-900 p-1 rounded-full hover:bg-green-50"
-                              title="Mark as completed"
+                              title="Mark as paid & enroll student"
                               disabled={form.paymentStatus === "completed"}
                             >
                               <CheckCircle className="h-4 w-4" />
@@ -707,7 +828,7 @@ const EnrollmentManagement: React.FC = () => {
             <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-gray-50 p-4 rounded-lg">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Student Information</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Contact Details</h3>
                   <div className="space-y-3">
                     <div>
                       <p className="text-sm font-medium text-gray-500">Full Name</p>
@@ -715,16 +836,49 @@ const EnrollmentManagement: React.FC = () => {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-500">Email</p>
-                      <p className="text-sm text-gray-900">{selectedForm.email || 'No email provided'}</p>
+                      {selectedForm.email ? (
+                        <a href={`mailto:${selectedForm.email}`} className="text-sm text-indigo-600 hover:underline">
+                          {selectedForm.email}
+                        </a>
+                      ) : (
+                        <p className="text-sm text-gray-900">No email provided</p>
+                      )}
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-500">Mobile Number</p>
-                      <p className="text-sm text-gray-900">{selectedForm.mobileNumber || 'No phone provided'}</p>
+                      {selectedForm.mobileNumber ? (
+                        <a href={`tel:${selectedForm.mobileNumber.replace(/\s/g, '')}`} className="text-sm text-indigo-600 hover:underline">
+                          {selectedForm.mobileNumber}
+                        </a>
+                      ) : (
+                        <p className="text-sm text-gray-900">No phone provided</p>
+                      )}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-500">Current Student</p>
+                      <p className="text-sm font-medium text-gray-500">WhatsApp</p>
+                      {selectedForm.whatsappNumber ? (
+                        <a
+                          href={`https://wa.me/${selectedForm.whatsappNumber.replace(/[^0-9]/g, '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-green-600 hover:underline"
+                        >
+                          {selectedForm.whatsappNumber}
+                        </a>
+                      ) : (
+                        <p className="text-sm text-gray-900">Not provided</p>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">City</p>
+                      <p className="text-sm text-gray-900">{selectedForm.city || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Preferred Contact</p>
                       <p className="text-sm text-gray-900">
-                        {selectedForm.isStudent === "yes" ? "Yes" : "No"}
+                        {formatContactMode(selectedForm.preferredContactMode)}
+                        {" · "}
+                        {formatContactTime(selectedForm.preferredContactTime)}
                       </p>
                     </div>
                   </div>
@@ -755,22 +909,89 @@ const EnrollmentManagement: React.FC = () => {
                 </div>
 
                 <div className="md:col-span-2 bg-gray-50 p-4 rounded-lg">
-                  <h3 className="text-lg font-medium text-gray-900 mb-4">Experience Information</h3>
-                  <div className="space-y-3">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Background</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Currently a Student</p>
+                      <p className="text-sm text-gray-900">{selectedForm.isStudent === "yes" ? "Yes" : "No"}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Highest Qualification</p>
+                      <p className="text-sm text-gray-900">{selectedForm.highestQualification || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">
+                        {selectedForm.isStudent === "yes" ? "College / University" : "Current Company"}
+                      </p>
+                      <p className="text-sm text-gray-900">{selectedForm.collegeOrCompany || 'Not provided'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Heard About Us Via</p>
+                      <p className="text-sm text-gray-900 capitalize">{selectedForm.heardAboutUs || 'Not provided'}</p>
+                    </div>
                     <div>
                       <p className="text-sm font-medium text-gray-500">Prior Experience</p>
                       <p className="text-sm text-gray-900">
                         {selectedForm.hasPriorExperience === "yes" ? "Yes" : "No"}
                       </p>
                     </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Requested Batch</p>
+                      <p className="text-sm text-gray-900">
+                        {selectedForm.batch?.name || 'No specific batch'}
+                      </p>
+                    </div>
                     {selectedForm.hasPriorExperience === "yes" && (
-                      <div>
+                      <div className="md:col-span-2">
                         <p className="text-sm font-medium text-gray-500">Experience Details</p>
                         <p className="text-sm text-gray-900 whitespace-pre-wrap">
                           {selectedForm.experienceDetails}
                         </p>
                       </div>
                     )}
+                    {selectedForm.message && (
+                      <div className="md:col-span-2">
+                        <p className="text-sm font-medium text-gray-500">Their Message</p>
+                        <p className="text-sm text-gray-900 whitespace-pre-wrap">{selectedForm.message}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Follow-up tracking */}
+                <div className="md:col-span-2 bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4">Follow-up</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-500 mb-1">Contact Status</label>
+                      <select
+                        value={contactDraft.contactStatus}
+                        onChange={(e) => setContactDraft({ ...contactDraft, contactStatus: e.target.value })}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      >
+                        <option value="not_contacted">Not contacted yet</option>
+                        <option value="contacted">Contacted</option>
+                        <option value="follow_up">Needs follow-up</option>
+                        <option value="not_interested">Not interested</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-500 mb-1">Internal Notes</label>
+                      <textarea
+                        rows={3}
+                        value={contactDraft.adminNotes}
+                        onChange={(e) => setContactDraft({ ...contactDraft, adminNotes: e.target.value })}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="What was discussed, when to call back, agreed amount..."
+                      />
+                    </div>
+                    <button
+                      onClick={() => saveContactStatus(selectedForm._id)}
+                      disabled={savingContact}
+                      className="px-4 py-2 bg-amber-600 text-white text-sm font-semibold rounded-lg hover:bg-amber-700 disabled:opacity-60"
+                    >
+                      {savingContact ? "Saving..." : "Save follow-up"}
+                    </button>
                   </div>
                 </div>
               </div>

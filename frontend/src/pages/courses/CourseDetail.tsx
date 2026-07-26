@@ -40,6 +40,8 @@ const CourseDetail: React.FC = () => {
   const [enrollment, setEnrollment] = useState<Enrollment | null>(null);
   const [loading, setLoading] = useState(true);
   const [showEnrollmentForm, setShowEnrollmentForm] = useState(false);
+  // Set once a paid-course request is recorded - our team then contacts the student.
+  const [requestSubmitted, setRequestSubmitted] = useState(false);
 
   // ✅ Section Refs
   const sectionRefs: Record<string, React.RefObject<HTMLDivElement>> = {
@@ -100,162 +102,34 @@ const CourseDetail: React.FC = () => {
   };
 
   const handleEnrollmentFormSubmit = async (formData: any) => {
-    try {
-      // Submit enrollment form
-      const formResponse = await enrollmentFormAPI.submitForm(formData);
-      console.log("Enrollment form submitted successfully:", formResponse.data);
-      
-      // Close the form
-      setShowEnrollmentForm(false);
-      
-      // Show success message
-      alert("Enrollment form submitted successfully! Proceeding to payment...");
-      
-      // Proceed with payment
-      await processPayment();
-    } catch (error: any) {
-      console.error("Error submitting enrollment form:", error);
-      alert(error.response?.data?.message || "Failed to submit enrollment form");
-      // Keep the form open if submission failed
-    }
-  };
-
-  const processPayment = async () => {
     if (!course) return;
 
-    // 🆓 Free course → enroll directly
-    if (course.price === 0) {
-      try {
-        await enrollmentAPI.enrollInCourse(course._id);
-        await fetchCourseData();
-        navigate(`/learn/${course._id}`);
-      } catch (error: any) {
-        console.error("Error enrolling free course:", error);
-        alert("Failed to enroll in free course: " + (error.response?.data?.message || error.message));
-      }
-      return;
-    }
-
-    // 💳 Paid course → Razorpay flow
     try {
-      // 1. Create Razorpay order from backend using our API client
-      const orderRes = await fetch(`${(import.meta as any).env?.VITE_API_BASE_URL || "https://rass1.onrender.com/api"}/payments/order`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ courseId: course._id }),
-      });
+      // Record the request. This is the lead our team follows up on.
+      await enrollmentFormAPI.submitForm(formData);
+      setShowEnrollmentForm(false);
 
-      // Check if the response is successful
-      if (!orderRes.ok) {
-        const errorData = await orderRes.json();
-        console.error("Payment order creation failed:", errorData);
-        alert(`Failed to create payment order: ${errorData.message || "Unknown error"}`);
+      // Free courses still grant access immediately - there is nothing to collect.
+      if (course.price === 0) {
+        try {
+          await enrollmentAPI.enrollInCourse(course._id, formData?.batchId || undefined);
+          await fetchCourseData();
+          navigate(`/learn/${course._id}`);
+        } catch (error: any) {
+          alert(
+            "Failed to enroll in this free course: " +
+              (error.response?.data?.message || error.message)
+          );
+        }
         return;
       }
 
-      const responseData = await orderRes.json();
-      const { order } = responseData;
-      
-      if (!order) {
-        console.error("No order in response:", responseData);
-        alert("Failed to create payment order: No order data received");
-        return;
-      }
-
-      const options = {
-        key: (import.meta as any).env?.VITE_RAZORPAY_KEY_ID || "rzp_test_RfTsUpkyueFD5f", // ✅ Use env var
-        amount: order.amount,
-        currency: order.currency,
-        name: "RAAS Academy",
-        description: `Payment for ${course.title}`,
-        order_id: order.id,
-        handler: async function (response: any) {
-          try {
-            const verifyRes = await fetch(
-              `${(import.meta as any).env?.VITE_API_BASE_URL || "https://rass1.onrender.com/api"}/payments/verify`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-                body: JSON.stringify({
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_signature: response.razorpay_signature,
-                  courseId: course._id,
-                }),
-              }
-            );
-
-            if (!verifyRes.ok) {
-              const errorData = await verifyRes.json();
-              console.error("Payment verification failed:", errorData);
-              alert(`Payment verification failed: ${errorData.message || "Unknown error"}`);
-              return;
-            }
-
-            const result = await verifyRes.json();
-
-            if (result.success) {
-              // Instead of immediately fetching course data, check if enrollment is confirmed
-              const maxRetries = 5;
-              let retries = 0;
-              
-              const checkEnrollment = async () => {
-                try {
-                  const enrollmentsRes = await enrollmentAPI.getMyEnrollments();
-                  const userEnrollment = enrollmentsRes.data.find(
-                    (e: Enrollment) => e.course._id === course._id
-                  );
-                  
-                  if (userEnrollment) {
-                    // Enrollment confirmed, now navigate
-                    await fetchCourseData();
-                    navigate(`/learn/${course._id}`);
-                  } else if (retries < maxRetries) {
-                    // Retry after a short delay
-                    retries++;
-                    setTimeout(checkEnrollment, 1000);
-                  } else {
-                    // Max retries reached, still navigate but show warning
-                    await fetchCourseData();
-                    navigate(`/learn/${course._id}`);
-                    console.warn("Enrollment confirmation timed out, but proceeding to course");
-                  }
-                } catch (err) {
-                  console.error("Error checking enrollment status:", err);
-                  // Still navigate to course
-                  await fetchCourseData();
-                  navigate(`/learn/${course._id}`);
-                }
-              };
-              
-              // Start checking enrollment
-              checkEnrollment();
-            } else {
-              alert("Payment verified but enrollment failed: " + (result.message || "Unknown error"));
-            }
-          } catch (err) {
-            console.error("Verification error:", err);
-            alert("Something went wrong verifying payment.");
-          }
-        },
-        prefill: {
-          name: "Student",
-          email: "student@example.com",
-        },
-        theme: { color: "#6366f1" },
-      };
-
-      const razor = new (window as any).Razorpay(options);
-      razor.open();
+      // Paid courses: payment is collected offline, so confirm and stop here.
+      setRequestSubmitted(true);
     } catch (error: any) {
-      console.error("Payment error:", error);
-      alert(`Something went wrong during payment: ${error.message || "Unknown error"}`);
+      console.error("Error submitting enrollment request:", error);
+      alert(error.response?.data?.message || "Failed to submit your request. Please try again.");
+      // Keep the form open so the details aren't lost
     }
   };
 
@@ -436,11 +310,52 @@ const CourseDetail: React.FC = () => {
 
       {/* Enrollment Form Modal */}
       {showEnrollmentForm && (
-        <EnrollmentForm 
-          course={course} 
-          onSubmit={handleEnrollmentFormSubmit} 
-          onCancel={() => setShowEnrollmentForm(false)} 
+        <EnrollmentForm
+          course={course}
+          onSubmit={handleEnrollmentFormSubmit}
+          onCancel={() => setShowEnrollmentForm(false)}
         />
+      )}
+
+      {/* Confirmation shown after a paid-course request is recorded */}
+      {requestSubmitted && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl p-8 text-center">
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+              <svg
+                className="h-8 w-8 text-green-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">Request received</h2>
+            <p className="text-gray-600 mb-2">
+              Thanks for your interest in <span className="font-semibold">{course.title}</span>.
+            </p>
+            <p className="text-gray-600 mb-6">
+              Our team will contact you shortly on the phone number and email you provided to
+              confirm your enrollment and arrange the payment.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => setRequestSubmitted(false)}
+                className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => navigate("/courses")}
+                className="flex-1 px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+              >
+                Browse more courses
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <Footer />

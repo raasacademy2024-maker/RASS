@@ -150,12 +150,19 @@ const ManageCourses: React.FC = () => {
   };
 
   const handleDeleteCourse = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this course?")) return;
+    if (
+      !confirm(
+        "Delete this course permanently?\n\nThis also removes its batches, enrollments, enrollment requests, assignments, quizzes, certificates and related records. This cannot be undone."
+      )
+    )
+      return;
     try {
       await courseAPI.deleteCourse(id);
       fetchCourses();
     } catch (err: any) {
-      alert(err.message);
+      // Surface the server's message - err.message alone is just
+      // "Request failed with status code 404".
+      alert(err?.response?.data?.message || err?.message || "Failed to delete course.");
     }
   };
 
