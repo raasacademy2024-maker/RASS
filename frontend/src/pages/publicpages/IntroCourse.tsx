@@ -181,7 +181,6 @@ const IntroCourse: React.FC = () => {
                   >
                     {course.level}
                   </span>
-                  <span className="font-bold text-indigo-600">₹{course.price}</span>
                 </div>
 
                 {/* Always-visible View Details Button */}

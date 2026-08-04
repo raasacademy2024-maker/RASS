@@ -265,8 +265,6 @@ const CourseDetail: React.FC = () => {
       instructor: course.instructor?.name || 'RAAS Academy Expert',
       provider: 'RAAS Academy',
       imageUrl: resolveImageUrl(course.thumbnail),
-      price: course.price,
-      currency: 'INR',
       duration: `PT${Math.round(course.totalDuration / 60)}H`,
       level: course.level,
     }),

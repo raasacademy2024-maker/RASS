@@ -31,13 +31,10 @@ const FeeRegistration: React.FC<Props> = ({ course, enrollment, onEnroll, reques
     <section className="bg-gradient-to-r from-indigo-600 to-indigo-700 rounded-2xl shadow-lg text-white p-10 text-center">
       <h2 className="text-3xl font-bold mb-6">Course Fee & Registration</h2>
 
-      <div className="text-5xl font-extrabold mb-4">
-        {course.price === 0 ? "Free" : `₹${course.price}`}
-      </div>
       <p className="text-indigo-100 mb-6">
         {course.price === 0
           ? "Free access to content, projects, and placement support."
-          : "One-time fee. Lifetime access to content, projects, and placement support. Share your details and our team will contact you to complete the payment."}
+          : "Lifetime access to content, projects, and placement support. Share your details and our team will contact you with the fee details."}
       </p>
 
       {/* Perks */}

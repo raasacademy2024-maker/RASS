@@ -146,9 +146,7 @@ const CourseCatalog: React.FC = () => {
   const sortOptions = [
     { value: "popular", label: "Most Popular" },
     { value: "rating", label: "Highest Rated" },
-    { value: "duration", label: "Longest Duration" },
-    { value: "price-low", label: "Price: Low to High" },
-    { value: "price-high", label: "Price: High to Low" }
+    { value: "duration", label: "Longest Duration" }
   ];
 
   // Mock Smartphone and Brain icons since they're not in Lucide
@@ -466,13 +464,10 @@ const CourseCatalog: React.FC = () => {
                         {course.description}
                       </p>
 
-                      {/* Instructor & Price */}
+                      {/* Instructor */}
                       <div className="flex items-center justify-between mb-4">
                         <span className="text-xs text-gray-500">
                           By {course.instructor?.name || "Industry Expert"}
-                        </span>
-                        <span className="text-2xl font-bold text-indigo-600">
-                          ₹{course.price}
                         </span>
                       </div>
 

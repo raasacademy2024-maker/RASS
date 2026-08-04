@@ -1,33 +1,33 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
-import StudentDashboard from './pages/student/Dashboard';
-import InstructorDashboard from './pages/instructor/Dashboard';
-import AdminDashboard from './pages/admin/Dashboard';
+const StudentDashboard = lazy(() => import('./pages/student/Dashboard'));
+const InstructorDashboard = lazy(() => import('./pages/instructor/Dashboard'));
+const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
 import CourseCatalog from './pages/courses/CourseCatalog';
 import CourseDetail from './pages/courses/CourseDetail';
-import CoursePlayer from './pages/courses/CoursePlayer';
+const CoursePlayer = lazy(() => import('./pages/courses/CoursePlayer'));
 import Profile from './pages/Profile';
-import LiveSessions from './pages/student/LiveSessions';
-import Assignments from './pages/student/Assignments';
-import Certificates from './pages/student/Certificates';
-import Support from './pages/student/Support';
-import CourseManagement from './pages/instructor/CourseManagement';
-import Students from './pages/instructor/Students';
-import BatchManagement from './pages/instructor/BatchManagement';
-import AdminBatchManagement from './pages/admin/BatchManagement';
-import UserManagement from './pages/admin/UserManagement';
+const LiveSessions = lazy(() => import('./pages/student/LiveSessions'));
+const Assignments = lazy(() => import('./pages/student/Assignments'));
+const Certificates = lazy(() => import('./pages/student/Certificates'));
+const Support = lazy(() => import('./pages/student/Support'));
+const CourseManagement = lazy(() => import('./pages/instructor/CourseManagement'));
+const Students = lazy(() => import('./pages/instructor/Students'));
+const BatchManagement = lazy(() => import('./pages/instructor/BatchManagement'));
+const AdminBatchManagement = lazy(() => import('./pages/admin/BatchManagement'));
+const UserManagement = lazy(() => import('./pages/admin/UserManagement'));
 import { NotificationProvider } from "./context/NotificationContext";
-import DiscussionForum from './pages/student/DiscussionForum';
-import Notifications from './pages/student/Notifications';
-import Chat from './pages/student/Chat';
-import AddUserPage from './pages/admin/AddUserPage';
-import AddCoursePage from "./pages/admin/AddCoursePage";
-import InstructorDiscussions from './pages/instructor/InstructorDiscussions';
-import InstructorChats from './pages/instructor/InstructorChats';
+const DiscussionForum = lazy(() => import('./pages/student/DiscussionForum'));
+const Notifications = lazy(() => import('./pages/student/Notifications'));
+const Chat = lazy(() => import('./pages/student/Chat'));
+const AddUserPage = lazy(() => import('./pages/admin/AddUserPage'));
+const AddCoursePage = lazy(() => import('./pages/admin/AddCoursePage'));
+const InstructorDiscussions = lazy(() => import('./pages/instructor/InstructorDiscussions'));
+const InstructorChats = lazy(() => import('./pages/instructor/InstructorChats'));
 import HelpCenter from './pages/publicpages/Help';
 import BlogPage from './pages/publicpages/Blog';
 import About from './pages/publicpages/About';
@@ -36,24 +36,24 @@ import Terms from './pages/publicpages/Terms';
 import PrivacyPolicy from './pages/publicpages/PrivacyPolicy'; // Added import for Privacy Policy
 import Companies from './pages/Companies';
 import UniversitiesPage from './pages/UniversitiesPage';
-import AdminTicketsPage from './pages/admin/SupportManagement';
-import MediaPresenceManagement from './pages/admin/MediaPresenceManagement';
-import ManageEventsPage from './pages/admin/ManageEventsPage'; // Added import for event management
+const AdminTicketsPage = lazy(() => import('./pages/admin/SupportManagement'));
+const MediaPresenceManagement = lazy(() => import('./pages/admin/MediaPresenceManagement'));
+const ManageEventsPage = lazy(() => import('./pages/admin/ManageEventsPage')); // Added import for event management
 import EventDetailPage from './pages/events/EventDetailPage'; // Added import for event detail page
 import AllEventsPage from './pages/events/AllEventsPage'; // Added import for all events page
 import ScrollToTop from "./pages/ScrollToTop";
 import StudentAmbassadorForm from './pages/StudentAmbassadorForm';
-import StudentAmbassadorList from './pages/admin/StudentAmbassadorList';
+const StudentAmbassadorList = lazy(() => import('./pages/admin/StudentAmbassadorList'));
 import CompanyPartnershipForm from './pages/CompanyPartnershipForm';
-import CompanyPartnershipList from './pages/admin/CompanyPartnershipForm';
+const CompanyPartnershipList = lazy(() => import('./pages/admin/CompanyPartnershipForm'));
 import UniversityPartnershipForm from './pages/UniversityPartnershipForm';
-import UniversityPartnershipList from './pages/admin/UniversityPartnershipList';
-import EnrollmentManagement from './pages/admin/EnrollmentManagement';
-import AdminBatchAnalytics from './pages/admin/BatchAnalytics';
-import InstructorBatchAnalytics from './pages/instructor/BatchAnalytics';
-import AdminCertificateManagement from './pages/admin/CertificateManagement';
-import InstructorCertificates from './pages/instructor/Certificates';
-import NotificationManagement from './pages/admin/NotificationManagement';
+const UniversityPartnershipList = lazy(() => import('./pages/admin/UniversityPartnershipList'));
+const EnrollmentManagement = lazy(() => import('./pages/admin/EnrollmentManagement'));
+const AdminBatchAnalytics = lazy(() => import('./pages/admin/BatchAnalytics'));
+const InstructorBatchAnalytics = lazy(() => import('./pages/instructor/BatchAnalytics'));
+const AdminCertificateManagement = lazy(() => import('./pages/admin/CertificateManagement'));
+const InstructorCertificates = lazy(() => import('./pages/instructor/Certificates'));
+const NotificationManagement = lazy(() => import('./pages/admin/NotificationManagement'));
 import NotFound from './pages/NotFound';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; roles?: string[] }> = ({ 
@@ -101,6 +101,15 @@ const AppRoutes: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
 
+      {/* Dashboard/admin routes are code-split, so a fallback is required while
+          their chunk loads. Public pages stay eagerly bundled for fast first paint. */}
+      <Suspense
+        fallback={
+          <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600" />
+          </div>
+        }
+      >
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/StudentAmbassadorForm" element={<StudentAmbassadorForm />} />
@@ -275,6 +284,7 @@ const AppRoutes: React.FC = () => {
         <Route path="*" element={<NotFound />} />
     
       </Routes>
+      </Suspense>
     </div>
   );
 };

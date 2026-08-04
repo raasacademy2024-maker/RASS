@@ -171,8 +171,6 @@ const CourseShowcase = () => {
               >
                 <option value="popularity">Sort by: Popularity</option>
                 <option value="rating">Sort by: Highest Rating</option>
-                <option value="price-low">Sort by: Price: Low to High</option>
-                <option value="price-high">Sort by: Price: High to Low</option>
               </select>
             </div>
           </div>
@@ -267,14 +265,6 @@ const CourseCard = ({ course }) => {
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
   };
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(price);
-  };
-
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
       {/* Course Image */}
@@ -342,10 +332,7 @@ const CourseCard = ({ course }) => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between">
-          <div className="text-2xl font-bold text-gray-900">
-            {formatPrice(course.price)}
-          </div>
+        <div className="flex items-center justify-end">
           <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
             Enroll Now
           </button>
